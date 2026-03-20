@@ -1,0 +1,30 @@
+# Ignore everything by default
+*
+
+# Config files
+!.gitignore
+!CLAUDE.md
+!RTK.md
+!refactor-catalog.md
+!settings.json
+!statusline-command.sh
+!README.md
+
+# Hooks
+!hooks/
+!hooks/rtk-rewrite.sh
+
+# Agents
+!agents/
+!agents/*/
+!agents/*/Agent.md
+
+# Skills
+!skills/
+!skills/*/
+!skills/*/SKILL.md
+
+# Memory
+!memory/
+!memory/**
+!MEMORY.md
