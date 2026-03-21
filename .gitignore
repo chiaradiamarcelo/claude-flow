@@ -9,10 +9,15 @@
 !settings.json
 !statusline-command.sh
 !README.md
+!reviewers.json
 
 # Hooks
 !hooks/
 !hooks/rtk-rewrite.sh
+
+# Commands
+!commands/
+!commands/*.md
 
 # Agents
 !agents/
@@ -23,6 +28,10 @@
 !skills/
 !skills/*/
 !skills/*/SKILL.md
+
+# Examples
+!examples/
+!examples/*.json
 
 # Memory
 !memory/

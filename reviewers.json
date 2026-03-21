@@ -1,0 +1,14 @@
+[
+  {
+    "name": "test-reviewer",
+    "triggers": ["**/src/test/**", "**/*Test.*", "**/*IT.*", "**/*AT.*"]
+  },
+  {
+    "name": "arch-reviewer",
+    "triggers": ["**/src/main/**"]
+  },
+  {
+    "name": "refactor-advisor",
+    "triggers": ["**/src/main/**"]
+  }
+]
