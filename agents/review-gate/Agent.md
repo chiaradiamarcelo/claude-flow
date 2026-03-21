@@ -1,6 +1,7 @@
 ---
 name: review-gate
 description: Orchestrator that discovers all reviewer agents, filters by changed files, launches relevant ones in parallel, and returns consolidated findings.
+type: orchestrator
 tools: Read, Glob, Grep, Bash, Agent
 model: sonnet
 ---
@@ -30,44 +31,44 @@ git ls-files
 
 This ensures reviewers always have files to match against.
 
-### Step 2: Load reviewer roster
+### Step 2: Discover reviewer agents
 
-Read the global reviewer table:
-
-```
-Read("/Users/mchiaradia/.claude/reviewers.json")
-```
-
-Then check if a project-specific table exists and read it:
+Use the `Grep` tool to find all agents with `type: reviewer` in their frontmatter. Run both searches in parallel (single message):
 
 ```
-Read(".claude/reviewers.json")
+Grep(pattern="type: reviewer", path="/Users/mchiaradia/.claude/agents/", glob="**/Agent.md")
+Grep(pattern="type: reviewer", path=".claude/agents/", glob="**/Agent.md")
 ```
 
-Run both reads in parallel (single message). The project read may fail (file doesn't exist) — that's fine, it just means no project-specific reviewers.
+The project grep may find nothing — that's fine.
 
-Each file is a JSON array of objects with `name` and `triggers`:
+For each matched file, use the `Read` tool to read only the first 10 lines (the frontmatter). Check that `type: reviewer` appears **inside the YAML frontmatter block** (between the `---` markers), not in the body text. Discard any file where `type: reviewer` only appears in the body.
+
+From each valid reviewer's frontmatter, extract `name` and `triggers`. Read all matched files in parallel (single message).
+
+### Step 3: Apply project trigger overrides
+
+Check if `.claude/review-triggers.json` exists in the project root. If it does, read it. It maps reviewer names to override trigger patterns:
 
 ```json
-[
-  { "name": "test-reviewer", "triggers": ["**/src/test/**", "**/*Test.*"] },
-  { "name": "arch-reviewer", "triggers": ["**/src/main/**"] }
-]
+{
+  "test-reviewer": ["**/*.spec.ts", "**/*.test.ts", "**/__tests__/**"]
+}
 ```
 
-**Merge rule**: start with the global list. For each entry in the project list:
-- If the `name` matches a global entry, **replace** the global triggers with the project triggers (project wins).
-- If the `name` is new, **add** it to the roster (project-only reviewer).
+For each discovered reviewer:
+- If the reviewer's `name` has an entry in `review-triggers.json`, **replace** its frontmatter triggers with the override.
+- If no entry exists, keep the frontmatter triggers as-is.
 
-The merged list is the full reviewer roster.
+If the file doesn't exist, skip this step.
 
-### Step 3: Filter by relevance
+### Step 4: Filter by relevance
 
 For each reviewer, check if ANY changed file matches ANY of its `triggers` glob patterns (after overrides). Use simple path matching — a trigger like `**/src/test/**` matches any changed file containing `src/test/` in its path.
 
 Skip reviewers with no matching files. Log which reviewers are skipped and why.
 
-### Step 4: Launch relevant reviewers in parallel
+### Step 5: Launch relevant reviewers in parallel
 
 **You MUST use the `Agent` tool to spawn each matching reviewer as a sub-agent.** Use the reviewer's `name` as the `subagent_type` parameter. Spawn ALL matching reviewers in a **single message** (multiple Agent tool calls in one response) so they run concurrently.
 
@@ -79,7 +80,7 @@ Do NOT read source code and review it yourself. Do NOT run reviewers one at a ti
 
 If no reviewers match, return "No reviewers triggered — all changes are outside reviewer coverage."
 
-### Step 5: Consolidate findings
+### Step 6: Consolidate findings
 
 Collect all results. Produce a single structured report:
 

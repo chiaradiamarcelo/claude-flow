@@ -1,0 +1,5 @@
+{
+  "test-reviewer": ["**/*.spec.ts", "**/*.test.ts", "**/__tests__/**"],
+  "arch-reviewer": ["**/src/**", "!**/*.spec.ts", "!**/*.test.ts"],
+  "refactor-advisor": ["**/src/**", "!**/*.spec.ts", "!**/*.test.ts"]
+}

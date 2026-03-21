@@ -9,7 +9,6 @@
 !settings.json
 !statusline-command.sh
 !README.md
-!reviewers.json
 
 # Hooks
 !hooks/

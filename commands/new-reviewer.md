@@ -66,24 +66,17 @@ Report findings grouped by severity:
 - Positive notes for clean patterns observed
 ```
 
-## Step 4: Register in the reviewer table
+## Step 4: Project trigger overrides
 
-After creating the agent file, register it in the appropriate `reviewers.json` table:
-
-- **Global reviewer** → read `/Users/mchiaradia/.claude/reviewers.json`, append the new entry, write back.
-- **Project-specific reviewer** → read `.claude/reviewers.json` (create it if it doesn't exist as an empty `[]`), append the new entry, write back.
-
-Each entry has this format:
+If the reviewer is **global** but the user mentions it will be used in projects with different file conventions (e.g., TypeScript uses `*.spec.ts` instead of `*Test.*`), inform them they can override triggers per project by adding an entry to `.claude/review-triggers.json`:
 
 ```json
-{ "name": "<reviewer-name>", "triggers": ["<glob patterns>"] }
+{
+  "<reviewer-name>": ["**/*.spec.ts", "**/*.test.ts"]
+}
 ```
 
-This table is what the `review-gate` reads at runtime to discover reviewers. The agent file alone is not enough — it must also be in the table.
-
-## Step 5: Project trigger overrides
-
-If the reviewer is **global** but the user mentions it will be used in projects with different file conventions (e.g., TypeScript uses `*.spec.ts` instead of `*Test.*`), inform them they can override triggers per project by adding an entry with the same `name` but different `triggers` to the project's `.claude/reviewers.json`. The project entry's triggers replace the global ones.
+The review-gate reads this file and replaces the agent's frontmatter triggers with the override. Only reviewers that need different patterns need an entry.
 
 ## Step 6: Confirm
 

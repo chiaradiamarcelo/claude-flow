@@ -1,7 +1,7 @@
 ---
 description: Run the review gate on a specific path or the entire project. Use for ad-hoc reviews on legacy code or any folder outside the normal pipeline flow.
 argument-hint: <paths, e.g. src/main, src/test>
-allowed-tools: Read, Glob, Bash, Agent
+allowed-tools: Read, Glob, Grep, Bash, Agent
 ---
 
 Run an ad-hoc review on: **$ARGUMENTS**
@@ -12,11 +12,14 @@ If no path was provided, review all source files in the project.
 
 The argument may contain one or more comma-separated paths (e.g., `src/main, src/test`). Split on commas and trim whitespace.
 
-If paths were provided, list all files under each path:
+If paths were provided, use the `Glob` tool to list all files under each path:
 
-```bash
-find <path1> <path2> ... -type f -not -path '*/\.*'
 ```
+Glob(pattern="**/*", path="<path1>")
+Glob(pattern="**/*", path="<path2>")
+```
+
+Run all globs in parallel (single message).
 
 If no paths were provided, list all tracked files:
 
@@ -26,22 +29,28 @@ git ls-files
 
 Collect all file paths into a single deduplicated list.
 
-## Step 2: Load reviewer roster
+## Step 2: Discover reviewer agents
 
-Read both reviewer tables in parallel:
+Use the `Grep` tool to find all agents with `type: reviewer` in their frontmatter. Run both searches in parallel:
 
 ```
-Read("/Users/mchiaradia/.claude/reviewers.json")
-Read(".claude/reviewers.json")
+Grep(pattern="type: reviewer", path="/Users/mchiaradia/.claude/agents/", glob="**/Agent.md")
+Grep(pattern="type: reviewer", path=".claude/agents/", glob="**/Agent.md")
 ```
 
-The project table may not exist — that's fine. Merge using the same rules as the review-gate: project entries override global entries with the same name, new names are added.
+For each matched file, use the `Read` tool to read only the first 10 lines (the frontmatter). Check that `type: reviewer` appears **inside the YAML frontmatter block** (between the `---` markers), not in the body text. Discard any file where it only appears in the body.
 
-## Step 3: Filter by relevance
+From each valid reviewer's frontmatter, extract `name` and `triggers`. Read all matched files in parallel.
 
-For each reviewer, check if ANY target file matches ANY of its `triggers` glob patterns. Skip reviewers with no matching files.
+## Step 3: Apply project trigger overrides
 
-## Step 4: Launch relevant reviewers in parallel
+Check if `.claude/review-triggers.json` exists in the project root. If it does, read it and override triggers for matching reviewer names. If it doesn't exist, skip this step.
+
+## Step 4: Filter by relevance
+
+For each reviewer, check if ANY target file matches ANY of its `triggers` glob patterns (after overrides). Skip reviewers with no matching files.
+
+## Step 5: Launch relevant reviewers in parallel
 
 Spawn all matching reviewers in a **single message** using the `Agent` tool:
 
@@ -51,7 +60,7 @@ Agent(subagent_type="<name>", prompt="Review the code in this project. Focus on 
 
 Do NOT review code yourself — only orchestrate.
 
-## Step 5: Report
+## Step 6: Report
 
 Consolidate all findings into a single report:
 
