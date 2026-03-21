@@ -188,7 +188,9 @@ Then edit the patterns to match your project's conventions. Available templates:
 | `agents/test-reviewer/` | Reviews test quality (GWT, naming, fakes, coverage) |
 | `agents/arch-reviewer/` | Reviews Clean Architecture compliance |
 | `agents/refactor-advisor/` | Suggests clean code improvements |
-| `skills/` | Custom skills (tdd, testing) |
+| `skills/clean-architecture/` | Folder structure, dependency rules, design and code conventions |
+| `skills/tdd/` | TDD red-green-refactor cycle enforcement |
+| `skills/testing/` | Test structure, naming, fakes, and coverage conventions |
 | `memory/` | Persistent file-based memory for cross-conversation context |
 
 ## Note
