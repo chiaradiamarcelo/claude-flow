@@ -94,7 +94,7 @@ Built-in reviewers:
 
 #### Step 4: Fix loop
 
-- **FAIL** (violations exist) → the developer is spawned again in fix mode with all findings. Then the review gate re-runs.
+- **FAIL** (violations exist) → the developer is spawned in fix mode with all findings and addresses everything in one pass. Scenario is done.
 - **PASS** (no violations) → scenario is done.
 
 ### Scenarios run sequentially

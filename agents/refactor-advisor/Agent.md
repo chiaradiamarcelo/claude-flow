@@ -37,6 +37,7 @@ You are called AFTER all tests are green. Suggest improvements without changing 
 ### Domain model completeness
 - Invalid states constructible from outside.
 - Missing invariants in constructors/factories.
+- Raw conditionals in domain validation that should be extracted to intent-revealing predicate methods (e.g., `isNegative(amount)` instead of `amount.compareTo(ZERO) <= 0`).
 
 ### Naming
 - Use business terms consistently.

@@ -22,14 +22,20 @@ src/main/
 src/test/
   application/
     usecase/         # Use case unit tests
-    contract/        # Contract tests for domain ports
-    fakes/           # Fake implementations for tests
-    domain/          # Tests for domain entities (e.g., value object equality)
+    contract/        # Abstract contract tests for domain ports
+    fakes/           # Fake implementations + their contract test subclasses
+    domain/          # Tests for domain entities (only when combinatorial explosion justifies it)
   api/
     controller/      # API layer tests
   infrastructure/
-    repository/      # Integration tests for real adapters
+    repository/      # Integration tests for real adapters + adapter contract test subclasses
 ```
+
+### Contract test placement rule
+
+Abstract contract tests live in `contract/`. Contract test *implementations* live next to their corresponding implementation:
+- Fake's contract test → `fakes/` (next to the fake)
+- Adapter's contract test → `infrastructure/repository/` (next to the adapter)
 
 ## Dependency rule (strict)
 
@@ -41,7 +47,11 @@ src/test/
 
 ## Design
 
-- **Entities / Value Objects**: immutable where possible; enforce invariants in constructors/factories.
+- **Entities / Value Objects**: prefer immutability when possible; enforce invariants in constructors/factories.
+  - Prefer returning new instances from mutation methods over mutating internal state. When framework constraints make this impractical (e.g., ORM-managed entities), mutation is acceptable but should be documented.
+  - Entities with identity must implement equality based on their identity field(s).
+  - Accessor methods: avoid `get` prefix. Use `accountId()` instead of `getAccountId()`, `balance()` instead of `getBalance()`.
+  - Extract validation conditionals into intent-revealing private methods (e.g., `isNegative(amount)`, `exceedsLimit(amount)`) instead of inline comparisons.
 - **Use cases**: one class per business action; orchestrate only. **Do not use interfaces for Use Cases**; use the concrete class directly.
 - **DTOs**: default to `api/dto/`; for small records with no behavior used by only one controller, keep them nested inside that controller.
 - **Mappers**: isolate translations across layers.
@@ -56,6 +66,7 @@ src/test/
 - Keep business invariants in domain, not in persistence entities.
 - Keep adapter methods thin and intention-revealing; avoid leaking infrastructure internals.
 - Validate schema compatibility in integration tests using migration tools and schema validation mode.
+- **Every port adapter MUST have a contract test** that extends the abstract contract test for its port. This verifies the real adapter satisfies the same contract as the fake.
 
 ## Code conventions
 

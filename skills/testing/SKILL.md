@@ -148,11 +148,11 @@ When designing 4xx tests, distinguish source of failure:
 
 ## Public API & Logical Extraction
 
-**Default**: test domain logic through the use case (the public API). Do not create isolated domain entity tests unless the use case tests would cause combinatorial explosion.
+**Default**: the use case test is the primary entry point for verifying behavior. Test domain logic — including validation, invariants, and edge cases — through the use case, not through isolated domain entity tests. Domain entity tests are the **exception**, not the norm.
 
 Do not widen visibility only for tests.
 
-**Exception**: when a domain class (e.g. a value object or calculator) has enough variants that testing all combinations through the use case would require excessive boilerplate, extract it into a focused class and test that class directly. This is the exception, not the norm.
+**Exception**: when a domain class (e.g. a value object or calculator) has enough variants that testing all combinations through the use case would require excessive boilerplate, extract it into a focused class and test that class directly. This must be justified by combinatorial complexity, not convenience.
 
 ## What to test
 

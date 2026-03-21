@@ -28,17 +28,26 @@ Each step is: `- [ ] Step N: \`ClassName\` — one-line label (e.g. red, green, 
 
 - [ ] Step 1: `WithdrawMoneyTest` — use case unit test (red)
 - [ ] Step 2: `BankAccountRepository` port interface (`application/port/`)
-- [ ] Step 3a: `FakeBankAccountRepository` fake (test sources, `application/fakes/`)
-- [ ] Step 3b: `BankAccountRepositoryContractTest` contract test
+- [ ] Step 3a: `FakeBankAccountRepository` fake (`application/fakes/`)
+- [ ] Step 3b: `BankAccountRepositoryContractTest` abstract contract test (`application/contract/`)
+- [ ] Step 3c: `FakeBankAccountRepositoryContractTest` fake contract impl (`application/fakes/`)
 - [ ] Step 4: `BankAccount` domain entity (`application/domain/`)
 - [ ] Step 5: `WithdrawMoney` use case (`application/usecase/`)
 - [ ] Step 6: `WithdrawMoneyControllerIT` controller slice test (red)
 - [ ] Step 7: Infrastructure adapter + persistence entity + migration
+- [ ] Step 7b: `BankAccountRepositoryAdapterContractTest` adapter contract impl (`infrastructure/repository/`)
 - [ ] Step 8: `WithdrawMoneyController` REST endpoint
 - [ ] Step 9: `WithdrawMoneyScenarioAT` acceptance test
 - [ ] Step 10: All tests green → mark SCENARIO-XX done
 ```
 
 Only include steps relevant to the scenario. Skip steps for layers that already exist and need no changes.
+
+## Planning rules
+
+- **Contract test implementations live next to their implementation**: fake contract test in `fakes/`, adapter contract test in `infrastructure/repository/`. Follow the `clean-architecture` skill placement rules.
+- **Every port adapter must have a contract test** extending the abstract contract test for its port.
+- **Test behavior through the use case, not the domain entity directly.** Domain entity tests are the exception — only plan them when combinatorial complexity makes testing through the use case impractical. The use case test is the primary entry point for verifying behavior.
+- **Domain entities with identity**: include equality implementation as part of the entity step, not as a separate step.
 
 Once the plan is written to disk, your work is done. Do not implement anything.
