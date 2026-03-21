@@ -28,7 +28,7 @@ Combine all results into a deduplicated list. If all commands return empty (e.g.
 git ls-files
 ```
 
-This ensures reviewers always have files to match against, even on a freshly committed codebase.
+This ensures reviewers always have files to match against.
 
 ### Step 2: Load reviewer roster
 

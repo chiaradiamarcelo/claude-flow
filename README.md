@@ -205,6 +205,7 @@ Available templates:
 | **Commands** | |
 | `commands/intent-and-goal.md` | `/intent-and-goal` — feature intent refinement and scenario generation |
 | `commands/new-reviewer.md` | `/new-reviewer` — guided creation and registration of reviewer agents |
+| `commands/run-reviewers.md` | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
 | **Agents — pipeline** | |
 | `agents/architect/` | Plans scenario implementation into the SoT file (invokes `clean-architecture` skill) |
 | `agents/developer/` | Implements the plan with strict TDD (invokes `clean-architecture`, `tdd`, `testing` skills) |
