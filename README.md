@@ -115,6 +115,20 @@ SCENARIO-02: architect → developer → review-gate → done
 SCENARIO-03: architect → developer → review-gate → done
 ```
 
+## Ad-hoc reviews
+
+To review code outside the normal pipeline (legacy code, full project audit, specific layers):
+
+```
+/run-reviewers src/main, src/test
+```
+
+- Accepts one or more comma-separated paths
+- Lists all files under each path, matches against reviewer triggers, spawns only relevant reviewers in parallel
+- `/run-reviewers src/test` → only `test-reviewer` runs
+- `/run-reviewers src/main` → only `arch-reviewer` + `refactor-advisor` run
+- `/run-reviewers` (no path) → reviews all tracked files in the project
+
 ## Adding a new reviewer
 
 Run:

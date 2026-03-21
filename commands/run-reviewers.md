@@ -1,6 +1,6 @@
 ---
 description: Run the review gate on a specific path or the entire project. Use for ad-hoc reviews on legacy code or any folder outside the normal pipeline flow.
-argument-hint: <path-to-review, e.g. src/main or src/test>
+argument-hint: <paths, e.g. src/main, src/test>
 allowed-tools: Read, Glob, Bash, Agent
 ---
 
@@ -10,19 +10,21 @@ If no path was provided, review all source files in the project.
 
 ## Step 1: List target files
 
-If a path was provided, list all files under it:
+The argument may contain one or more comma-separated paths (e.g., `src/main, src/test`). Split on commas and trim whitespace.
+
+If paths were provided, list all files under each path:
 
 ```bash
-find <path> -type f -not -path '*/\.*'
+find <path1> <path2> ... -type f -not -path '*/\.*'
 ```
 
-If no path was provided, list all tracked files:
+If no paths were provided, list all tracked files:
 
 ```bash
 git ls-files
 ```
 
-Collect all file paths into a list.
+Collect all file paths into a single deduplicated list.
 
 ## Step 2: Load reviewer roster
 
