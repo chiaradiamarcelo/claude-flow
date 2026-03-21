@@ -49,11 +49,22 @@ Scenario: <clear description>
 - Reuse existing domain objects when possible.
 - Do not suggest implementation details or architecture in this phase.
 
-## Phase 3: SoT Implementation Ledger Creation
+## Phase 3: SoT Creation
 
-Upon approval, create the SoT file at `docs/specifications/<feature-slug>.md`.
+Upon approval, create a folder at `docs/specifications/<feature-slug>/` and write the specification file inside it.
 
-### SoT Ledger Template
+### Folder structure
+
+```
+docs/specifications/<feature-slug>/
+  specification.md          # SoT — intent, rules, scenarios, progress
+  SCENARIO-01.md            # Created later by the architect agent
+  SCENARIO-02.md            # Created later by the architect agent
+```
+
+Only create `specification.md` in this phase. Scenario plan files are created by the architect agent.
+
+### Specification Template
 
 ```markdown
 # Specification: <Feature Name>
@@ -79,14 +90,4 @@ Upon approval, create the SoT file at `docs/specifications/<feature-slug>.md`.
 ## BDD Acceptance Progress
 - [ ] SCENARIO-01: <Title>
 - [ ] SCENARIO-02: <Title>
-
----
-
-## Implementation Plan for SCENARIO-01
-
-_(filled in by the architect agent before coding starts)_
-
-## Implementation Plan for SCENARIO-02
-
-_(filled in by the architect agent before coding starts)_
 ```

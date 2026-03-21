@@ -45,7 +45,7 @@ This command walks through three phases interactively:
 
 1. **Intent refinement** — clarifying questions to define the primary goal, secondary goals, and constraints.
 2. **Scenario generation** — proposes Gherkin scenarios (happy path, empty state, edge cases, errors) with unique IDs (`SCENARIO-01`, `SCENARIO-02`, ...). Iterate until satisfied.
-3. **SoT creation** — on approval, creates a Source of Truth specification file at `docs/specifications/<feature-slug>.md` with the intent, business rules, scenarios, and placeholder sections for implementation plans.
+3. **Specification creation** — on approval, creates a folder at `docs/specifications/<feature-slug>/` with a `specification.md` containing the intent, business rules, scenarios, and a progress checklist. Scenario plan files are created later by the architect.
 
 ### Phase 2: Implementation (autonomous)
 
@@ -58,40 +58,45 @@ proceed with SCENARIO-01
 This runs the following pipeline automatically:
 
 ```
-architect → developer → review-gate → developer (fix) if needed
+architect → developer → /run-reviewers → developer (fix) if needed
 ```
 
 #### Step 1: Architect
 
-The `architect` agent invokes the `clean-architecture` skill to load conventions, reads the SoT file and existing code, then writes an ordered implementation checklist into the SoT. It writes no code — only a plan of files and classes to create/modify, following inside-out Clean Architecture order (domain → ports → fakes → use case → infrastructure → API).
+The `architect` agent invokes the `clean-architecture` skill, reads `specification.md` and existing code, then creates a scenario plan file (`SCENARIO-XX.md`) in the same folder. It writes no code — only a plan of files and classes to create/modify, following inside-out Clean Architecture order (domain → ports → fakes → use case → infrastructure → API).
+
+```
+docs/specifications/deposit-money/
+  specification.md          # Intent, rules, scenarios, progress checklist
+  SCENARIO-01.md            # Architect's plan with checkboxes
+  SCENARIO-02.md            # Created when that scenario is planned
+```
 
 Planning rules: test behavior through the use case (not domain entities directly), every port adapter must have a contract test, domain entities with identity include equality.
 
 #### Step 2: Developer
 
-The `developer` agent invokes the `clean-architecture`, `tdd`, and `testing` skills, then executes the checklist step by step:
+The `developer` agent reads `specification.md` for context and the scenario plan file for the checklist, then executes step by step:
 
 - Writes a failing test first (red)
 - Writes the minimal code to pass (green)
 - Refactors while keeping tests green
-- Marks each step done in the SoT file
+- Marks each step done in the scenario plan file
 
-Can also run in **fix mode** — receives consolidated review findings and addresses all violations in one pass.
+Can also run in **fix mode** — receives consolidated review findings and addresses all findings (violations, warnings, suggestions) in one pass.
 
-#### Step 3: Review gate (parallel, runs once)
+#### Step 3: `/run-reviewers` (parallel, runs once)
 
-The `review-gate` orchestrator agent:
+The `/run-reviewers` command runs in the main conversation (not as a sub-agent, so it can spawn reviewer agents). With no arguments (pipeline mode), it:
 
-1. Gets changed files via `git diff --name-only`. Falls back to `git ls-files` if no diff is available (e.g., single commit).
-2. Discovers reviewer agents by grepping for `type: reviewer` in agent files (global + project). Reads matched files to extract `name` and `triggers`.
+1. Gets changed files via `git diff --name-only`. Falls back to `git ls-files` if no diff is available.
+2. Discovers reviewer agents by grepping for `type: reviewer` in agent frontmatter (global + project).
 3. Applies project trigger overrides from `.claude/review-triggers.json` if it exists.
 4. Matches changed files against each reviewer's `triggers` glob patterns.
-4. Spawns **only relevant reviewers as sub-agents in parallel** (multiple Agent tool calls in a single message).
-5. Consolidates all findings into a single report with a PASS/FAIL verdict.
+5. Spawns **only relevant reviewers in parallel** (multiple Agent tool calls in a single message).
+6. Consolidates all findings into a single report with a PASS/FAIL verdict.
 
-The review-gate does not review code itself — it only orchestrates. Each reviewer agent runs independently in its own context.
-
-Built-in reviewers (defined in `~/.claude/reviewers.json`):
+Built-in reviewers (defined in agent frontmatter):
 
 | Reviewer | Default triggers | Checks |
 |---|---|---|
@@ -111,9 +116,9 @@ The review gate runs exactly once. No re-verification loop — the developer fix
 Each scenario builds on a known-green, reviewed codebase before the next one starts. This guarantees no conflicts and full traceability from business behavior to implementation.
 
 ```
-SCENARIO-01: architect → developer → review-gate → done
-SCENARIO-02: architect → developer → review-gate → done
-SCENARIO-03: architect → developer → review-gate → done
+SCENARIO-01: architect → developer → /run-reviewers → done
+SCENARIO-02: architect → developer → /run-reviewers → done
+SCENARIO-03: architect → developer → /run-reviewers → done
 ```
 
 ## Ad-hoc reviews
@@ -152,11 +157,11 @@ The command asks for:
 - **Checklist** — the specific rules it enforces
 - **Model** — which model tier (defaults to sonnet)
 
-It creates the agent file at the chosen location with `type: reviewer` and `triggers` in its frontmatter, plus the review rules and output format. The review-gate auto-discovers it on the next run — no other registration needed.
+It creates the agent file at the chosen location with `type: reviewer` and `triggers` in its frontmatter, plus the review rules and output format. The /run-reviewers auto-discovers it on the next run — no other registration needed.
 
 ### Reviewer discovery
 
-The review-gate and `/run-reviewers` discover reviewers by grepping for `type: reviewer` in agent files (both `~/.claude/agents/` and `<project>/.claude/agents/`). Each reviewer declares its triggers in its own frontmatter:
+The /run-reviewers and `/run-reviewers` discover reviewers by grepping for `type: reviewer` in agent files (both `~/.claude/agents/` and `<project>/.claude/agents/`). Each reviewer declares its triggers in its own frontmatter:
 
 ```yaml
 ---
@@ -189,7 +194,7 @@ For projects using different file conventions (e.g., TypeScript) where you want 
 }
 ```
 
-The review-gate reads this file and replaces frontmatter triggers for matching reviewer names. Reviewers without an entry keep their defaults.
+The /run-reviewers reads this file and replaces frontmatter triggers for matching reviewer names. Reviewers without an entry keep their defaults.
 
 To set up overrides, copy the template:
 
@@ -218,9 +223,8 @@ Available templates:
 | `commands/new-reviewer.md` | `/new-reviewer` — guided creation of reviewer agents |
 | `commands/run-reviewers.md` | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
 | **Agents — pipeline** | |
-| `agents/architect/` | Plans scenario implementation into the SoT file (invokes `clean-architecture` skill) |
+| `agents/architect/` | Creates scenario plan files (invokes `clean-architecture` skill) |
 | `agents/developer/` | Implements the plan with strict TDD (invokes `clean-architecture`, `tdd`, `testing` skills) |
-| `agents/review-gate/` | Discovers `type: reviewer` agents, filters by triggers, spawns in parallel |
 | **Agents — reviewers** | |
 | `agents/test-reviewer/` | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
 | `agents/arch-reviewer/` | Reviews Clean Architecture compliance (invokes `clean-architecture` skill) |

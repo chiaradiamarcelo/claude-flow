@@ -1,18 +1,16 @@
 ---
-description: Run the review gate on a specific path or the entire project. Use for ad-hoc reviews on legacy code or any folder outside the normal pipeline flow.
-argument-hint: <paths, e.g. src/main, src/test>
+description: Run reviewers on specific paths or on changed files. Used by the pipeline (no args = git diff) and for ad-hoc reviews (with paths).
+argument-hint: <optional paths, e.g. src/main, src/test>
 allowed-tools: Read, Glob, Grep, Bash, Agent
 ---
 
-Run an ad-hoc review on: **$ARGUMENTS**
-
-If no path was provided, review all source files in the project.
+Run reviewers on: **$ARGUMENTS**
 
 ## Step 1: List target files
 
-The argument may contain one or more comma-separated paths (e.g., `src/main, src/test`). Split on commas and trim whitespace.
+**If paths were provided** (one or more comma-separated, e.g., `src/main, src/test`):
 
-If paths were provided, use the `Glob` tool to list all files under each path:
+Split on commas, trim whitespace, and use the `Glob` tool to list all files under each path:
 
 ```
 Glob(pattern="**/*", path="<path1>")
@@ -21,11 +19,16 @@ Glob(pattern="**/*", path="<path2>")
 
 Run all globs in parallel (single message).
 
-If no paths were provided, list all tracked files:
+**If no paths were provided** (pipeline mode), detect changed files via git:
 
 ```bash
-git ls-files
+git diff --name-only HEAD 2>/dev/null
+git diff --name-only --cached 2>/dev/null
+git ls-files --others --exclude-standard 2>/dev/null
+git diff --name-only HEAD~1 2>/dev/null
 ```
+
+Combine all results into a deduplicated list. If all commands return empty, fall back to `git ls-files`.
 
 Collect all file paths into a single deduplicated list.
 

@@ -6,12 +6,12 @@
 
 - **New features/use cases**: when starting a new task, run `/intent-and-goal`.
 - **Scenarios first**: follow the `/intent-and-goal` flow to refine the intent, then propose Gherkin scenarios, and create a Source of Truth (SoT) specification file before any code is written.
-- **MANDATORY: Use the `architect` + `developer` + `review-gate` to implement scenarios**: when the user asks to proceed with a scenario (e.g. "proceed with SCENARIO-01"), follow this pipeline:
-  1. **`architect`** → writes the implementation plan into the SoT file.
+- **MANDATORY: Use the `architect` + `developer` + `/run-reviewers` to implement scenarios**: when the user asks to proceed with a scenario (e.g. "proceed with SCENARIO-01"), follow this pipeline:
+  1. **`architect`** → creates the scenario plan file.
   2. **`developer`** → implements the plan with TDD.
-  3. **`review-gate`** (runs exactly once) → discovers all `type: reviewer` agents (global + project), filters by changed files against each reviewer's `triggers`, launches relevant ones in parallel, and returns a consolidated report.
-  4. If the review-gate verdict is **FAIL**: spawn `developer` in fix mode with the consolidated findings. Developer addresses all violations in one pass. Scenario is done.
-  5. If the review-gate verdict is **PASS**: scenario is done.
+  3. **`/run-reviewers`** (runs exactly once, no arguments) → discovers all `type: reviewer` agents, filters by changed files, spawns relevant reviewers in parallel, and returns a consolidated report.
+  4. If the verdict is **FAIL**: spawn `developer` in fix mode with the consolidated findings. Developer addresses **ALL** findings (violations, warnings, and suggestions) in one pass. Scenario is done.
+  5. If the verdict is **PASS**: scenario is done.
   - Never implement a scenario manually without going through this pipeline.
 
 ## Methodology: TDD (Red-Green-Refactor)

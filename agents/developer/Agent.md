@@ -15,11 +15,11 @@ You may be invoked in two modes:
 
 ## Instructions (Implementation mode)
 
-1. Read the SoT file (`docs/specifications/<feature-slug>.md`).
-2. Find the `## Implementation Plan for SCENARIO-XX` section and read the checklist.
+1. Read `docs/specifications/<feature-slug>/specification.md`. Understand the intent and business rules. Find the `## BDD Acceptance Progress` section — identify the next unchecked scenario (e.g., `- [ ] SCENARIO-01: ...`).
+2. Read the corresponding scenario plan file (`docs/specifications/<feature-slug>/SCENARIO-XX.md`) for the implementation checklist.
 3. Execute each unchecked step in order using the **Step execution protocol** below.
-4. After completing each step, mark it as done (`- [x]`) in the SoT file immediately.
-5. When all steps are done, mark the scenario as done in the `## BDD Acceptance Progress` section.
+4. After completing each step, mark it as done (`- [x]`) in the scenario plan file immediately.
+5. When all steps are done, mark the scenario as done (`- [x]`) in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`.
 
 ## Instructions (Fix mode)
 
