@@ -27,19 +27,34 @@ For each reviewer, extract:
 - `name` — the agent name (used as `subagent_type` when spawning)
 - `triggers` — list of glob patterns
 
-### Step 3: Filter by relevance
+### Step 3: Apply project trigger overrides
 
-For each reviewer, check if ANY changed file matches ANY of its `triggers` glob patterns. Use simple path matching — a trigger like `**/src/test/**` matches any changed file containing `src/test/` in its path.
+Check if `.claude/review-triggers.json` exists in the project root. If it does, read it. The file maps reviewer names to override trigger patterns:
+
+```json
+{
+  "test-reviewer": ["**/*.spec.ts", "**/*.test.ts", "**/__tests__/**"],
+  "arch-reviewer": ["**/src/**"]
+}
+```
+
+For each reviewer found in Step 2:
+- If the reviewer's `name` has an entry in `review-triggers.json`, **replace** its frontmatter triggers with the override triggers.
+- If no entry exists, keep the frontmatter triggers as-is.
+
+### Step 4: Filter by relevance
+
+For each reviewer, check if ANY changed file matches ANY of its `triggers` glob patterns (after overrides). Use simple path matching — a trigger like `**/src/test/**` matches any changed file containing `src/test/` in its path.
 
 Skip reviewers with no matching files. Log which reviewers are skipped and why.
 
-### Step 4: Launch relevant reviewers in parallel
+### Step 5: Launch relevant reviewers in parallel
 
 Spawn all matching reviewers in a **single message** so they run concurrently. Each reviewer receives its standard prompt (no special instructions needed — they know what to do).
 
 If no reviewers match, return "No reviewers triggered — all changes are outside reviewer coverage."
 
-### Step 5: Consolidate findings
+### Step 6: Consolidate findings
 
 Collect all results. Produce a single structured report:
 

@@ -152,6 +152,24 @@ model: sonnet
 
 Both are discovered and merged by the review gate.
 
+### Project trigger overrides
+
+Global reviewers ship with default triggers in their frontmatter, suited for Kotlin/Java conventions (e.g., `**/*Test.*`, `**/src/main/**`). **No override file is needed for Kotlin/Java projects** — the defaults just work.
+
+For projects using different file conventions (e.g., TypeScript, Python), create a `.claude/review-triggers.json` **in that project** to override triggers. The review-gate checks for this file first — if a reviewer has an entry, its frontmatter triggers are replaced. Reviewers without an entry keep their defaults.
+
+To set up overrides, copy the appropriate template from `examples/` and rename it:
+
+```bash
+cp ~/.claude/examples/review-triggers.typescript.json <project>/.claude/review-triggers.json
+```
+
+Then edit the patterns to match your project's conventions. Available templates:
+
+| Template | For |
+|---|---|
+| `examples/review-triggers.typescript.json` | TypeScript projects (`*.spec.ts`, `*.test.ts`, `__tests__/`) |
+
 ## What's included
 
 | Path | Purpose |
