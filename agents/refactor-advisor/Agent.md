@@ -55,10 +55,6 @@ This reviewer checks **code quality within layers** — is the code well-designe
 ### Mapper cleanliness
 - Mappers should map data only, not apply business rules.
 
-### API response modeling
-- Response DTOs should contain only what clients need.
-- Error contracts should be explicit and stable.
-
 ## Output format
 
 **SUGGESTIONS** (ordered by impact):
