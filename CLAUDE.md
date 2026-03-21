@@ -52,7 +52,13 @@ src/test/
 
 - **New features/use cases**: when starting a new task, run `/intent-and-goal`.
 - **Scenarios first**: follow the `/intent-and-goal` flow to refine the intent, then propose Gherkin scenarios, and create a Source of Truth (SoT) specification file before any code is written.
-- **MANDATORY: Use the `architect` + `developer` + `test-reviewer` agents to implement scenarios**: when the user asks to proceed with a scenario (e.g. "proceed with SCENARIO-01"), always run in sequence: `architect` (plan) → `developer` (implement) → `test-reviewer` (review touched test files) → `developer` again if violations are found. Never implement a scenario manually without going through the agents.
+- **MANDATORY: Use the `architect` + `developer` + `review-gate` to implement scenarios**: when the user asks to proceed with a scenario (e.g. "proceed with SCENARIO-01"), follow this pipeline:
+  1. **`architect`** → writes the implementation plan into the SoT file.
+  2. **`developer`** → implements the plan with TDD.
+  3. **`review-gate`** → discovers all `type: reviewer` agents (global + project), filters by changed files against each reviewer's `triggers`, launches relevant ones in parallel, and returns a consolidated report.
+  4. If the review-gate verdict is **FAIL** (violations exist): spawn `developer` in fix mode with the consolidated report. Then re-run `review-gate`.
+  5. If the review-gate verdict is **PASS**: scenario is done.
+  - Never implement a scenario manually without going through this pipeline.
 
 ## Methodology: TDD (Red-Green-Refactor)
 

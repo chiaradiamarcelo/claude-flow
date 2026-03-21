@@ -1,6 +1,8 @@
 ---
 name: refactor-advisor
 description: Suggests Clean Architecture and clean code improvements after tests are green. Use after completing a use case implementation.
+type: reviewer
+triggers: ["**/src/main/**"]
 tools: Read, Glob, Grep
 model: sonnet
 color: green
