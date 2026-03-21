@@ -63,39 +63,47 @@ architect → developer → review-gate → developer (fix) if needed
 
 #### Step 1: Architect
 
-The `architect` agent reads the SoT file and existing code, then writes an ordered implementation checklist into the SoT. It writes no code — only a plan of files and classes to create/modify, following inside-out Clean Architecture order (domain → ports → fakes → use case → infrastructure → API).
+The `architect` agent invokes the `clean-architecture` skill to load conventions, reads the SoT file and existing code, then writes an ordered implementation checklist into the SoT. It writes no code — only a plan of files and classes to create/modify, following inside-out Clean Architecture order (domain → ports → fakes → use case → infrastructure → API).
+
+Planning rules: test behavior through the use case (not domain entities directly), every port adapter must have a contract test, domain entities with identity include equality.
 
 #### Step 2: Developer
 
-The `developer` agent executes the checklist step by step using strict TDD:
+The `developer` agent invokes the `clean-architecture`, `tdd`, and `testing` skills, then executes the checklist step by step:
 
 - Writes a failing test first (red)
 - Writes the minimal code to pass (green)
 - Refactors while keeping tests green
 - Marks each step done in the SoT file
 
-#### Step 3: Review gate (parallel)
+Can also run in **fix mode** — receives consolidated review findings and addresses all violations in one pass.
+
+#### Step 3: Review gate (parallel, runs once)
 
 The `review-gate` orchestrator agent:
 
-1. Runs `git diff --name-only` to get changed files.
-2. Discovers all agents with `type: reviewer` in their frontmatter (from both `~/.claude/agents/` and `.claude/agents/`).
+1. Gets changed files via `git diff --name-only`. Falls back to `git ls-files` if no diff is available (e.g., single commit).
+2. Reads the reviewer roster from `~/.claude/reviewers.json` (global) and `.claude/reviewers.json` (project, if exists). Merges them — project entries override global entries with the same name.
 3. Matches changed files against each reviewer's `triggers` glob patterns.
-4. Launches **only relevant reviewers in parallel**.
+4. Spawns **only relevant reviewers as sub-agents in parallel** (multiple Agent tool calls in a single message).
 5. Consolidates all findings into a single report with a PASS/FAIL verdict.
 
-Built-in reviewers:
+The review-gate does not review code itself — it only orchestrates. Each reviewer agent runs independently in its own context.
 
-| Reviewer | Triggers on | Checks |
+Built-in reviewers (defined in `~/.claude/reviewers.json`):
+
+| Reviewer | Default triggers | Checks |
 |---|---|---|
-| `test-reviewer` | `**/src/test/**`, `**/*Test.*`, `**/*IT.*`, `**/*AT.*` | GWT structure, naming, fakes vs mocks, test logic, coverage strategy |
+| `test-reviewer` | `**/src/test/**`, `**/*Test.*`, `**/*IT.*`, `**/*AT.*` | GWT structure, naming, fakes vs mocks, redundant assertions, test logic, coverage strategy |
 | `arch-reviewer` | `**/src/main/**` | Layer dependencies, domain purity, Clean Architecture patterns, TDD compliance |
-| `refactor-advisor` | `**/src/main/**` | Primitive obsession, misplaced logic, naming, mapper cleanliness |
+| `refactor-advisor` | `**/src/main/**` | Primitive obsession, misplaced logic, intent-revealing methods, naming, mapper cleanliness |
 
-#### Step 4: Fix loop
+#### Step 4: Fix pass
 
 - **FAIL** (violations exist) → the developer is spawned in fix mode with all findings and addresses everything in one pass. Scenario is done.
 - **PASS** (no violations) → scenario is done.
+
+The review gate runs exactly once. No re-verification loop — the developer fixes all violations in a single pass.
 
 ### Scenarios run sequentially
 
@@ -127,8 +135,11 @@ The command asks for:
 - **Triggers** — file glob patterns that activate it
 - **Placement** — global (`~/.claude/agents/`) or project-specific (`.claude/agents/`)
 - **Checklist** — the specific rules it enforces
+- **Model** — which model tier (defaults to sonnet)
 
-It generates the agent file with the correct frontmatter and registers it in the reviewer table.
+It does two things:
+1. Creates the agent file at the chosen location with the review rules and output format.
+2. Registers the reviewer in the appropriate `reviewers.json` table (global or project) so the review-gate can discover it.
 
 ### Reviewer table
 
@@ -184,24 +195,31 @@ Available templates:
 
 | Path | Purpose |
 |---|---|
-| `CLAUDE.md` | Global instructions (Clean Architecture & TDD playbook) |
+| **Config** | |
+| `CLAUDE.md` | Global instructions — workflow rules, TDD methodology, test design rules |
 | `RTK.md` | RTK usage reference (referenced by CLAUDE.md) |
 | `refactor-catalog.md` | Language-agnostic catalog of code smells and refactorings |
+| `reviewers.json` | Global reviewer roster — names + trigger patterns (source of truth for review-gate) |
 | `settings.json` | Permissions, hooks, plugins, statusline config |
 | `statusline-command.sh` | Context window usage bar for the statusline |
-| `hooks/rtk-rewrite.sh` | Pre-tool hook that rewrites commands through RTK |
+| **Commands** | |
 | `commands/intent-and-goal.md` | `/intent-and-goal` — feature intent refinement and scenario generation |
-| `commands/new-reviewer.md` | `/new-reviewer` — guided creation of reviewer agents |
-| `agents/architect/` | Plans scenario implementation into the SoT file |
-| `agents/developer/` | Implements the plan with strict TDD |
-| `reviewers.json` | Global reviewer roster (names + trigger patterns) |
-| `agents/review-gate/` | Orchestrates parallel reviewer loading, filtering, and execution |
-| `agents/test-reviewer/` | Reviews test quality (GWT, naming, fakes, coverage) |
-| `agents/arch-reviewer/` | Reviews Clean Architecture compliance |
-| `agents/refactor-advisor/` | Suggests clean code improvements |
+| `commands/new-reviewer.md` | `/new-reviewer` — guided creation and registration of reviewer agents |
+| **Agents — pipeline** | |
+| `agents/architect/` | Plans scenario implementation into the SoT file (invokes `clean-architecture` skill) |
+| `agents/developer/` | Implements the plan with strict TDD (invokes `clean-architecture`, `tdd`, `testing` skills) |
+| `agents/review-gate/` | Orchestrates parallel reviewer spawning from `reviewers.json` |
+| **Agents — reviewers** | |
+| `agents/test-reviewer/` | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
+| `agents/arch-reviewer/` | Reviews Clean Architecture compliance (invokes `clean-architecture` skill) |
+| `agents/refactor-advisor/` | Suggests clean code improvements (invokes `clean-architecture` skill) |
+| **Skills** | |
 | `skills/clean-architecture/` | Folder structure, dependency rules, design and code conventions |
 | `skills/tdd/` | TDD red-green-refactor cycle enforcement |
 | `skills/testing/` | Test structure, naming, fakes, and coverage conventions |
+| **Other** | |
+| `hooks/rtk-rewrite.sh` | Pre-tool hook that rewrites commands through RTK |
+| `examples/` | Template files (e.g., `reviewers.typescript.json` for project trigger overrides) |
 | `memory/` | Persistent file-based memory for cross-conversation context |
 
 ## Note
