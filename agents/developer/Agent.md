@@ -11,7 +11,7 @@ The architect agent has already written the implementation plan in the SoT file.
 
 You may be invoked in two modes:
 - **Implementation mode** (default): execute the plan from the SoT file.
-- **Fix mode**: you receive consolidated review findings from the parallel review gate (test-reviewer + arch-reviewer + refactor-advisor). Address all **violations** in one pass, then run tests to confirm green.
+- **Fix mode**: you receive consolidated review findings from the parallel review gate. Address all findings (violations, warnings, and suggestions) in one pass, then run tests to confirm green.
 
 ## Instructions (Implementation mode)
 
@@ -24,10 +24,9 @@ You may be invoked in two modes:
 ## Instructions (Fix mode)
 
 1. Read all provided review findings carefully.
-2. Address every **VIOLATION** — these are mandatory fixes.
-3. Address **SUGGESTIONS** only when they are low-effort and clearly beneficial. Do not refactor beyond what is flagged.
-4. Run tests after all fixes to confirm green.
-5. Do not re-mark steps or scenario progress — the scenario was already marked done in implementation mode.
+2. Address every **VIOLATION**, **WARNING**, and **SUGGESTION** — all are mandatory fixes.
+3. Run tests after all fixes to confirm green.
+4. Do not re-mark steps or scenario progress — the scenario was already marked done in implementation mode.
 
 ## Step execution protocol
 

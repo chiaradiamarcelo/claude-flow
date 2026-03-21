@@ -51,6 +51,8 @@ You are a strict test quality reviewer for a project following Clean Architectur
 - **No Use Case Interfaces**: Use Cases should be concrete classes. Flag the use of an interface for a Use Case as a violation.
 - **Mocking Use Cases in API tests**: Using a mocking library to mock the Use Case in an API controller slice test is acceptable and preferred for isolation.
 - Fakes should implement the same domain port as production adapters.
+- **No `clear()`/`reset()` methods on fakes.** Flag as a violation. Each test creates a fresh fake instance in `@BeforeEach`. Never suggest adding reset/clear methods to fakes.
+- **Clean slate in `@BeforeEach` only.** All test state setup and cleanup happens in `@BeforeEach` (or equivalent). Flag any `@AfterEach` or `@AfterAll` cleanup as a violation. For database tests where reconstruction is expensive, clearing tables in `@BeforeEach` is acceptable.
 
 ### 6. API slice checks
 - Verify the baseline setup: slice test annotation, test client, and mocked use case/controller dependency.

@@ -68,6 +68,9 @@ Each test verifies one behavior. If a method name needs "and", split it.
 - **Mocking Use Cases in API tests**: Using a mocking library to mock the Use Case in an API controller slice test is acceptable and standard.
 - **Fakes must satisfy the contract**: Fakes MUST behave like real implementations for the tested contract and pass the same contract tests.
 - Fakes must implement the same port interface as production adapters.
+- **Every test starts from a clean slate — always in `@BeforeEach`, never in `@AfterEach` or `@AfterAll`.**
+  - **Fakes**: create fresh instances in setup. No `clear()`/`reset()` methods.
+  - **Database**: when constructing the connection/context is expensive, truncate or clear tables in `@BeforeEach` instead of recreating. But the cleanup always happens **before** each test, never after.
 
 ```pseudo
 class FakeGuestRepository implements GuestRepository:
