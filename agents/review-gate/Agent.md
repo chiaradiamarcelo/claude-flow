@@ -13,44 +13,61 @@ You are the review-gate orchestrator. Your job is to discover reviewer agents, d
 
 ### Step 1: Get changed files
 
-Run `git diff --name-only HEAD~1` (or the appropriate range for uncommitted changes: `git diff --name-only HEAD` + `git diff --name-only --cached` + `git ls-files --others --exclude-standard`) to get the list of files touched by the developer.
+Run these git commands to collect all changed file paths:
 
-Collect all changed file paths into a list.
-
-### Step 2: Discover reviewer agents
-
-Glob for `Agent.md` files in both locations:
-- `~/.claude/agents/*/Agent.md` (global reviewers)
-- `.claude/agents/*/Agent.md` (project-specific reviewers)
-
-Read each file's frontmatter. Keep only agents where `type: reviewer`.
-
-For each reviewer, extract:
-- `name` — the agent name (used as `subagent_type` when spawning)
-- `triggers` — list of glob patterns
-
-### Step 3: Apply project trigger overrides
-
-Check if `.claude/review-triggers.json` exists in the project root. If it does, read it. The file maps reviewer names to override trigger patterns:
-
-```json
-{
-  "test-reviewer": ["**/*.spec.ts", "**/*.test.ts", "**/__tests__/**"],
-  "arch-reviewer": ["**/src/**"]
-}
+```bash
+git diff --name-only HEAD 2>/dev/null
+git diff --name-only --cached 2>/dev/null
+git ls-files --others --exclude-standard 2>/dev/null
+git diff --name-only HEAD~1 2>/dev/null
 ```
 
-For each reviewer found in Step 2:
-- If the reviewer's `name` has an entry in `review-triggers.json`, **replace** its frontmatter triggers with the override triggers.
-- If no entry exists, keep the frontmatter triggers as-is.
+Combine all results into a deduplicated list. If all commands return empty (e.g., everything is committed and there's only one commit), fall back to listing all tracked files:
 
-### Step 4: Filter by relevance
+```bash
+git ls-files
+```
+
+This ensures reviewers always have files to match against, even on a freshly committed codebase.
+
+### Step 2: Load reviewer roster
+
+Read the global reviewer table:
+
+```
+Read("/Users/mchiaradia/.claude/reviewers.json")
+```
+
+Then check if a project-specific table exists and read it:
+
+```
+Read(".claude/reviewers.json")
+```
+
+Run both reads in parallel (single message). The project read may fail (file doesn't exist) — that's fine, it just means no project-specific reviewers.
+
+Each file is a JSON array of objects with `name` and `triggers`:
+
+```json
+[
+  { "name": "test-reviewer", "triggers": ["**/src/test/**", "**/*Test.*"] },
+  { "name": "arch-reviewer", "triggers": ["**/src/main/**"] }
+]
+```
+
+**Merge rule**: start with the global list. For each entry in the project list:
+- If the `name` matches a global entry, **replace** the global triggers with the project triggers (project wins).
+- If the `name` is new, **add** it to the roster (project-only reviewer).
+
+The merged list is the full reviewer roster.
+
+### Step 3: Filter by relevance
 
 For each reviewer, check if ANY changed file matches ANY of its `triggers` glob patterns (after overrides). Use simple path matching — a trigger like `**/src/test/**` matches any changed file containing `src/test/` in its path.
 
 Skip reviewers with no matching files. Log which reviewers are skipped and why.
 
-### Step 5: Launch relevant reviewers in parallel
+### Step 4: Launch relevant reviewers in parallel
 
 **You MUST use the `Agent` tool to spawn each matching reviewer as a sub-agent.** Use the reviewer's `name` as the `subagent_type` parameter. Spawn ALL matching reviewers in a **single message** (multiple Agent tool calls in one response) so they run concurrently.
 
@@ -62,7 +79,7 @@ Do NOT read source code and review it yourself. Do NOT run reviewers one at a ti
 
 If no reviewers match, return "No reviewers triggered — all changes are outside reviewer coverage."
 
-### Step 6: Consolidate findings
+### Step 5: Consolidate findings
 
 Collect all results. Produce a single structured report:
 

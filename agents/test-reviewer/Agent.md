@@ -4,7 +4,7 @@ description: Reviews tests for structural compliance (GWT), naming style, behavi
 type: reviewer
 triggers: ["**/src/test/**", "**/*Test.*", "**/*IT.*", "**/*AT.*"]
 tools: Read, Glob, Grep
-model: sonnet
+model: sonnet[Agent.md](../review-gate/Agent.md)
 color: blue
 ---
 

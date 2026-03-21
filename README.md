@@ -128,47 +128,57 @@ The command asks for:
 - **Placement** — global (`~/.claude/agents/`) or project-specific (`.claude/agents/`)
 - **Checklist** — the specific rules it enforces
 
-It generates the agent file with the correct frontmatter. The `review-gate` auto-discovers it on the next run — no other changes needed.
+It generates the agent file with the correct frontmatter and registers it in the reviewer table.
 
-### Reviewer agent frontmatter
+### Reviewer table
 
-Reviewers are identified by `type: reviewer` and activated by `triggers`:
+The review-gate discovers reviewers by reading a JSON table, not by scanning agent files. This makes discovery fast and reliable.
 
-```yaml
----
-name: presentation-reviewer
-description: Reviews API response DTOs for leaking domain internals.
-type: reviewer
-triggers: ["**/api/**", "**/controller/**", "**/dto/**"]
-tools: Read, Glob, Grep
-model: sonnet
----
+**Global table** (`~/.claude/reviewers.json`) — always loaded:
+
+```json
+[
+  { "name": "test-reviewer", "triggers": ["**/src/test/**", "**/*Test.*", "**/*IT.*", "**/*AT.*"] },
+  { "name": "arch-reviewer", "triggers": ["**/src/main/**"] },
+  { "name": "refactor-advisor", "triggers": ["**/src/main/**"] }
+]
 ```
+
+**Project table** (`<project>/.claude/reviewers.json`) — optional, merged with global:
+
+```json
+[
+  { "name": "presentation-reviewer", "triggers": ["**/api/**", "**/controller/**"] }
+]
+```
+
+**Merge rules:**
+- Global table is loaded first.
+- Project entries with the same `name` as a global entry **override** the global triggers (project wins).
+- Project entries with a new `name` are **added** to the roster.
+
+This means project tables serve two purposes: adding project-specific reviewers, and overriding triggers for global reviewers (e.g., TypeScript file patterns).
 
 ### Global vs. project-specific reviewers
 
-- **Global** (`~/.claude/agents/`) — run on every project (e.g., `test-reviewer`, `arch-reviewer`)
-- **Project-specific** (`<project>/.claude/agents/`) — run only in that project (e.g., `presentation-reviewer` for a specific API)
-
-Both are discovered and merged by the review gate.
+- **Global** (`~/.claude/agents/` + `~/.claude/reviewers.json`) — run on every project (e.g., `test-reviewer`, `arch-reviewer`)
+- **Project-specific** (`<project>/.claude/agents/` + `<project>/.claude/reviewers.json`) — run only in that project (e.g., `presentation-reviewer`)
 
 ### Project trigger overrides
 
-Global reviewers ship with default triggers in their frontmatter, suited for Kotlin/Java conventions (e.g., `**/*Test.*`, `**/src/main/**`). **No override file is needed for Kotlin/Java projects** — the defaults just work.
+Global reviewers ship with default triggers suited for Kotlin/Java conventions. **No project table is needed for Kotlin/Java projects** — the defaults just work.
 
-For projects using different file conventions (e.g., TypeScript, Python), create a `.claude/review-triggers.json` **in that project** to override triggers. The review-gate checks for this file first — if a reviewer has an entry, its frontmatter triggers are replaced. Reviewers without an entry keep their defaults.
-
-To set up overrides, copy the appropriate template from `examples/` and rename it:
+For projects using different file conventions (e.g., TypeScript), copy the appropriate template and use it as the project table:
 
 ```bash
-cp ~/.claude/examples/review-triggers.typescript.json <project>/.claude/review-triggers.json
+cp ~/.claude/examples/reviewers.typescript.json <project>/.claude/reviewers.json
 ```
 
-Then edit the patterns to match your project's conventions. Available templates:
+Available templates:
 
 | Template | For |
 |---|---|
-| `examples/review-triggers.typescript.json` | TypeScript projects (`*.spec.ts`, `*.test.ts`, `__tests__/`) |
+| `examples/reviewers.typescript.json` | TypeScript projects (`*.spec.ts`, `*.test.ts`, `__tests__/`) |
 
 ## What's included
 
@@ -184,7 +194,8 @@ Then edit the patterns to match your project's conventions. Available templates:
 | `commands/new-reviewer.md` | `/new-reviewer` — guided creation of reviewer agents |
 | `agents/architect/` | Plans scenario implementation into the SoT file |
 | `agents/developer/` | Implements the plan with strict TDD |
-| `agents/review-gate/` | Orchestrates parallel reviewer discovery, filtering, and execution |
+| `reviewers.json` | Global reviewer roster (names + trigger patterns) |
+| `agents/review-gate/` | Orchestrates parallel reviewer loading, filtering, and execution |
 | `agents/test-reviewer/` | Reviews test quality (GWT, naming, fakes, coverage) |
 | `agents/arch-reviewer/` | Reviews Clean Architecture compliance |
 | `agents/refactor-advisor/` | Suggests clean code improvements |

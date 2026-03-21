@@ -1,8 +1,6 @@
 ---
 name: arch-reviewer
 description: Reviews code for Clean Architecture compliance, correct layer separation, and TDD adherence. Use after implementing features or when asked to review architecture.
-type: reviewer
-triggers: ["**/src/main/**"]
 tools: Read, Glob, Grep, Skill
 model: sonnet
 color: red
