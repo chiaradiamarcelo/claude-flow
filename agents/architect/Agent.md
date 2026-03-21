@@ -46,8 +46,7 @@ Scenario: Successful withdrawal from existing account
 - [ ] Step 7: Infrastructure adapter + persistence entity + migration
 - [ ] Step 7b: `BankAccountRepositoryAdapterContractTest` adapter contract impl (`infrastructure/repository/`)
 - [ ] Step 8: `WithdrawMoneyController` REST endpoint
-- [ ] Step 9: `WithdrawMoneyScenarioAT` acceptance test
-- [ ] Step 10: All tests green → mark SCENARIO-XX done in specification.md
+- [ ] Step 9: All tests green → mark SCENARIO-XX done in specification.md
 ```
 
 The file starts with the scenario ID as the title, includes the Gherkin scenario for reference, and then the implementation plan with checkboxes.

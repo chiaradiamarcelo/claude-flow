@@ -33,7 +33,6 @@
 ## VERY IMPORTANT: Test design rules
 
 - Tests are declarative. Avoid control flow (`if`, `for`, `while`, `switch`) in test bodies.
-- **No Faking Use Cases in Acceptance Tests**: Behavioral verifications (AT/Scenario tests) MUST use the real Use Case implementation. Only fake external dependencies (repositories, external APIs).
 - One scenario per test.
 - Use explicit fixtures/fakes for deterministic setup.
 - Keep Given-When-Then separated by blank lines (no `// Given` comments).
@@ -48,4 +47,7 @@
   - missing/invalid required domain values -> `400`
   - non-existing resource on update/delete/get -> `404`
   - unexpected runtime failures where defined -> `500`
+
+When writing or modifying tests, invoke the `testing` skill for full conventions. Enforced by the `test-reviewer` agent.
+
 

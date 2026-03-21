@@ -35,7 +35,6 @@ class CalculateOccupancyTest:
 
 - Domain/unit test class: `<ClassUnderTest>Test`.
 - API controller slice test class: `<ControllerName>IT`.
-- **Acceptance/Scenario tests**: Always use the **AT** suffix (example: `DepositMoneyScenarioAT`).
 - Test method name: snake_case behavior style.
 - camelCase test method names are not allowed.
 - For failure scenarios, prefer `fails_when_<condition>` over `throws_when_<condition>`.

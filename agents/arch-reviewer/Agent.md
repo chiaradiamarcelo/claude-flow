@@ -20,7 +20,7 @@ Run this checklist on every review and keep wording aligned with `.claude/refact
 1. Layer dependency boundaries (imports and cross-layer coupling).
 2. Domain/framework purity (no framework leakage into core logic).
 3. Validation ownership consistency (avoid duplicated validation and inconsistent error mapping across layers).
-4. Test lifecycle wiring (unit/integration/acceptance coverage in build lifecycle).
+4. Test lifecycle wiring (unit/integration coverage in build lifecycle).
 5. Business policy configurability (avoid hard-coded policy constants in use-case logic).
 
 ## What to check
