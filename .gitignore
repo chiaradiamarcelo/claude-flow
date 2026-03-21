@@ -28,6 +28,10 @@
 !skills/*/
 !skills/*/SKILL.md
 
+# Scripts
+!scripts/
+!scripts/*.sh
+
 # Examples
 !examples/
 !examples/*.json
