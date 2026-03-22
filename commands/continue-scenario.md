@@ -15,3 +15,5 @@ If all scenarios are checked (`- [x]`), respond with exactly: "All scenarios com
 ## Step 2: Run the pipeline
 
 Proceed with the identified scenario following the CLAUDE.md workflow rules (architect → developer → /run-reviewers → fix if needed).
+
+**Run exactly one scenario, then stop.** Do not continue to the next scenario — the calling script handles iteration with fresh context windows.

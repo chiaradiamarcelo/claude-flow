@@ -13,6 +13,7 @@
   4. If the verdict is **FAIL**: spawn `developer` in fix mode with the consolidated findings. Developer addresses **ALL** findings (violations, warnings, and suggestions) in one pass. Scenario is done.
   5. If the verdict is **PASS**: scenario is done.
   - Never plan, implement, or review multiple scenarios in one pass. Never implement a scenario manually without going through this pipeline.
+  - After completing a scenario, **automatically continue** with the next unchecked scenario. Do not ask for permission between scenarios.
 
 ## Methodology: TDD (Red-Green-Refactor)
 
