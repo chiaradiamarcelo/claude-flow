@@ -1,34 +1,28 @@
 #!/usr/bin/env bash
-# Runs all pending BDD scenarios from a SoT specification file, one at a time.
-# Each scenario gets a fresh Claude context. Claude plans, implements, tests, and marks done.
+# Runs all pending BDD scenarios from a specification folder, one at a time.
+# Each scenario gets a fresh Claude context via /continue-scenario.
 #
 # Usage:
-#   ./scripts/run-scenarios.sh [path/to/specifications/feature-slug]
+#   ./scripts/run-scenarios.sh <feature-slug>
 #
-# If no argument is given, auto-discovers the single specification folder in docs/specifications/.
+# Example:
+#   ./scripts/run-scenarios.sh deposit-money
 
 set -euo pipefail
 
 RETRY_WAIT=300   # seconds to wait after a rate-limit / spending-limit error
 
 # --- Resolve specification folder ---
-SPEC_DIR="${1:-}"
+FEATURE_SLUG="${1:-}"
 
-if [[ -z "$SPEC_DIR" ]]; then
-  DIRS=(); while IFS= read -r d; do DIRS+=("$d"); done < <(find docs/specifications -mindepth 1 -maxdepth 1 -type d 2>/dev/null || true)
-  if [[ ${#DIRS[@]} -eq 1 ]]; then
-    SPEC_DIR="${DIRS[0]}"
-  elif [[ ${#DIRS[@]} -eq 0 ]]; then
-    echo "ERROR: No specification folders found in docs/specifications/." >&2
-    echo "Run /intent-and-goal first." >&2
-    exit 1
-  else
-    echo "ERROR: Multiple specification folders found. Specify one:" >&2
-    printf '  %s\n' "${DIRS[@]}" >&2
-    exit 1
-  fi
+if [[ -z "$FEATURE_SLUG" ]]; then
+  echo "ERROR: Feature slug required." >&2
+  echo "Usage: ./scripts/run-scenarios.sh <feature-slug>" >&2
+  echo "Example: ./scripts/run-scenarios.sh deposit-money" >&2
+  exit 1
 fi
 
+SPEC_DIR="docs/specifications/${FEATURE_SLUG}"
 SOT_FILE="${SPEC_DIR}/specification.md"
 
 if [[ ! -f "$SOT_FILE" ]]; then
@@ -40,8 +34,8 @@ fi
 LOG_DIR="logs/scenarios"
 mkdir -p "$LOG_DIR"
 
-echo "Specification: $SPEC_DIR"
-echo "SoT: $SOT_FILE"
+echo "Feature: $FEATURE_SLUG"
+echo "Specification: $SOT_FILE"
 echo ""
 
 # --- Loop ---
@@ -61,13 +55,6 @@ while true; do
   TIMESTAMP=$(date +%Y%m%d_%H%M%S)
   LOG_FILE="$LOG_DIR/${NEXT}_${TIMESTAMP}.log"
 
-  PROMPT="Implement ONLY ${NEXT} from ${SOT_FILE}. Do not implement any other scenario. Follow the pipeline:
-1. Invoke the 'architect' agent to plan ${NEXT}: it reads ${SOT_FILE}, identifies layers needed, and creates ${SPEC_DIR}/${NEXT}.md with the implementation checklist.
-2. Invoke the 'developer' agent to implement: it reads ${SOT_FILE} for context and ${SPEC_DIR}/${NEXT}.md for the checklist, executes each step with TDD, and marks steps done.
-3. Run /run-reviewers (no arguments) to discover all reviewer agents, filter by changed files, spawn relevant reviewers in parallel, and produce a consolidated report.
-4. If the review verdict is FAIL, invoke the 'developer' agent in fix mode with ALL findings (violations, warnings, and suggestions). Developer addresses everything in one pass.
-5. Mark ${NEXT} as done in ${SOT_FILE} by changing its '- [ ]' to '- [x]' in the BDD Acceptance Progress section."
-
   echo "Log: $LOG_FILE"
   echo ""
   SCENARIO_START=$(date +%s)
@@ -79,7 +66,7 @@ while true; do
     HEARTBEAT_PID=$!
 
     set +e
-    claude --dangerously-skip-permissions --output-format stream-json --verbose --model claude-sonnet-4-6 -p "$PROMPT" \
+    claude --dangerously-skip-permissions --output-format stream-json --verbose -p "/continue-scenario ${SPEC_DIR}" \
       > "$LOG_FILE" 2>&1
     CLAUDE_EXIT=$?
     set -e
