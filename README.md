@@ -121,7 +121,7 @@ SCENARIO-02: architect → developer → /run-reviewers → done
 SCENARIO-03: architect → developer → /run-reviewers → done
 ```
 
-## Batch scenario runner (unattended)
+## Ralph loop - Batch scenario runner (unattended)
 
 For running multiple scenarios unattended (e.g., overnight or while away), use the batch script. Each scenario gets a fresh Claude session — no context contamination between scenarios.
 
