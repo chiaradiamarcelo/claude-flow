@@ -213,30 +213,33 @@ Available templates:
 | Path | Purpose |
 |---|---|
 | **Config** | |
-| `CLAUDE.md` | Global instructions — workflow rules, TDD methodology, test design rules |
-| `RTK.md` | RTK usage reference (referenced by CLAUDE.md) |
-| `refactor-catalog.md` | Language-agnostic catalog of code smells and refactorings |
-| `settings.json` | Permissions, hooks, plugins, statusline config |
-| `statusline-command.sh` | Context window usage bar for the statusline |
+| [CLAUDE.md](CLAUDE.md) | Global instructions — workflow rules, TDD methodology, test design rules |
+| [RTK.md](RTK.md) | RTK usage reference (referenced by CLAUDE.md) |
+| [refactor-catalog.md](refactor-catalog.md) | Language-agnostic catalog of code smells and refactorings |
+| [settings.json](settings.json) | Permissions, hooks, plugins, statusline config |
+| [statusline-command.sh](statusline-command.sh) | Context window usage bar for the statusline |
 | **Commands** | |
-| `commands/intent-and-goal.md` | `/intent-and-goal` — feature intent refinement and scenario generation |
-| `commands/new-reviewer.md` | `/new-reviewer` — guided creation of reviewer agents |
-| `commands/run-reviewers.md` | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
+| [commands/intent-and-goal.md](commands/intent-and-goal.md) | `/intent-and-goal` — feature intent refinement and scenario generation |
+| [commands/new-reviewer.md](commands/new-reviewer.md) | `/new-reviewer` — guided creation of reviewer agents |
+| [commands/run-reviewers.md](commands/run-reviewers.md) | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
+| [commands/continue-scenario.md](commands/continue-scenario.md) | `/continue-scenario` — find next unchecked scenario and run the pipeline |
 | **Agents — pipeline** | |
-| `agents/architect/` | Creates scenario plan files (invokes `clean-architecture` skill) |
-| `agents/developer/` | Implements the plan with strict TDD (invokes `clean-architecture`, `tdd`, `testing` skills) |
+| [agents/architect/](agents/architect/Agent.md) | Creates scenario plan files (invokes `clean-architecture` skill) |
+| [agents/developer/](agents/developer/Agent.md) | Implements the plan with strict TDD (invokes `clean-architecture`, `tdd`, `testing` skills) |
 | **Agents — reviewers** | |
-| `agents/test-reviewer/` | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
-| `agents/arch-reviewer/` | Reviews Clean Architecture compliance (invokes `clean-architecture` skill) |
-| `agents/refactor-advisor/` | Suggests clean code improvements (invokes `clean-architecture` skill) |
+| [agents/test-reviewer/](agents/test-reviewer/Agent.md) | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
+| [agents/arch-reviewer/](agents/arch-reviewer/Agent.md) | Reviews Clean Architecture structural compliance |
+| [agents/refactor-advisor/](agents/refactor-advisor/Agent.md) | Suggests code quality improvements (invokes `clean-architecture` skill) |
+| [agents/api-reviewer/](agents/api-reviewer/Agent.md) | Reviews API layer (HTTP conventions, thin controllers, REST URLs, response modeling) |
 | **Skills** | |
-| `skills/clean-architecture/` | Folder structure, dependency rules, design and code conventions |
-| `skills/tdd/` | TDD red-green-refactor cycle enforcement |
-| `skills/testing/` | Test structure, naming, fakes, and coverage conventions |
+| [skills/clean-architecture/](skills/clean-architecture/SKILL.md) | Folder structure, dependency rules, design and code conventions |
+| [skills/tdd/](skills/tdd/SKILL.md) | TDD red-green-refactor cycle enforcement |
+| [skills/testing/](skills/testing/SKILL.md) | Test structure, naming, fakes, and coverage conventions |
 | **Other** | |
-| `hooks/rtk-rewrite.sh` | Pre-tool hook that rewrites commands through RTK |
-| `examples/` | Template files (e.g., `reviewers.typescript.json` for project trigger overrides) |
-| `memory/` | Persistent file-based memory for cross-conversation context |
+| [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
+| [examples/](examples/) | Template files (e.g., `review-triggers.typescript.json` for project trigger overrides) |
+| [scripts/run-scenarios.sh](scripts/run-scenarios.sh) | Ralph loop — batch scenario runner for unattended execution |
+| [memory/](memory/) | Persistent file-based memory for cross-conversation context |
 
 ## Ralph loop - Batch scenario runner (unattended)
 
