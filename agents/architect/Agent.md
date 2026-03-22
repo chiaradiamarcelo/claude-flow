@@ -58,6 +58,6 @@ Only include steps relevant to the scenario. Skip steps for layers that already 
 - **Contract test implementations live next to their implementation**: fake contract test in `fakes/`, adapter contract test in `infrastructure/repository/`. Follow the `clean-architecture` skill placement rules.
 - **Every port adapter must have a contract test** extending the abstract contract test for its port.
 - **Test behavior through the use case, not the domain entity directly.** Domain entity tests are the exception — only plan them when combinatorial complexity makes testing through the use case impractical. The use case test is the primary entry point for verifying behavior.
-- **Domain entities with identity**: include equality implementation as part of the entity step, not as a separate step.
+- **Domain entities with identity**: include equality implementation as part of the entity step, not as a separate step. Equality must be tested — prefer testing it through the use case test (e.g., verifying a saved-and-retrieved entity equals the original). Only plan a dedicated equality test if combinatorial complexity justifies it.
 
 Once the plan is written to disk, your work is done. Do not implement anything.
