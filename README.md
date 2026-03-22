@@ -121,23 +121,6 @@ SCENARIO-02: architect → developer → /run-reviewers → done
 SCENARIO-03: architect → developer → /run-reviewers → done
 ```
 
-## Ralph loop - Batch scenario runner (unattended)
-
-For running multiple scenarios unattended (e.g., overnight or while away), use the batch script. Each scenario gets a fresh Claude session — no context contamination between scenarios.
-
-```bash
-./scripts/run-scenarios.sh deposit-money
-```
-
-This loops through all unchecked scenarios in `docs/specifications/deposit-money/specification.md`, running one per fresh Claude session via `/continue-scenario`. It handles rate-limit retries and verifies each scenario is marked done before proceeding.
-
-**When to use it:**
-- You have several scenarios approved and want to let Claude work through them unattended
-- You want guaranteed fresh context per scenario (no context window bloat)
-
-**When NOT to use it:**
-- Most of the time. The normal interactive flow (`/intent-and-goal` → "proceed") is preferred when you're at the keyboard and want to steer the work.
-
 ## Ad-hoc reviews
 
 To review code outside the normal pipeline (legacy code, full project audit, specific layers):
@@ -254,6 +237,23 @@ Available templates:
 | `hooks/rtk-rewrite.sh` | Pre-tool hook that rewrites commands through RTK |
 | `examples/` | Template files (e.g., `reviewers.typescript.json` for project trigger overrides) |
 | `memory/` | Persistent file-based memory for cross-conversation context |
+
+## Ralph loop - Batch scenario runner (unattended)
+
+For running multiple scenarios unattended (e.g., overnight or while away), use the batch script. Each scenario gets a fresh Claude session — no context contamination between scenarios.
+
+```bash
+./scripts/run-scenarios.sh deposit-money
+```
+
+This loops through all unchecked scenarios in `docs/specifications/deposit-money/specification.md`, running one per fresh Claude session via `/continue-scenario`. It handles rate-limit retries and verifies each scenario is marked done before proceeding.
+
+**When to use it:**
+- You have several scenarios approved and want to let Claude work through them unattended
+- You want guaranteed fresh context per scenario (no context window bloat)
+
+**When NOT to use it:**
+- Most of the time. The normal interactive flow (`/intent-and-goal` → "proceed") is preferred when you're at the keyboard and want to steer the work.
 
 ## Note
 
