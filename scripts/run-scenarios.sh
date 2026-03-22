@@ -49,7 +49,7 @@ while true; do
   fi
 
   echo "========================================"
-  echo "  Starting: $NEXT"
+  echo "  Starting: $NEXT  [$(date +%H:%M:%S)]"
   echo "========================================"
 
   TIMESTAMP=$(date +%Y%m%d_%H%M%S)
