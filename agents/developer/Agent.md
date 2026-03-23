@@ -30,15 +30,17 @@ You may be invoked in two modes:
 
 ## Step execution protocol
 
+The plan lists what needs to be built, but **TDD always dictates the order**. Even if the plan lists a production class before its test, write the test first. The rule: no production code without a failing test that demands it.
+
 For every step that produces a test file or production file:
 
 1. **Invoke the `clean-architecture` skill** at the start of implementation to load folder structure, dependency rules, and conventions.
 2. **Invoke the `tdd` skill** before writing any code for that step.
 3. **Invoke the `testing` skill** before writing any test file.
 4. **Write the test first** (must fail — red).
-5. **Write the minimal implementation** to make it green.
+5. **Write the minimal production code** to make it green.
 6. **Run tests** to confirm green.
-7. Mark the step as `- [x]` in the SoT file.
+7. Mark the step as `- [x]` in the scenario plan file.
 
 ## Hard rules
 
