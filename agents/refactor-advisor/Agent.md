@@ -48,12 +48,17 @@ This reviewer checks **code quality within layers** — is the code well-designe
 ### Validation ownership
 - Avoid duplicated validation across layers.
 - Avoid inconsistent error mapping across layers.
+- **Do not silently downgrade data integrity errors to empty results.** If data is invalid (e.g., duplicate IDs, malformed records), the code should throw — not return an empty list or a default value. An empty result is indistinguishable from "no data" and hides real problems. Exceptions for genuinely broken data are correct and expected; the caller (ViewModel, sync job) decides how to surface them.
 
 ### Business policy configurability
 - Flag hard-coded policy constants in use-case or domain logic that should be configurable.
 
 ### Mapper cleanliness
 - Mappers should map data only, not apply business rules.
+
+### Over-abstraction / unnecessary ports
+- **Flag domain port interfaces that exist only for one consumer and wrap a single infrastructure operation.** If a port's only implementation does one thing (e.g., parse JSON, check a file format, clear a cache), the port is over-engineered. The operation should be inlined in the class that needs it, or kept as a private method. Ports are for genuine boundaries that the domain needs to cross — not for making every function call mockable/fakeable.
+- **Flag infrastructure orchestration disguised as use cases.** If a "use case" class has zero domain logic — it only coordinates HTTP calls, file writes, caching, and scheduling — it belongs in the data/infrastructure layer, not domain. Placing it in domain forces the creation of unnecessary ports to satisfy the dependency rule. Signs: the class imports only ports (no domain entities used for decisions), the logic is "fetch → write → update version" with no business branching beyond simple comparisons.
 
 ## Output format
 
