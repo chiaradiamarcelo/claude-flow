@@ -85,11 +85,12 @@ Consolidate all findings into a single report:
 ### WARNINGS (should fix)
 <all warnings, prefixed with reviewer name>
 
-### SUGGESTIONS (optional)
+### SUGGESTIONS
 <all suggestions, prefixed with reviewer name>
 
 ### GOOD PRACTICES
 <positive notes>
 
 ### Verdict: PASS | FAIL
+FAIL if any VIOLATIONS, WARNINGS, or SUGGESTIONS exist. PASS only when all sections are empty.
 ```
