@@ -6,13 +6,16 @@
 
 - **New features/use cases**: when starting a new task, run `/intent-and-goal`.
 - **Scenarios first**: follow the `/intent-and-goal` flow to refine the intent, then propose Gherkin scenarios, and create a Source of Truth (SoT) specification file before any code is written.
-- **MANDATORY: One scenario at a time.** When the user asks to proceed with a scenario (e.g. "proceed with SCENARIO-01"), run the full pipeline for that **single scenario** before moving to the next:
+- **MANDATORY: One scenario at a time. No exceptions. No shortcuts. No optimizations.**
+  Every scenario MUST go through the full pipeline, even if it seems trivial or similar to a previous one:
   1. **`architect`** → creates the scenario plan file for this scenario only.
   2. **`developer`** → implements this scenario's plan with TDD.
   3. **`/run-reviewers`** (runs exactly once, no arguments) → discovers all `type: reviewer` agents, filters by changed files, spawns relevant reviewers in parallel, and returns a consolidated report.
   4. If the verdict is **FAIL**: spawn `developer` in fix mode with the consolidated findings. Developer addresses **ALL** findings (violations, warnings, and suggestions) in one pass. Scenario is done.
   5. If the verdict is **PASS**: scenario is done.
-  - Never plan, implement, or review multiple scenarios in one pass. Never implement a scenario manually without going through this pipeline.
+  - **Never skip `/run-reviewers`** — even for small changes, even for "similar patterns", even if the previous scenario was already reviewed.
+  - **Never run scenarios in parallel** — always sequential, one complete pipeline per scenario.
+  - **Never batch multiple scenarios** in one architect or developer invocation.
   - After completing a scenario, **automatically continue** with the next unchecked scenario. Do not ask for permission between scenarios.
 
 ## Methodology: TDD (Red-Green-Refactor)
