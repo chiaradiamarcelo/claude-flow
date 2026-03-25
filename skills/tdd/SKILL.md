@@ -22,6 +22,7 @@ Work in cohesive layer slices from the outside in. The RED-GREEN-REFACTOR cycle 
 - Read the SoT file (`docs/specifications/<feature-slug>.md`) and any relevant existing source files.
 - Identify which layers are needed for this scenario.
 - **Write the implementation plan in the SoT file before writing any code.** Fill in the ordered Implementation Plan checklist for the scenario being implemented. The plan drives the work — do not start coding until it is written.
+- **Prepare the seam before changing signatures.** When the plan requires adding a parameter to a constructor, method, or data class that is already called in multiple places (especially tests), scan the call sites first. If 3+ sites use identical construction, extract a shared helper/fixture *before* changing the signature. This keeps the actual feature change surgical — one edit in the helper, not shotgun surgery across dozens of files. "Make the change easy (this might be hard), then make the easy change." — Kent Beck
 - Do not re-read files during implementation.
 
 ### 1. RED - Write all failing tests for the current layer

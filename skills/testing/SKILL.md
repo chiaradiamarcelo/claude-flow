@@ -43,8 +43,41 @@ class CalculateOccupancyTest:
 
 ## Logic in Tests (Forbidden)
 
-**Never use `if`, `else`, `for`, `while`, `switch`, or similar control flow in a test body.**
-Tests must remain declarative and linear.
+**Never use `if`, `else`, `for`, `while`, `switch`, `forEach`, or similar control flow in a test body.**
+Tests must remain declarative and linear. If branching appears necessary, split scenarios or redesign setup.
+
+## One behavior per test
+
+Each test verifies one behavior. If a method name needs "and", split it.
+
+## Assertions
+
+- Prefer the project's assertion library for consistent style.
+- For comparisons, prefer `assertThat(actual).isEqualTo(expected)` style or equivalent.
+- **Precision-sensitive values**: MUST use comparison methods that ignore scale/representation differences.
+- Flag mixed assertion styles when a single style can keep tests consistent.
+- Avoid magic numbers; use named constants/fixtures where meaning matters.
+- **No redundant intermediate assertions**: do not assert a precondition that is already tested implicitly by the next assertion. For example, asserting `isPresent()` before accessing `.get()` is redundant if the next line asserts a property of the unwrapped value — the test will fail anyway if the value is absent.
+
+## Test data minimality
+
+- Each test should use the smallest input/fixture set that still proves the behavior.
+- Oversized datasets when fewer values/records would assert the same rule are a violation.
+- Large reference/challenge datasets are a violation unless the scenario explicitly validates that exact dataset.
+- Repeated raw domain literals should use shared constants when values recur across tests.
+
+## Repeated construction = extract a helper
+
+- When the same constructor call (domain object, formatter, factory, ViewModel, or UI state) appears identically in 3+ test methods or across 2+ test files, it must be extracted into a shared fixture builder or test helper.
+- This applies to production object construction in tests (e.g., `FestivalCardFormatter(...)`, `HomeSectionsFactory(...)`, `toSuccess(...)`) — not just domain fixtures.
+- The helper absorbs incidental parameters (like test fakes) so tests only specify what matters for their scenario.
+- When a new parameter is added to a shared constructor, update the helper — never patch individual call sites.
+
+## Test data visibility
+
+- **All test data referenced in assertions must be visible in the test body.** Class-level fields that build test data (e.g., `private val remoteJson = aFestivalJson(...)`) and are used implicitly by tests are a violation. The reader should not need to scroll to class fields to understand what a test asserts. Pass data explicitly via the setup helper or use named constants.
+- **Don't test return types that are internal signals.** If a return type (e.g., `SyncResult.Success`) is only consumed internally — not by presentation or UI — don't write tests that only assert on it. The behavioral tests (e.g., "festivals updated") already prove success.
+- **"Unchanged" assertions must use distinct before/after values.** When a test asserts "data unchanged after operation," the local and remote data must have visibly different identifiers. If both happen to have the same ID, the test passes vacuously even if the wrong data is returned.
 
 ## Testing Strategy & Efficiency
 
@@ -57,13 +90,10 @@ Nearly everything can be verified in a fast, economical way through:
 
 This layered approach ensures the system is thoroughly tested while keeping the feedback loop fast.
 
-## One behavior per test
-
-Each test verifies one behavior. If a method name needs "and", split it.
-
 ## Fakes over mocks (default)
 
 - **Mandatory fakes for external dependencies**: You MUST use hand-written fakes for infrastructure ports (repositories, external APIs) to ensure deterministic and fast tests.
+- **No Use Case Interfaces**: Use Cases should be concrete classes. Using an interface for a Use Case is a violation.
 - **Mocking Use Cases in API tests**: Using a mocking library to mock the Use Case in an API controller slice test is acceptable and standard.
 - **Fakes must satisfy the contract**: Fakes MUST behave like real implementations for the tested contract and pass the same contract tests.
 - Fakes must implement the same port interface as production adapters.
@@ -82,6 +112,12 @@ class FakeGuestRepository implements GuestRepository:
         return copyOf(guests)
 ```
 
+## Response sequencing for external call fakes
+
+- **A single fake should support response sequencing** — configure a list of responses that play back in order. Do not create separate fake classes for success, error, timeout, partial failure, etc. One fake class per port, with response variants as a sealed class.
+- Multiple fake classes for the same port (e.g., `ThrowingRemoteSource`, `FailingDownloadRemoteSource`, `SpyRemoteSource`) are a violation — unify into one configurable fake with a `Response` sealed class and built-in call counting.
+- **Auto-advance**: each call consumes the next response. Last response repeats if the sequence is exhausted. No manual `advance()` calls.
+
 ## API controller tests (slice standard)
 
 For controllers, use this baseline:
@@ -92,6 +128,7 @@ For controllers, use this baseline:
 - Request via test client
 - Assert HTTP status first, then payload/headers when needed
 - Verify delegation to the mocked use case/dependency
+- For create endpoints, check `Location` header behavior when applicable
 
 Success path example:
 
@@ -136,12 +173,23 @@ When designing 4xx tests, distinguish source of failure:
 - Input parsing/deserialization failures (malformed input, invalid types) -> `400`.
 - Domain constructor/factory invariant violations (null/blank required values) -> `400`.
 
+## Async/reactive tests
+
+- Use deterministic waiting and assertion style (no sleeps).
+- Ensure async tests assert outcomes, not intermediate incidental timing.
+
+## Test file size & grouping
+
+- Test files exceeding ~300-400 lines covering unrelated features should be split by feature.
+- Keep tests at public API boundaries.
+
 ## Repository integration tests (real DB, contract-style)
 
 - Use framework-provided data layer test annotation.
 - Talk to a real database (same engine as production or compatible equivalent).
 - Keep DB schema managed by migration tools.
 - Use schema validation mode to catch drift.
+- Verify CRUD contract scenarios: save/read, list-empty/list-populated, update, delete-existing, delete-missing idempotence.
 
 ## Contract tests for ports
 
@@ -157,6 +205,15 @@ Do not widen visibility only for tests.
 **Exception**: when a domain class (e.g. a value object or calculator) has enough variants that testing all combinations through the use case would require excessive boilerplate, extract it into a focused class and test that class directly. This must be justified by combinatorial complexity, not convenience.
 
 **Equality**: domain entities with identity must always have equality tested in a dedicated test (e.g., `BankAccountTest`). This is an exception to the "test through the use case" rule — other assertions across the test suite (e.g., `assertThat(repo.findById(id)).isEqualTo(expectedEntity)`) silently depend on equality working correctly. Always test: same identity = equal, different identity = not equal.
+
+## Test adapters through their public interface
+
+- **Adapters must be tested through the port they implement**, not by testing each internal collaborator independently. If an adapter composes an HTTP client, a JSON parser, a file writer, and a validator, test the adapter as a whole through its port contract.
+- **Do not create fakes/mocks for an adapter's internal collaborators** when those collaborators are not domain ports. For example, if a sync job internally validates JSON before writing, the validation should be exercised through the sync job's tests — not through a separate `FakeJsonValidator` injected from outside.
+- **Assert on observable outcomes, not internal state.** When testing that an operation preserved or changed data, assert through the public interface (e.g., `repository.festivals()` returns the same list) — not by peeking at internal storage (e.g., `localStorage.read()` returns the same JSON). Internal storage is an implementation detail that could change without affecting behavior.
+- **Prefer behavioral consequence over collaborator state.** When a test injects a collaborator (e.g., a metadata store, a version store), prefer asserting on the behavioral consequence rather than the collaborator's internal state. For example, instead of `assertEquals(PAST_INTERVAL, metadataStore.lastCheckedAt())` to prove "timestamp wasn't saved on failure," test that an immediate retry succeeds — that's the actual consequence the user cares about.
+- **Extract and test independently only for combinatorial explosion.** When testing through the public interface would require an impractical number of test cases to cover all combinations, extract the complex internal logic into its own class with its own tests. But that class stays `internal`/`private` — it is not promoted to a domain port.
+- **Rare exception: injecting fakes for error paths that are impossible to trigger through the public interface** (e.g., simulating a disk-full error, a corrupted file handle, or an OOM crash). These cases are rare and must be explicitly justified.
 
 ## What to test
 
