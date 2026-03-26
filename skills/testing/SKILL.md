@@ -79,6 +79,12 @@ Each test verifies one behavior. If a method name needs "and", split it.
 - **Don't test return types that are internal signals.** If a return type (e.g., `SyncResult.Success`) is only consumed internally — not by presentation or UI — don't write tests that only assert on it. The behavioral tests (e.g., "festivals updated") already prove success.
 - **"Unchanged" assertions must use distinct before/after values.** When a test asserts "data unchanged after operation," the local and remote data must have visibly different identifiers. If both happen to have the same ID, the test passes vacuously even if the wrong data is returned.
 
+## Test behavior, not library boundaries
+
+- **When a library implements your product behavior, the behavior is still yours to test.** The library is an implementation detail, not an excuse to skip testing. "Show a fallback when the image fails to load" is product behavior whether Coil, Glide, or hand-written code implements it.
+- **If a behavior is hard to test, restructure the code for testability first.** Most "untestable" behaviors are a design signal, not a tooling limitation.
+- **Delete vacuous tests.** A test that passes regardless of whether the code is correct is worse than no test — it gives false confidence. If you can't make a test fail by removing the behavior, delete it.
+
 ## Testing Strategy & Efficiency
 
 **Prefer fast, economical, and deterministic tests.**
