@@ -39,23 +39,15 @@ This command walks through three phases interactively:
 2. **Scenario generation** — proposes Gherkin scenarios (happy path, empty state, edge cases, errors) with unique IDs (`SCENARIO-01`, `SCENARIO-02`, ...). Iterate until satisfied.
 3. **Specification creation** — on approval, creates a folder at `docs/specifications/<feature-slug>/` with a `specification.md` containing the intent, business rules, scenarios, and a progress checklist. Scenario plan files are created later by the architect.
 
-### Phase 2: Implementation (autonomous)
+### Phase 2: Planning (parallel)
 
-Once scenarios are approved, trigger implementation one scenario at a time:
-
-```
-proceed with SCENARIO-01
-```
-
-This runs the following pipeline automatically:
+All scenarios are planned before any code is written:
 
 ```
-architect → developer → /run-reviewers → developer (fix) if needed
+proceed
 ```
 
-#### Step 1: Architect
-
-The `architect` agent invokes the `clean-architecture` skill, reads `specification.md` and existing code, then creates a scenario plan file (`SCENARIO-XX.md`) in the same folder. It writes no code — only a plan of files and classes to create/modify, following inside-out Clean Architecture order (domain → ports → fakes → use case → infrastructure → API).
+This runs one `architect` agent per scenario, all in parallel. Each architect invokes the `clean-architecture` skill, reads `specification.md` and existing code, then creates a scenario plan file (`SCENARIO-XX.md`) in the same folder. It writes no code — only a plan of files and classes to create/modify, following inside-out Clean Architecture order (domain → ports → fakes → use case → infrastructure → API).
 
 ```
 docs/specifications/deposit-money/
@@ -66,20 +58,20 @@ docs/specifications/deposit-money/
 
 Planning rules: test behavior through the use case (not domain entities directly), every port adapter must have a contract test, domain entities with identity include equality.
 
-#### Step 2: Developer
+### Phase 3: Implementation (parallel)
 
-The `developer` agent reads `specification.md` for context and the scenario plan file for the checklist, then executes step by step:
+All scenarios are implemented in parallel — one `developer` agent per scenario, each in its own worktree for isolation.
+
+Each developer reads `specification.md` for context and the scenario plan file for the checklist, then executes step by step:
 
 - Writes a failing test first (red)
 - Writes the minimal code to pass (green)
 - Refactors while keeping tests green
 - Marks each step done in the scenario plan file
 
-Can also run in **fix mode** — receives consolidated review findings and addresses all findings (violations, warnings, suggestions) in one pass.
+### Phase 4: Review
 
-#### Step 3: `/run-reviewers` (parallel, runs once)
-
-The `/run-reviewers` command runs in the main conversation (not as a sub-agent, so it can spawn reviewer agents). With no arguments (pipeline mode), it:
+After all scenarios are implemented, `/run-reviewers` runs once on all changed files. It runs in the main conversation (not as a sub-agent, so it can spawn reviewer agents). With no arguments (pipeline mode), it:
 
 1. Gets changed files via `git diff --name-only`. Falls back to `git ls-files` if no diff is available.
 2. Discovers reviewer agents by grepping for `type: reviewer` in agent frontmatter (global + project).
@@ -95,22 +87,19 @@ Built-in reviewers (defined in agent frontmatter):
 | `test-reviewer` | `**/src/test/**`, `**/*Test.*`, `**/*IT.*`, `**/*AT.*` | GWT structure, naming, fakes vs mocks, redundant assertions, test logic, coverage strategy |
 | `arch-reviewer` | `**/src/main/**` | Layer dependencies, domain purity, Clean Architecture patterns, TDD compliance |
 | `refactor-advisor` | `**/src/main/**` | Primitive obsession, misplaced logic, intent-revealing methods, naming, mapper cleanliness |
+| `api-reviewer` | `**/api/**`, `**/controller/**`, `**/dto/**` | HTTP conventions, thin controllers, REST URLs, response modeling |
 
-#### Step 4: Fix pass
+### Phase 5: Fix pass
 
-- **FAIL** (violations exist) → the developer is spawned in fix mode with all findings and addresses everything in one pass. Scenario is done.
-- **PASS** (no violations) → scenario is done.
-
-The review gate runs exactly once. No re-verification loop — the developer fixes all violations in a single pass.
-
-### Scenarios run sequentially
-
-Each scenario builds on a known-green, reviewed codebase before the next one starts. This guarantees no conflicts and full traceability from business behavior to implementation.
+- **FAIL** → developers are spawned in fix mode (one per scenario with findings, in parallel). All findings (violations, warnings, suggestions) addressed in one pass. Then `/run-reviewers` runs again.
+- **PASS** → done.
 
 ```
-SCENARIO-01: architect → developer → /run-reviewers → done
-SCENARIO-02: architect → developer → /run-reviewers → done
-SCENARIO-03: architect → developer → /run-reviewers → done
+Phase 1:  /intent-and-goal → scenarios approved
+Phase 2:  architect × N  (parallel)
+Phase 3:  developer × N  (parallel, worktree isolation)
+Phase 4:  /run-reviewers  (once, all changed files)
+Phase 5:  developer fix × N if FAIL → /run-reviewers again
 ```
 
 ## Ad-hoc reviews
@@ -227,11 +216,11 @@ Available templates:
 | [skills/clean-architecture/](skills/clean-architecture/SKILL.md) | Folder structure, dependency rules, design and code conventions |
 | [skills/tdd/](skills/tdd/SKILL.md) | TDD red-green-refactor cycle enforcement |
 | [skills/testing/](skills/testing/SKILL.md) | Test structure, naming, fakes, and coverage conventions |
+| [skills/adr/](skills/adr/SKILL.md) | Architecture Decision Record creation |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Template files (e.g., `review-triggers.typescript.json` for project trigger overrides) |
 | [scripts/run-scenarios.sh](scripts/run-scenarios.sh) | Ralph loop — batch scenario runner for unattended execution |
-| [memory/](memory/) | Persistent file-based memory for cross-conversation context |
 
 ## Ralph loop - Batch scenario runner (unattended)
 
