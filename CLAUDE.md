@@ -12,21 +12,16 @@
   **Phase 1 — Plan all scenarios upfront:**
   Run **`architect`** for all scenarios in parallel before any implementation begins. One scenario per architect, never batch.
 
-  **Dependency map** (added to the SoT specification file after all plans are complete):
-  Compare planned files across all scenarios. Scenarios with no shared files can run in parallel. Scenarios that share files must run sequentially. Use the dependency map to form parallel cycles for Phase 2.
-
-  **Phase 2 — Implement in parallel cycles:**
-  1. Follow the dependency map to determine which scenarios run in each cycle.
-  2. Run scenarios in the current cycle in parallel — one **`developer`** per scenario, using worktree isolation.
-  3. After each cycle, run **`/run-reviewers`** (once, no arguments) on all changed files.
-  4. If **FAIL**: fix findings in parallel (one developer per scenario with findings). All findings (violations, warnings, suggestions) in one pass.
-  5. Continue with the next cycle until all scenarios are done.
-  6. After the last cycle, run **`/run-reviewers`** on all changed files (full final review). Fix all findings.
+  **Phase 2 — Implement all scenarios in parallel:**
+  1. Run all scenarios in parallel — one **`developer`** per scenario, using worktree isolation. Let Claude handle merging.
+  2. After all scenarios are implemented, run **`/run-reviewers`** (once, no arguments) on all changed files.
+  3. If **FAIL**: fix findings in parallel (one developer per scenario with findings). All findings (violations, warnings, suggestions) in one pass.
+  4. Run **`/run-reviewers`** again on all changed files (final review). Fix all findings.
 
   **Rules:**
-  - Never skip `/run-reviewers` after a cycle.
+  - Never skip `/run-reviewers` after implementation completes.
   - Never batch multiple scenarios in one developer.
-  - Auto-continue between cycles — do not ask for permission.
+  - Auto-continue — do not ask for permission between steps.
 
 ## Methodology: TDD (Red-Green-Refactor)
 
