@@ -2,14 +2,6 @@
 
 Personal Claude Code configuration: global instructions, custom agents, skills, hooks, and settings. Implements a multi-agent development pipeline with Clean Architecture, TDD, and parallel review gates.
 
-## Setup
-
-Clone into `~/.claude/`:
-
-```bash
-git clone git@github-chiaradiamarcelo:chiaradiamarcelo/claude-flow.git ~/.claude
-```
-
 ## Prerequisites
 
 ### RTK (Rust Token Killer)
@@ -257,7 +249,3 @@ This loops through all unchecked scenarios in `docs/specifications/deposit-money
 
 **When NOT to use it:**
 - Most of the time. The normal interactive flow (`/intent-and-goal` → "proceed") is preferred when you're at the keyboard and want to steer the work.
-
-## Note
-
-`settings.json` contains hardcoded paths to `~/.claude/`. If your home directory differs from `/Users/mchiaradia`, update the paths accordingly.

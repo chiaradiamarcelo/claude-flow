@@ -12,7 +12,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/mchiaradia/.claude/hooks/rtk-rewrite.sh"
+            "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
           }
         ]
       }
@@ -20,7 +20,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash /Users/mchiaradia/.claude/statusline-command.sh"
+    "command": "bash $HOME/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,
