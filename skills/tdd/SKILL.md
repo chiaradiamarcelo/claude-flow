@@ -11,19 +11,10 @@ Implement using strict TDD: **$ARGUMENTS**
 
 - NEVER write production code without a failing test first.
 - **Mandatory Standards**: Follow the `testing` skill for all test structure (GWT with blank lines), naming (snake_case), and fakes usage.
-- **Mandatory Review**: After writing tests for a layer (RED phase) and after any refactor (REFACTOR phase), you MUST invoke the `test-reviewer` agent to validate the test quality.
 
 ## Approach: Outside-In, Layer-by-Layer
 
 Work in cohesive layer slices from the outside in. The RED-GREEN-REFACTOR cycle applies at the **layer level**, not line by line.
-
-### 0. UNDERSTAND & PLAN
-
-- Read the SoT file (`docs/specifications/<feature-slug>.md`) and any relevant existing source files.
-- Identify which layers are needed for this scenario.
-- **Write the implementation plan in the SoT file before writing any code.** Fill in the ordered Implementation Plan checklist for the scenario being implemented. The plan drives the work — do not start coding until it is written.
-- **Prepare the seam before changing signatures.** When the plan requires adding a parameter to a constructor, method, or data class that is already called in multiple places (especially tests), scan the call sites first. If 3+ sites use identical construction, extract a shared helper/fixture *before* changing the signature. This keeps the actual feature change surgical — one edit in the helper, not shotgun surgery across dozens of files. "Make the change easy (this might be hard), then make the easy change." — Kent Beck
-- Do not re-read files during implementation.
 
 ### 1. RED - Write all failing tests for the current layer
 
@@ -51,8 +42,7 @@ Work in cohesive layer slices from the outside in. The RED-GREEN-REFACTOR cycle 
 
 ### 4. NEXT LAYER
 
-Repeat RED → GREEN → REFACTOR for each subsequent layer as defined in the implementation plan.
-Tick off the SoT checklist item as each layer is completed.
+Repeat RED → GREEN → REFACTOR for each subsequent layer.
 
 ## Guidelines
 
