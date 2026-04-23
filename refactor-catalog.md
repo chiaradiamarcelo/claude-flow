@@ -291,3 +291,143 @@ in `FestivalSearchCard`, `FestivalDetailHeroSection`, `FestivalMapInfoSheet`, an
 `HomeScreen`. Extracted to `FestivalImageView` in `presentation/common/`. All four callers
 now delegate to the shared composable. Adding `placeholder = painterResource(...)` to the
 `Remote` branch required changing one file instead of four.
+
+---
+
+## Guard clauses
+
+### Smell
+A function uses nested `if/else` blocks or assigns to a local variable through conditional
+branches before reaching the "real work." The happy path is buried inside indentation, and
+the reader must mentally track which conditions lead to which outcomes. Error/edge-case
+handling is interleaved with the main logic instead of being dispatched up front.
+
+### Trigger
+A function has 2+ levels of nesting for validation or precondition checks, or the main
+logic is inside an `if` block whose `else` is an error/throw.
+
+### Refactoring
+1. Identify each precondition or invalid-state check in the function.
+2. Invert the condition and return/throw immediately (early exit).
+3. Remove the `else` branch — the rest of the function *is* the happy path.
+4. The function now reads top-down: guards first, then linear main logic at the base
+   indentation level.
+
+### Structure after refactoring
+- Each guard clause is a one-liner `if (!condition) throw/return`.
+- Guards appear at the top of the function in order of cheapest-to-check first.
+- The main logic follows at the same indentation level — no nesting.
+
+### Tests
+- No behavioral change — tests remain green throughout.
+- Each guard maps to a test that triggers that specific early exit.
+
+### Example
+**Diagnostics report schema versioning (TypeScript)**
+`parseDiagnosticsReportEnvelope` originally used nested `if/else` blocks to validate the
+parsed JSON. Refactored to sequential guard clauses:
+```typescript
+if (!isPlainObject(parsed))           throw new Error(MALFORMED);
+if (!hasNumericSchemaVersion(parsed))  throw new Error(MALFORMED);
+if (isCurrentSchemaVersion(parsed))    return extractV1UserAgents(parsed);
+throw new UnsupportedSchemaVersionError(parsed.schemaVersion);
+```
+Each line is a self-contained decision. The function reads as a checklist.
+
+---
+
+## Extract named conditions
+
+### Smell
+A boolean expression appears inline in an `if` statement or ternary. The expression uses
+low-level checks (`typeof`, `in`, `===`, `instanceof`) whose combined intent is not obvious
+without reading every operand. Readers must reverse-engineer what the condition *means* from
+how it is *computed*.
+
+### Trigger
+An `if` condition spans multiple lines, combines 2+ operators, or requires a comment to
+explain its purpose. Or the same compound check appears in more than one place.
+
+### Refactoring
+1. Extract the condition into a named function or variable whose name states the business
+   or structural intent (e.g., `hasNumericSchemaVersion`, `isExpired`, `isEligibleForDiscount`).
+2. Use a type-narrowing return type when the language supports it (TypeScript `is`, Kotlin
+   smart cast) so subsequent code benefits from the narrowed type.
+3. Replace the inline expression with a call to the named function.
+4. If the condition is used once and is short, a `const` with a descriptive name is sufficient;
+   a function is preferred when type narrowing is needed or when reuse is likely.
+
+### Structure after refactoring
+- Each `if` reads as a domain/structural assertion: `if (!isPlainObject(parsed))`.
+- Named predicates live as private helpers near the function that uses them.
+- Type guards carry narrowing information so callers don't need follow-up casts.
+
+### Tests
+- Pure refactor — existing tests stay green.
+- If the extracted predicate is non-trivial, consider a focused unit test.
+
+### Example
+**Diagnostics report schema versioning (TypeScript)**
+```typescript
+// Before
+if (!('schemaVersion' in record) || typeof record.schemaVersion !== 'number') { ... }
+
+// After
+function hasNumericSchemaVersion(
+  record: Record<string, unknown>,
+): record is Record<string, unknown> & { schemaVersion: number } {
+  return 'schemaVersion' in record && typeof record.schemaVersion === 'number';
+}
+if (!hasNumericSchemaVersion(parsed)) { ... }
+```
+The `if` now reads as a structural assertion. The type narrowing flows into subsequent code.
+
+---
+
+## Compose method
+
+### Smell
+A function is long and mixes multiple levels of abstraction: low-level mechanics (parsing,
+casting, null-checking) alongside high-level decisions (dispatching on a version, selecting
+a strategy). The reader must constantly shift mental gears between *what* the function does
+and *how* it does each step. The function is hard to scan because the outline (the sequence
+of steps) is buried in implementation details.
+
+### Trigger
+A function exceeds ~15 lines, or you can identify 2+ distinct "phases" within it (validate,
+transform, dispatch) that each involve their own low-level logic.
+
+### Refactoring
+1. Identify the high-level steps the function performs (e.g., parse → validate → dispatch).
+2. Extract each step into a named private function whose name describes *what* it does, not
+   *how*: `extractV1UserAgents(record)`, `assertWellFormed(condition)`.
+3. The composed function becomes a short sequence of calls at a single level of abstraction —
+   a table of contents for the algorithm.
+4. Each extracted function owns one concern and can be understood independently.
+5. Keep extracted helpers private/local unless reuse is proven.
+
+### Structure after refactoring
+- The public function reads like pseudocode: 5–10 lines, each a named step.
+- Private helpers contain the mechanical details (type checks, casts, error construction).
+- Each helper has a clear input → output contract.
+
+### Tests
+- No behavioral change — existing tests stay green.
+- Helpers are tested indirectly through the composed function; extract a dedicated test only
+  when a helper has complex branching worth pinning independently.
+
+### Example
+**Diagnostics report schema versioning (TypeScript)**
+`parseDiagnosticsReportEnvelope` was refactored from a single function with inline validation
+and extraction into a composed method:
+```typescript
+export function parseDiagnosticsReportEnvelope(json: string): UserAgentChecks {
+  const parsed: unknown = JSON.parse(json);
+  if (!isPlainObject(parsed))            throw new Error(MALFORMED);
+  if (!hasNumericSchemaVersion(parsed))   throw new Error(MALFORMED);
+  if (isCurrentSchemaVersion(parsed))     return extractV1UserAgents(parsed);
+  throw new UnsupportedSchemaVersionError(parsed.schemaVersion);
+}
+```
+Each helper (`isPlainObject`, `hasNumericSchemaVersion`, `isCurrentSchemaVersion`,
+`extractV1UserAgents`) owns a single concern. The main function is a readable checklist.
