@@ -72,6 +72,7 @@ Each test verifies one behavior. If a method name needs "and", split it.
 - This applies to production object construction in tests (e.g., `FestivalCardFormatter(...)`, `HomeSectionsFactory(...)`, `toSuccess(...)`) — not just domain fixtures.
 - The helper absorbs incidental parameters (like test fakes) so tests only specify what matters for their scenario.
 - When a new parameter is added to a shared constructor, update the helper — never patch individual call sites.
+- **Prepare the seam before changing signatures.** When you are about to add a parameter to a constructor, method, or data class that is already called in multiple places (especially tests), scan the call sites first. If 3+ sites use identical construction, extract the helper *before* changing the signature — not after. One edit in the helper, not shotgun surgery across dozens of files. "Make the change easy (this might be hard), then make the easy change." — Kent Beck
 
 ## Test data visibility
 
