@@ -44,7 +44,6 @@ Scenario: <clear description>
 ### Scenario rules
 
 - Use business-domain language; avoid generic CRUD wording.
-- One scenario maps to exactly one test.
 - One behavior per scenario.
 - Reuse existing domain objects when possible.
 - Do not suggest implementation details or architecture in this phase.

@@ -6,21 +6,23 @@
 
 - **New features/use cases**: when starting a new task, run `/intent-and-goal`.
 - **Scenarios first**: follow the `/intent-and-goal` flow to refine the intent, then propose Gherkin scenarios, and create a Source of Truth (SoT) specification file before any code is written.
-- **Plan all, then implement.**
-  After scenarios are defined, the pipeline has two phases:
+- **Sequential pipeline.**
+  After scenarios are defined, run them one at a time:
 
-  **Phase 1 — Plan all scenarios upfront:**
-  Run **`architect`** for all scenarios in parallel before any implementation begins. One scenario per architect, never batch.
+  **For each scenario in order (top-to-bottom in `## BDD Acceptance Progress`):**
+  1. Run **`architect`** to plan it (produces `SCENARIO-XX.md`).
+  2. Run **`developer`** to implement it.
+  3. Move to the next unchecked scenario.
 
-  **Phase 2 — Implement all scenarios in parallel:**
-  1. Run all scenarios in parallel — one **`developer`** per scenario, using worktree isolation. Let Claude handle merging.
-  2. After all scenarios are implemented, run **`/run-reviewers`** (once, no arguments) on all changed files.
-  3. If **FAIL**: fix findings in parallel (one developer per scenario with findings). All findings (violations, warnings, suggestions) in one pass.
-  4. Run **`/run-reviewers`** again on all changed files (final review). Fix all findings.
+  **After all scenarios are implemented:**
+  4. Run **`/run-reviewers`** (once, no arguments) on all changed files.
+  5. If **FAIL**: run **`developer`** in fix mode with the consolidated findings (all violations, warnings, suggestions in one pass).
+  6. Run **`/run-reviewers`** again. Fix any remaining findings the same way.
 
   **Rules:**
-  - Never skip `/run-reviewers` after implementation completes.
-  - Never batch multiple scenarios in one developer.
+  - One scenario at a time. Never run multiple architects or developers in parallel.
+  - Never batch multiple scenarios in one architect or developer call.
+  - Never skip `/run-reviewers` after all scenarios are implemented.
   - Auto-continue — do not ask for permission between steps.
 
 ## Methodology: TDD (Red-Green-Refactor)
