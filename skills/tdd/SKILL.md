@@ -72,16 +72,5 @@ If you catch yourself composing an excuse not on this list, it is still an excus
 
 ## Project conventions
 
-- Follow the `testing` skill for test structure (GWT with blank lines), fakes, and assertions.
-- Test names: snake_case behavior style (e.g., `withdrawing_more_than_balance_fails`).
-- API tests: `returns_<status>_when_<condition>`.
-- One behavior per test.
-- Use the minimum input data that proves the behavior. `add(1, 1)` proves addition; two items prove "multiple"; one missing field proves "missing required field."
+- For test structure, naming, fakes, assertions, minimality, API ordering, and other test-quality rules, follow the `testing` skill.
 - Each file is read once and written once.
-- Prefer unit tests for fast feedback on inner layers; use framework slice utilities for API endpoints.
-- For create/update endpoints, cover in this order:
-  1. success (`201`/`204`)
-  2. malformed input / parse errors (`400`)
-  3. missing/invalid required domain values (`400`)
-  4. non-existing resource (`404`) when applicable
-  5. unexpected runtime failure (`500`) when behavior exists
