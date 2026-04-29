@@ -203,7 +203,6 @@ Available templates:
 | [commands/intent-and-goal.md](commands/intent-and-goal.md) | `/intent-and-goal` — feature intent refinement and scenario generation |
 | [commands/new-reviewer.md](commands/new-reviewer.md) | `/new-reviewer` — guided creation of reviewer agents |
 | [commands/run-reviewers.md](commands/run-reviewers.md) | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
-| [commands/continue-scenario.md](commands/continue-scenario.md) | `/continue-scenario` — find next unchecked scenario and run the pipeline |
 | **Agents — pipeline** | |
 | [agents/architect/](agents/architect/Agent.md) | Creates scenario plan files (invokes `clean-architecture` skill) |
 | [agents/developer/](agents/developer/Agent.md) | Implements the plan with strict TDD (invokes `clean-architecture`, `tdd`, `testing` skills) |
@@ -220,21 +219,3 @@ Available templates:
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Template files (e.g., `review-triggers.typescript.json` for project trigger overrides) |
-| [scripts/run-scenarios.sh](scripts/run-scenarios.sh) | Ralph loop — batch scenario runner for unattended execution |
-
-## Ralph loop - Batch scenario runner (unattended)
-
-For running multiple scenarios unattended (e.g., overnight or while away), use the batch script. Each scenario gets a fresh Claude session — no context contamination between scenarios.
-
-```bash
-./scripts/run-scenarios.sh deposit-money
-```
-
-This loops through all unchecked scenarios in `docs/specifications/deposit-money/specification.md`, running one per fresh Claude session via `/continue-scenario`. It handles rate-limit retries and verifies each scenario is marked done before proceeding.
-
-**When to use it:**
-- You have several scenarios approved and want to let Claude work through them unattended
-- You want guaranteed fresh context per scenario (no context window bloat)
-
-**When NOT to use it:**
-- Most of the time. The normal interactive flow (`/intent-and-goal` → "proceed") is preferred when you're at the keyboard and want to steer the work.
