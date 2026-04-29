@@ -5,7 +5,6 @@
       "Bash(./gradlew connectedAndroidTest*)"
     ]
   },
-  "model": "opus",
   "hooks": {
     "PreToolUse": [
       {
@@ -28,5 +27,7 @@
     "kotlin-lsp@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true
   },
-  "voiceEnabled": true
+  "theme": "light",
+  "voiceEnabled": true,
+  "skipAutoPermissionPrompt": true
 }
