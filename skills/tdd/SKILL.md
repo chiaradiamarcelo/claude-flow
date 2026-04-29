@@ -7,55 +7,81 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 Implement using strict TDD: **$ARGUMENTS**
 
-## Rules
+## Iron Law
 
-- NEVER write production code without a failing test first.
-- **Mandatory Standards**: Follow the `testing` skill for all test structure (GWT with blank lines), naming (snake_case), and fakes usage.
+**No production code without a failing test first.** If you didn't watch the test fail, you don't know if it tests the right thing. Code written before a test must be deleted and reimplemented from the test — no exceptions.
 
-## Approach: Outside-In, Layer-by-Layer
+## The cycle (one behavior at a time)
 
-Work in cohesive layer slices from the outside in. The RED-GREEN-REFACTOR cycle applies at the **layer level**, not line by line.
+Each behavior is one tracer bullet: RED → GREEN → REFACTOR. Then move to the next behavior. Do not batch tests across behaviors.
 
-### 1. RED - Write all failing tests for the current layer
+### 1. RED — Write one failing test
 
-- Write all tests for the current layer in one pass.
-- Use project naming style:
-  - Unit/domain: clear behavior in snake_case.
-  - API: `returns_<status>_when_<condition>`.
-- Run tests and confirm they fail.
-- Show failing output.
+- Write the smallest test that describes the next behavior.
+- Run the test suite. The new test must fail.
+- **Hard gate: paste the failing output before proceeding.** No output, no GREEN.
+- Verify the failure is for the expected reason (missing feature — not a typo, not a missing import).
+- If the test passes without new code, the behavior already exists — pick a different test.
 
-### 2. GREEN - Implement the full layer
+### 2. GREEN — Make it pass
 
-- Write **all** production code for this layer in one pass to make its tests pass.
-- Design the interface from the test's perspective: write tests and production code for the same layer together — you already know the contract.
-- Do not generalize prematurely, but do not artificially limit scope to one method at a time.
-- Run tests and confirm the layer's tests pass.
-- Show passing output.
+- Write the minimum production code to make the failing test pass.
+- Run the test suite. All tests must pass.
+- **Hard gate: paste the passing output before proceeding.** No output, no REFACTOR.
+- Do not add behavior beyond what the current test requires.
+- Do not refactor yet.
 
-### 3. REFACTOR - Improve design
+### 3. REFACTOR — Improve design
 
-- Remove duplication and improve naming.
-- Keep domain rules in domain/application, not controller glue.
-- Keep domain framework-free.
-- Run tests again to confirm still green.
+- Remove duplication, improve naming, separate concerns.
+- Keep tests green throughout. If they break, the change was too aggressive — undo and try smaller.
+- Keep domain rules in domain/application; keep domain framework-free.
 
-### 4. NEXT LAYER
+Then return to RED for the next behavior.
 
-Repeat RED → GREEN → REFACTOR for each subsequent layer.
+## Anti-pattern: writing tests in bulk
 
-## Guidelines
+**Do not write all of a layer's tests first, then all of the production code.** Tests written in bulk validate imagined behavior, not actual behavior — they commit to a contract guess that no running code has confirmed. Each cycle should learn from the previous one.
 
-- One behavior per test; one layer per cycle.
-- Use the minimum input data that still reproduces the target behavior. Two items prove "multiple" as well as three; one field proves "missing required field" as well as five; `1` proves an amount as well as `50`, and `add(1, 1)` proves addition as well as `add(50, 100)`.
-- Each file is read once and written once — avoid re-reading the same file multiple times.
-- Start with the simplest happy path per layer, then add error/edge cases for that layer before moving inward.
-- Prefer unit tests for fast feedback on inner layers.
-- For API endpoints, use framework-provided slice/unit test utilities.
-- In API tests, keep Given/When/Then blocks separated by blank lines.
-- For create/update endpoints, cover tests in this order:
+A plan from an architect tells you *which* tests and *what order*. It does not tell you the test's setup, assertions, or fake API — those are design decisions made during the cycle, one test at a time.
+
+## Rationalization prevention
+
+LLMs generate plausible excuses for skipping or deferring TDD. Common ones and why they fail:
+
+| Excuse | Reality |
+|---|---|
+| "I'll add tests after the implementation" | You won't, or you'll write tests that pass by definition — they validate what you wrote, not what should work. |
+| "This is too simple to test" | Simple code breaks too. The test takes 30 seconds. |
+| "I need to see the implementation shape first" | That's a spike. Spike, throw it away, then TDD. |
+| "I'm just refactoring, not adding behavior" | Existing tests must pass throughout. If there are no tests, write characterization tests first. |
+| "Writing the test first would be slower" | TDD is faster than debugging. It catches errors at the cheapest moment. |
+| "The test is hard to write — I'll come back to it" | Hard-to-test code is hard-to-use code. The test is design feedback. Listen to it. |
+
+If you catch yourself composing an excuse not on this list, it is still an excuse.
+
+## Red flags — stop and restart from RED
+
+- Writing implementation before a test.
+- A test passing immediately without new code.
+- Inability to explain why a test failed.
+- Any reasoning beginning with "just this once."
+- Manual testing claims replacing automated verification.
+
+**Response**: delete code written without a test. Restart from RED.
+
+## Project conventions
+
+- Follow the `testing` skill for test structure (GWT with blank lines), fakes, and assertions.
+- Test names: snake_case behavior style (e.g., `withdrawing_more_than_balance_fails`).
+- API tests: `returns_<status>_when_<condition>`.
+- One behavior per test.
+- Use the minimum input data that proves the behavior. `add(1, 1)` proves addition; two items prove "multiple"; one missing field proves "missing required field."
+- Each file is read once and written once.
+- Prefer unit tests for fast feedback on inner layers; use framework slice utilities for API endpoints.
+- For create/update endpoints, cover in this order:
   1. success (`201`/`204`)
-  2. malformed input and parse errors (`400`)
+  2. malformed input / parse errors (`400`)
   3. missing/invalid required domain values (`400`)
   4. non-existing resource (`404`) when applicable
   5. unexpected runtime failure (`500`) when behavior exists
