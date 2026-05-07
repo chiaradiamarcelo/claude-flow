@@ -39,10 +39,20 @@ Apply all design and code conventions from the `clean-architecture` skill, plus 
 ### Move logic to the right layer
 - Domain rules in controllers.
 - Business branching in orchestration code that belongs in domain services/value objects.
+- **Standalone domain services that should be entity methods.** A `*Calculator`, `*Evaluator`,
+  `*Resolver`, or `*Service` file that exports a stateless function whose only input is a single
+  domain type (or its fields) and whose output is, or derives, one of that type's own fields is
+  almost always an entity method in disguise. Such a service has no second implementation, no port,
+  and no collaborators — it is just a function the entity should own. Apply the *Anemic domain model
+  to rich model* catalog entry. Specifically check: can a caller construct the entity with a `status`
+  / `score` / `state` field that contradicts the calculator's output? If yes, move the calculation
+  into the constructor/factory so the contradiction becomes unrepresentable.
 
 ### Domain model completeness
 - Invalid states constructible from outside.
 - Missing invariants in constructors/factories.
+- A derived field exists on the entity but is set by the caller rather than computed from the
+  inputs that determine it.
 
 ### Validation ownership
 - Avoid duplicated validation across layers.

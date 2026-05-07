@@ -81,12 +81,32 @@ Filtering candidates by threshold, date window, and status.
 ## Anemic domain model to rich model
 
 ### Smell
-Domain entities/records are only data containers while business rules and state transitions live in
-controllers, use cases, or mappers. Rules become duplicated and easy to bypass.
+Domain entities/records are only data containers while business rules and state transitions live
+elsewhere — most commonly in controllers, use cases, mappers, **or in standalone domain services
+("calculators", "evaluators", "*Service" classes) that operate on a single domain type and hold no
+state of their own**. Rules become duplicated, easy to bypass, and the entity carries values it
+cannot defend.
+
+A frequent variant in TDD/Clean-Architecture codebases:
+- The entity is exported as `type X = { readonly a: A; readonly status: S; ... }`.
+- A sibling file `XCalculator.ts` exports a free function `calculateStatus(parts): S` that
+  derives one of `X`'s own fields from the others.
+- Callers must remember to call the calculator; nothing prevents constructing an `X` whose
+  `status` field disagrees with its `parts`.
 
 ### Trigger
 The same domain rule appears in multiple places (for example create + update flows), or a new
 behavior requires touching several orchestration classes to keep invariants consistent.
+
+**Also trigger when** a standalone "Calculator", "Evaluator", "Resolver", or "*Service" file in the
+domain layer:
+- exports a single pure function (or a stateless class with one method),
+- takes one domain type (or a tuple of its fields) as input,
+- returns a value that *is, or directly derives,* one of that type's own fields, and
+- has no second implementation, no port, and no collaborators.
+
+That is an entity method masquerading as a service. The behavior belongs on the entity (constructor,
+factory, or method) so the type cannot be constructed in an inconsistent state.
 
 ### Refactoring
 1. Identify domain invariants and behaviors currently implemented outside the domain.
