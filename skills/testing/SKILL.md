@@ -48,7 +48,7 @@ Tests must remain declarative and linear. If branching appears necessary, split 
 
 ## One behavior per test
 
-Each test verifies one behavior. If a method name needs "and", split it.
+Each test verifies one behavior. If a method name needs "and", split it. A test name should describe a single observable behavior; multiple `expect()` calls that each prove a different behavior (not different facets of the same outcome) is the same smell.
 
 ## Assertions
 
