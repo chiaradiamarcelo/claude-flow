@@ -11,14 +11,14 @@ Separate Given-When-Then with blank lines, without comments:
 
 - **Given/When/Then must trace cleanly.** Every value the When or Then references must be explicit in the Given. When the test queries or asserts by a specific id, domain, status code, etc., the setup must put that value on the seeded data — don't rely on a factory default. If a value matters to the assertion, make it a *required* parameter of the test-data factory; don't bury it as an optional override or a hidden default. The reader should be able to trace each value in the assertions back to the seed without guessing.
 
-```pseudo
+```kotlin
 // Bad — DOMAIN is silently the default of `row(...)`, the test reads as if domain doesn't matter
-seed([row(USER_ID, {crawler: 'gptbot'})])
-found = result.find(r -> r.domain == DOMAIN)
+seed(listOf(row(USER_ID, crawler = "gptbot")))
+val found = result.find { it.domain == DOMAIN }
 
 // Good — DOMAIN is explicit in both the seed and the assertion
-seed([row(USER_ID, DOMAIN, {crawler: 'gptbot'})])
-found = result.find(r -> r.domain == DOMAIN)
+seed(listOf(row(USER_ID, DOMAIN, crawler = "gptbot")))
+val found = result.find { it.domain == DOMAIN }
 ```
 
 - Use the minimum fixture/input data needed to prove the behavior; remove extra records that do not affect the assertion.
@@ -28,37 +28,45 @@ found = result.find(r -> r.domain == DOMAIN)
 - Never seed test data (e.g. `repository.save(...)`, `fake.add(...)`) in setup — data setup must live inside each test method to keep tests readable and self-contained.
 - **Prefer enriching the fake over building inline mocks.** When a test needs a port to fail (or behave differently) for one scenario, do NOT build a bespoke mock object inside the test. Instead, give the project's existing fake a small convenience method (e.g. `failWith(failure)`) and call it inline in the test method. The fake stays in setup (it is a shared stateless dependency); the `failWith(...)` call is test-specific data setup and follows the same rule as `repository.save(...)` — it lives inside the test method, never in setup.
 
-```pseudo
+```kotlin
 // In the fake:
-class FakeFooRepository implements FooRepository:
-    private nextFailure: FooLookupFailure?
+class FakeFooRepository : FooRepository {
+    private var nextFailure: FooLookupFailure? = null
 
-    failWith(failure: FooLookupFailure):
+    fun failWith(failure: FooLookupFailure) {
         this.nextFailure = failure
+    }
 
-    find(id: number) -> Result<Foo, FooLookupFailure>:
-        if this.nextFailure: return Fail(this.nextFailure)
+    override fun find(id: Long): Result<Foo, FooLookupFailure> {
+        nextFailure?.let { return Fail(it) }
         // ...normal behavior
+    }
+}
 
 // In the test:
-test returns_failure_when_the_lookup_fails:
+@Test
+fun returns_failure_when_the_lookup_fails() {
     fooRepository.failWith(FooLookupFailure(USER_ID))
 
-    result = useCase.run(USER_ID)
+    val result = useCase.run(USER_ID)
 
-    assert isFailure(FooLookupFailure, result)
+    assertThat(result).isFailureOf(FooLookupFailure::class)
+}
 ```
 
-```pseudo
-class CalculateOccupancyTest:
+```kotlin
+class CalculateOccupancyTest {
 
-    test returns_expected_occupancy_when_capacity_is_available:
-        repository = FakeGuestRepository([lowGuest, highGuest])
-        useCase = CalculateOccupancy(repository)
+    @Test
+    fun returns_expected_occupancy_when_capacity_is_available() {
+        val repository = FakeGuestRepository(listOf(lowGuest, highGuest))
+        val useCase = CalculateOccupancy(repository)
 
-        result = useCase.execute(request)
+        val result = useCase.execute(request)
 
-        assert result.totalAssignedRooms == 2
+        assertThat(result.totalAssignedRooms).isEqualTo(2)
+    }
+}
 ```
 
 ## Mandatory Review
@@ -144,15 +152,12 @@ This layered approach ensures the system is thoroughly tested while keeping the 
   - **Fakes**: create fresh instances in setup. No `clear()`/`reset()` methods.
   - **Database**: when constructing the connection/context is expensive, truncate or clear tables in `@BeforeEach` instead of recreating. But the cleanup always happens **before** each test, never after.
 
-```pseudo
-class FakeGuestRepository implements GuestRepository:
-    guests: List<Guest>
+```kotlin
+class FakeGuestRepository(initialGuests: List<Guest>) : GuestRepository {
+    private val guests: List<Guest> = initialGuests.toList()
 
-    constructor(guests):
-        this.guests = copyOf(guests)
-
-    findAll() -> List<Guest>:
-        return copyOf(guests)
+    override fun findAll(): List<Guest> = guests.toList()
+}
 ```
 
 ## Response sequencing for external call fakes
@@ -175,26 +180,32 @@ For controllers, use this baseline:
 
 Success path example:
 
-```pseudo
-test returns_200_when_single_order:
-    when(useCase.allOrders()).thenReturn([
-        Order("id_1", date(2024, 1, 15), 99.99, "USD", SALE)
-    ])
+```kotlin
+@Test
+fun returns_200_when_single_order() {
+    whenever(useCase.allOrders()).thenReturn(listOf(
+        Order("id_1", LocalDate.of(2024, 1, 15), 99.99, "USD", SALE)
+    ))
 
-    response = client.get("/orders")
+    val response = client.get("/orders")
 
-    assert response.status == 200
-    assert response.body == [{ id: "id_1", date: "2024-01-15", amount: 99.99 }]
+    assertThat(response.status).isEqualTo(200)
+    assertThat(response.body).isEqualTo(listOf(
+        mapOf("id" to "id_1", "date" to "2024-01-15", "amount" to 99.99)
+    ))
+}
 ```
 
 Validation path example:
 
-```pseudo
-test returns_400_when_missing_required_field:
-    response = client.post("/orders", body: { amount: 99.99 })
+```kotlin
+@Test
+fun returns_400_when_missing_required_field() {
+    val response = client.post("/orders", body = mapOf("amount" to 99.99))
 
-    assert response.status == 400
+    assertThat(response.status).isEqualTo(400)
     verifyNoInteractions(useCase)
+}
 ```
 
 ## API validation matrix (what to cover)
