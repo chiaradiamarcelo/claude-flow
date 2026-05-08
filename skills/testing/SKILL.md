@@ -14,7 +14,28 @@ Separate Given-When-Then with blank lines, without comments:
 - Prefer semantic shared constants for recurring domain values in tests instead of ad-hoc literals.
 - Setup method (e.g. `@BeforeEach`) is the mandatory place for instantiating fakes, use cases, and controllers that **every test in the suite uses identically**. Never initialize them inline as field declarations. Declare the field without initialization and assign it in setup.
 - Never seed test data (e.g. `repository.save(...)`, `fake.add(...)`) in setup — data setup must live inside each test method to keep tests readable and self-contained.
-- **Test-specific stub configurations belong inside the test, not setup.** When a test needs a bespoke collaborator — e.g. a mock encoding one specific failure path, or a port stubbed only for that scenario — construct the stub *and* the unit under test that uses it inside the test method. They are test data, not shared dependencies; the same reasoning as the no-seeding rule. The "stateless dependencies in setup" rule only applies to collaborators every test uses identically.
+- **Prefer enriching the fake over building inline mocks.** When a test needs a port to fail (or behave differently) for one scenario, do NOT build a bespoke mock object inside the test. Instead, give the project's existing fake a small convenience method (e.g. `failWith(failure)`) and call it inline in the test method. The fake stays in setup (it is a shared stateless dependency); the `failWith(...)` call is test-specific data setup and follows the same rule as `repository.save(...)` — it lives inside the test method, never in setup.
+
+```pseudo
+// In the fake:
+class FakeFooRepository implements FooRepository:
+    private nextFailure: FooLookupFailure?
+
+    failWith(failure: FooLookupFailure):
+        this.nextFailure = failure
+
+    find(id: number) -> Result<Foo, FooLookupFailure>:
+        if this.nextFailure: return Fail(this.nextFailure)
+        // ...normal behavior
+
+// In the test:
+test returns_failure_when_the_lookup_fails:
+    fooRepository.failWith(FooLookupFailure(USER_ID))
+
+    result = useCase.run(USER_ID)
+
+    assert isFailure(FooLookupFailure, result)
+```
 
 ```pseudo
 class CalculateOccupancyTest:
