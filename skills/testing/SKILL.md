@@ -9,6 +9,18 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 Every test follows **Given-When-Then**.
 Separate Given-When-Then with blank lines, without comments:
 
+- **Given/When/Then must trace cleanly.** Every value the When or Then references must be explicit in the Given. When the test queries or asserts by a specific id, domain, status code, etc., the setup must put that value on the seeded data — don't rely on a factory default. If a value matters to the assertion, make it a *required* parameter of the test-data factory; don't bury it as an optional override or a hidden default. The reader should be able to trace each value in the assertions back to the seed without guessing.
+
+```pseudo
+// Bad — DOMAIN is silently the default of `row(...)`, the test reads as if domain doesn't matter
+seed([row(USER_ID, {crawler: 'gptbot'})])
+found = result.find(r -> r.domain == DOMAIN)
+
+// Good — DOMAIN is explicit in both the seed and the assertion
+seed([row(USER_ID, DOMAIN, {crawler: 'gptbot'})])
+found = result.find(r -> r.domain == DOMAIN)
+```
+
 - Use the minimum fixture/input data needed to prove the behavior; remove extra records that do not affect the assertion.
 - When a behavior can be proven with 1-2 domain values, do not use larger challenge/reference datasets in that test.
 - Prefer semantic shared constants for recurring domain values in tests instead of ad-hoc literals.
@@ -60,6 +72,7 @@ class CalculateOccupancyTest:
 - Test method name: snake_case behavior style.
 - camelCase test method names are not allowed.
 - For failure scenarios, prefer `fails_when_<condition>` over `throws_when_<condition>`.
+- **Use plain business language, not invented jargon.** Avoid verbs the domain doesn't already use (`credits`, `honors`, `respects`, `enrolls`). Prefer plain English a domain expert would say: `ignores_…`, `returns_…`, `saves_…`, `rejects_…`. If a verb makes the reader pause to translate, replace it. Example: `ignores_sightings_from_other_users` reads better than `only_credits_sightings_belonging_to_the_requested_user`.
 - Prefer `returns_<status>_when_<condition>` for API tests.
 - Avoid implementation details in test names.
 
