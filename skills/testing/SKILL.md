@@ -12,8 +12,9 @@ Separate Given-When-Then with blank lines, without comments:
 - Use the minimum fixture/input data needed to prove the behavior; remove extra records that do not affect the assertion.
 - When a behavior can be proven with 1-2 domain values, do not use larger challenge/reference datasets in that test.
 - Prefer semantic shared constants for recurring domain values in tests instead of ad-hoc literals.
-- Setup method (e.g. `@BeforeEach`) is the mandatory place for instantiating fakes, use cases, and controllers. Never initialize them inline as field declarations. Declare the field without initialization and assign it in setup.
+- Setup method (e.g. `@BeforeEach`) is the mandatory place for instantiating fakes, use cases, and controllers that **every test in the suite uses identically**. Never initialize them inline as field declarations. Declare the field without initialization and assign it in setup.
 - Never seed test data (e.g. `repository.save(...)`, `fake.add(...)`) in setup — data setup must live inside each test method to keep tests readable and self-contained.
+- **Test-specific stub configurations belong inside the test, not setup.** When a test needs a bespoke collaborator — e.g. a mock encoding one specific failure path, or a port stubbed only for that scenario — construct the stub *and* the unit under test that uses it inside the test method. They are test data, not shared dependencies; the same reasoning as the no-seeding rule. The "stateless dependencies in setup" rule only applies to collaborators every test uses identically.
 
 ```pseudo
 class CalculateOccupancyTest:
@@ -58,6 +59,7 @@ Each test verifies one behavior. If a method name needs "and", split it. A test 
 - Flag mixed assertion styles when a single style can keep tests consistent.
 - Avoid magic numbers; use named constants/fixtures where meaning matters.
 - **No redundant intermediate assertions**: do not assert a precondition that is already tested implicitly by the next assertion. For example, asserting `isPresent()` before accessing `.get()` is redundant if the next line asserts a property of the unwrapped value — the test will fail anyway if the value is absent.
+- **Subset matchers are NOT equality.** `arrayContaining([...])` / `objectContaining({...})` (and language equivalents) pass when the asserted items are *included* in the actual value — extras slip through. To assert "exactly these items in any order" on a collection, pair the subset matcher with a length/size check, or sort both sides and use deep equality.
 
 ## Test data minimality
 
