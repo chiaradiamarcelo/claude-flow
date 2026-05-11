@@ -59,5 +59,10 @@ Only include steps relevant to the scenario. Skip steps for layers that already 
 - **Every port adapter must have a contract test** extending the abstract contract test for its port.
 - **Test behavior through the use case, not the domain entity directly.** Domain entity tests are the exception — only plan them when combinatorial complexity makes testing through the use case impractical. The use case test is the primary entry point for verifying behavior.
 - **Domain entities with identity**: include equality implementation as part of the entity step. Always plan a dedicated equality test in the entity's test class (e.g., `BankAccountTest — equality: same id = equal, different id = not equal`). This is mandatory — other test assertions across the suite depend on equality working.
+- **Write side vs. read side (CQRS).** Before planning a port + use case, decide which side it lives on:
+  - **Write side** (commands change state, owns aggregate, consistency boundary): port name ends in `Repository` (`save`, `findById`, `delete`). A **use case is required** to orchestrate and enforce invariants.
+  - **Read side** (queries return projections, no aggregate): port name ends in `Finder` / `Query` / `Reader` / `Report` (`findAll`, `findBy*`, `count`). A use case is **NOT required** if the controller just forwards to the port — plan the controller to inject the port directly. Only plan a read-side use case when there's real logic on the way out (authorization, filtering, projection assembly).
+  - For controller integration tests on the read side, plan the test to drive the **real fake** of the finder (`seed(...)` / `failWith(...)`) — not a use-case mock.
+  - See `~/.claude/conventions/cqrs.md` for the full rules and litmus test.
 
 Once the plan is written to disk, your work is done. Do not implement anything.

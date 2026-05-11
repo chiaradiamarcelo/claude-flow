@@ -517,3 +517,148 @@ caller:
 # fetch it from a precomputed projection, or recompute every call.
 # The name does not change. Callers do not change.
 ```
+
+---
+
+## Pass-through Layer (Middleman)
+
+### Smell
+
+A class adds no behavior. It receives a call, hands it to its single collaborator, and returns
+the result. Renaming arguments and return types is not behavior. The class exists only to
+preserve symmetry with other layers ("every entity needs a Service and a UseCase"), or as a
+speculative seam that never accumulated logic.
+
+### Trigger
+
+Any of these patterns is enough to flag:
+
+1. A **use case** whose `run()` body is one port call and a `return`. No orchestration of multiple ports, no policy, no invariant checks.
+2. A **service** that wraps a single repository method and forwards the call (`getUser(id)` → `userRepository.findById(id)`).
+3. A **controller** whose handler calls another controller (or another service that does the same).
+4. A class with **only one method**, doing **one delegation**, with no extra value at the call site.
+
+### Refactoring
+
+1. Identify the underlying collaborator the middleman forwards to.
+2. Inject the collaborator directly at the call site (e.g., into the controller).
+3. Delete the middleman class and its tests.
+4. If the middleman was the only thing standing between two layers and the rename it performed had
+   meaning, **rename the collaborator** instead of preserving the wrapper. (Example: a read-side
+   port called `*Repository` whose only consumer was a pass-through use case — rename the port
+   to `*Finder`. See *Read-side port named "Repository"* below.)
+5. Update tests to use the collaborator (or its fake) directly. Controller integration specs that
+   previously mocked the middleman now drive the collaborator's fake via `seed(...)` / `failWith(...)`.
+
+### Structure after refactoring
+
+- One fewer layer between the controller (or other caller) and the collaborator.
+- The collaborator's name carries the intent the middleman tried to convey.
+- The fake for the collaborator is the seam the integration tests use.
+
+### Tests
+
+- Tests of the deleted middleman go away — they only proved the forward call worked.
+- Tests of the caller (controller, etc.) now drive the collaborator's fake directly. The behavior
+  surface they cover is unchanged; the level they assert at moves closer to the real boundary.
+
+### When NOT to refactor
+
+Keep the middleman only if it represents a **stable seam about to acquire policy** — e.g.,
+authorization, caching, rate limiting, projection assembly — and that work is in flight or
+imminent. Document the upcoming reason in the class header. Don't keep speculative seams "in
+case" they grow.
+
+### Example (pseudocode)
+
+```
+# Before — the use case is a one-line forward.
+class ListActiveUsersUseCase
+  ctor(owners: ActiveUsersPort)
+  run() -> Result<list<UserId>, Failure>
+    return this.owners.listActive()
+
+class Controller
+  ctor(listActive: ListActiveUsersUseCase)
+  GET /active-users
+    return await this.listActive.run()
+```
+
+```
+# After — middleman deleted; controller injects the port directly.
+class Controller
+  ctor(activeUsers: ActiveUsersPort)
+  GET /active-users
+    return await this.activeUsers.listActive()
+```
+
+The controller integration test switches from mocking the use case to driving the fake of the
+collaborator. The behavior covered is the same; the level moves closer to the real boundary.
+
+See `~/.claude/conventions/cqrs.md` for the read-side variant of this smell (CQRS context).
+
+---
+
+## Read-side port named "Repository"
+
+### Smell
+
+A port called `*Repository` whose only methods are read-shaped: `findAll`, `count`, `findBy*`,
+`list*`. No `save`, no `delete`, no aggregate-shaped operations. The "Repository" suffix promises
+a consistency boundary the port doesn't actually enforce.
+
+### Trigger
+
+You review a port's surface area and notice every method is a read. The port doesn't load
+aggregates and doesn't participate in any write transaction. It exists purely to answer queries.
+
+### Refactoring
+
+1. Rename the port to drop `Repository`. Use a noun that signals read-only: **Finder**, **Query**,
+   **Reader**, **Report**. Pick the one that reads best at the call site.
+2. Rename the symbol/injection token to match.
+3. Rename the method if `Repository`-style verb prefixes leaked in (`listActiveUserIds` →
+   `findAll` if the port is the active-users finder).
+4. Update the adapter's `implements` clause and its method body — body usually doesn't change,
+   only the method name and signature.
+5. Update fakes (rename file, class, method).
+6. Update the contract test (rename function, file). The scenarios stay.
+7. Often co-occurs with *Pass-through Layer (Middleman)* — when you remove a pass-through use case
+   from above the read-side port, the rename happens in the same refactor.
+
+### Structure after refactoring
+
+- Port name carries CQRS intent: `*Finder` / `*Query` / `*Reader` makes write-side responsibilities
+  unrepresentable.
+- Controllers (or other application-layer callers) can inject the finder directly per the CQRS
+  convention.
+
+### Tests
+
+- Contract tests rename but keep the same scenarios.
+- Adapter integration test renames its `describe` heading and the contract-invocation function.
+- Fake spec renames the file and contract import.
+- No behavioral change.
+
+### Example (pseudocode)
+
+```
+# Before
+interface IntegratedDomainOwnersRepository
+  listActiveUserIds() -> Result<list<UserId>, LookupFailure>
+
+token INTEGRATED_DOMAIN_OWNERS_REPOSITORY
+```
+
+```
+# After
+interface ActiveUsersFinder
+  findAll() -> Result<list<UserId>, LookupFailure>
+
+token ACTIVE_USERS_FINDER
+```
+
+The adapter's `implements` clause changes from the old name to the new one; the body of the
+read method is unchanged.
+
+See `~/.claude/conventions/cqrs.md` for the write/read split rationale.

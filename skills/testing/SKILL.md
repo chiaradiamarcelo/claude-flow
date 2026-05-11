@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Use whenever writing, modifying, or reviewing tests in this project. Defines the expected style for unit tests and API controller slice tests.
+description: Use whenever writing, modifying, or reviewing tests in this project. Defines the expected style for unit tests and API controller (slice / narrow integration) tests. Stack-agnostic — examples are in Kotlin, but principles apply to any language/framework.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
@@ -24,7 +24,7 @@ val found = result.find { it.domain == DOMAIN }
 - Use the minimum fixture/input data needed to prove the behavior; remove extra records that do not affect the assertion.
 - When a behavior can be proven with 1-2 domain values, do not use larger challenge/reference datasets in that test.
 - Prefer semantic shared constants for recurring domain values in tests instead of ad-hoc literals.
-- Setup method (e.g. `@BeforeEach`) is the mandatory place for instantiating fakes, use cases, and controllers that **every test in the suite uses identically**. Never initialize them inline as field declarations. Declare the field without initialization and assign it in setup.
+- The before-each setup hook (e.g. `@BeforeEach` in JUnit, `beforeEach` in Jest/Vitest, `setUp` in PHPUnit) is the mandatory place for instantiating fakes, use cases, and controllers that **every test in the suite uses identically**. Never initialize them inline as field declarations. Declare the field without initialization and assign it in setup.
 - Never seed test data (e.g. `repository.save(...)`, `fake.add(...)`) in setup — data setup must live inside each test method to keep tests readable and self-contained.
 - **Prefer enriching the fake over building inline mocks.** When a test needs a port to fail (or behave differently) for one scenario, do NOT build a bespoke mock object inside the test. Instead, give the project's existing fake a small convenience method (e.g. `failWith(failure)`) and call it inline in the test method. The fake stays in setup (it is a shared stateless dependency); the `failWith(...)` call is test-specific data setup and follows the same rule as `repository.save(...)` — it lives inside the test method, never in setup.
 
@@ -75,9 +75,9 @@ class CalculateOccupancyTest {
 
 ## Naming
 
-- Domain/unit test class: `<ClassUnderTest>Test`.
-- API controller slice test class: `<ControllerName>IT`.
-- Test method name: snake_case behavior style.
+- Domain/unit test class/file: `<ClassUnderTest>Test` (or the stack's equivalent — e.g., `<ClassUnderTest>.test.ts`, `<ClassUnderTest>Test.php`).
+- API controller integration/slice test class/file: `<ControllerName>IT` (or the stack's equivalent for narrow integration tests).
+- Test method/case name: snake_case behavior style. Where the language disallows or strongly discourages snake_case identifiers (e.g., JS/TS `it("...")` or PHP `#[TestDox]`), use the equivalent natural-language string form.
 - camelCase test method names are not allowed.
 - For failure scenarios, prefer `fails_when_<condition>` over `throws_when_<condition>`.
 - **Use plain business language, not invented jargon.** Avoid verbs the domain doesn't already use (`credits`, `honors`, `respects`, `enrolls`). Prefer plain English a domain expert would say: `ignores_…`, `returns_…`, `saves_…`, `rejects_…`. If a verb makes the reader pause to translate, replace it. Example: `ignores_sightings_from_other_users` reads better than `only_credits_sightings_belonging_to_the_requested_user`.
@@ -91,7 +91,7 @@ Tests must remain declarative and linear. If branching appears necessary, split 
 
 ## One behavior per test
 
-Each test verifies one behavior. If a method name needs "and", split it. A test name should describe a single observable behavior; multiple `expect()` calls that each prove a different behavior (not different facets of the same outcome) is the same smell.
+Each test verifies one behavior. If a test name needs "and", split it. A test name should describe a single observable behavior; multiple assertion calls (e.g., `assertThat(...)`, `expect(...)`) that each prove a different behavior — not different facets of the same outcome — is the same smell.
 
 ## Assertions
 
@@ -100,8 +100,8 @@ Each test verifies one behavior. If a method name needs "and", split it. A test 
 - **Precision-sensitive values**: MUST use comparison methods that ignore scale/representation differences.
 - Flag mixed assertion styles when a single style can keep tests consistent.
 - Avoid magic numbers; use named constants/fixtures where meaning matters.
-- **No redundant intermediate assertions**: do not assert a precondition that is already tested implicitly by the next assertion. For example, asserting `isPresent()` before accessing `.get()` is redundant if the next line asserts a property of the unwrapped value — the test will fail anyway if the value is absent.
-- **Subset matchers are NOT equality.** `arrayContaining([...])` / `objectContaining({...})` (and language equivalents) pass when the asserted items are *included* in the actual value — extras slip through. To assert "exactly these items in any order" on a collection, pair the subset matcher with a length/size check, or sort both sides and use deep equality.
+- **No redundant intermediate assertions**: do not assert a precondition that is already tested implicitly by the next assertion. For example, asserting an Optional/Maybe is present before accessing its value is redundant if the next line asserts a property of the unwrapped value — the test will fail anyway if the value is absent.
+- **Subset matchers are NOT equality.** Matchers like `arrayContaining([...])` / `objectContaining({...})` in Jest, `hasItems(...)` in Hamcrest, `Mockito.argThat`, etc. pass when the asserted items are *included* in the actual value — extras slip through. To assert "exactly these items in any order" on a collection, pair the subset matcher with a length/size check, or sort both sides and use deep equality.
 
 ## Test data minimality
 
@@ -120,13 +120,13 @@ Each test verifies one behavior. If a method name needs "and", split it. A test 
 
 ## Test data visibility
 
-- **All test data referenced in assertions must be visible in the test body.** Class-level fields that build test data (e.g., `private val remoteJson = aFestivalJson(...)`) and are used implicitly by tests are a violation. The reader should not need to scroll to class fields to understand what a test asserts. Pass data explicitly via the setup helper or use named constants.
+- **All test data referenced in assertions must be visible in the test body.** Class-level / module-level fields that build test data (e.g., `private val remoteJson = aFestivalJson(...)` in Kotlin, `const remoteJson = aFestivalJson(...)` at the top of a Jest spec) and are used implicitly by tests are a violation. The reader should not need to scroll to class fields to understand what a test asserts. Pass data explicitly via the setup helper or use named constants.
 - **Don't test return types that are internal signals.** If a return type (e.g., `SyncResult.Success`) is only consumed internally — not by presentation or UI — don't write tests that only assert on it. The behavioral tests (e.g., "festivals updated") already prove success.
 - **"Unchanged" assertions must use distinct before/after values.** When a test asserts "data unchanged after operation," the local and remote data must have visibly different identifiers. If both happen to have the same ID, the test passes vacuously even if the wrong data is returned.
 
 ## Test behavior, not library boundaries
 
-- **When a library implements your product behavior, the behavior is still yours to test.** The library is an implementation detail, not an excuse to skip testing. "Show a fallback when the image fails to load" is product behavior whether Coil, Glide, or hand-written code implements it.
+- **When a library implements your product behavior, the behavior is still yours to test.** The library is an implementation detail, not an excuse to skip testing. "Show a fallback when the image fails to load" is product behavior whether an image-loading library or hand-written code implements it.
 - **If a behavior is hard to test, restructure the code for testability first.** Most "untestable" behaviors are a design signal, not a tooling limitation.
 - **Delete vacuous tests.** A test that passes regardless of whether the code is correct is worse than no test — it gives false confidence. If you can't make a test fail by removing the behavior, delete it.
 
@@ -145,12 +145,12 @@ This layered approach ensures the system is thoroughly tested while keeping the 
 
 - **Mandatory fakes for external dependencies**: You MUST use hand-written fakes for infrastructure ports (repositories, external APIs) to ensure deterministic and fast tests.
 - **No Use Case Interfaces**: Use Cases should be concrete classes. Using an interface for a Use Case is a violation.
-- **Mocking Use Cases in API tests**: Using a mocking library to mock the Use Case in an API controller slice test is acceptable and standard.
+- **Mocking Use Cases in API tests**: Using a mocking library to mock the Use Case in an API controller (slice / narrow integration) test is acceptable and standard.
 - **Fakes must satisfy the contract**: Fakes MUST behave like real implementations for the tested contract and pass the same contract tests.
 - Fakes must implement the same port interface as production adapters.
-- **Every test starts from a clean slate — always in `@BeforeEach`, never in `@AfterEach` or `@AfterAll`.**
+- **Every test starts from a clean slate — always in the before-each hook, never in the after-each / after-all hooks.**
   - **Fakes**: create fresh instances in setup. No `clear()`/`reset()` methods.
-  - **Database**: when constructing the connection/context is expensive, truncate or clear tables in `@BeforeEach` instead of recreating. But the cleanup always happens **before** each test, never after.
+  - **Database**: when constructing the connection/context is expensive, truncate or clear tables in the before-each hook instead of recreating. But the cleanup always happens **before** each test, never after.
 
 ```kotlin
 class FakeGuestRepository(initialGuests: List<Guest>) : GuestRepository {
@@ -162,21 +162,21 @@ class FakeGuestRepository(initialGuests: List<Guest>) : GuestRepository {
 
 ## Response sequencing for external call fakes
 
-- **A single fake should support response sequencing** — configure a list of responses that play back in order. Do not create separate fake classes for success, error, timeout, partial failure, etc. One fake class per port, with response variants as a sealed class.
-- Multiple fake classes for the same port (e.g., `ThrowingRemoteSource`, `FailingDownloadRemoteSource`, `SpyRemoteSource`) are a violation — unify into one configurable fake with a `Response` sealed class and built-in call counting.
+- **A single fake should support response sequencing** — configure a list of responses that play back in order. Do not create separate fake classes for success, error, timeout, partial failure, etc. One fake class per port, with response variants as a discriminated union (Kotlin/Scala `sealed class`, TypeScript discriminated union, PHP enum/sealed-class equivalent).
+- Multiple fake classes for the same port (e.g., `ThrowingRemoteSource`, `FailingDownloadRemoteSource`, `SpyRemoteSource`) are a violation — unify into one configurable fake with a `Response` variant type and built-in call counting.
 - **Auto-advance**: each call consumes the next response. Last response repeats if the sequence is exhausted. No manual `advance()` calls.
 
 ## API controller tests (slice standard)
 
 For controllers, use this baseline:
 
-- Slice test annotation targeting the controller under test
-- Injected test client
-- Mocked use case dependency (mocking the use case here is acceptable)
-- Request via test client
-- Assert HTTP status first, then payload/headers when needed
-- Verify delegation to the mocked use case/dependency
-- For create endpoints, check `Location` header behavior when applicable
+- Narrow integration / slice test setup targeting only the controller under test (e.g., Spring's `@WebMvcTest`, NestJS testing module, Symfony `WebTestCase`, FastAPI `TestClient`).
+- Injected test HTTP client.
+- Mocked use case dependency (mocking the use case here is acceptable).
+- Request via the test client.
+- Assert HTTP status first, then payload/headers when needed.
+- Verify delegation to the mocked use case/dependency.
+- For create endpoints, check `Location` header behavior when applicable.
 
 Success path example:
 
@@ -239,10 +239,10 @@ When designing 4xx tests, distinguish source of failure:
 
 ## Repository integration tests (real DB, contract-style)
 
-- Use framework-provided data layer test annotation.
+- Use the stack's narrow data-layer test setup (e.g., Spring's `@DataJpaTest`, Prisma's test database, Doctrine `KernelTestCase`, SQLAlchemy test session).
 - Talk to a real database (same engine as production or compatible equivalent).
 - Keep DB schema managed by migration tools.
-- Use schema validation mode to catch drift.
+- Configure the ORM/data layer to validate the schema against migrations (catch drift) rather than auto-generating it.
 - Verify CRUD contract scenarios: save/read, list-empty/list-populated, update, delete-existing, delete-missing idempotence.
 
 ## Contract tests for ports
@@ -266,7 +266,7 @@ Do not widen visibility only for tests.
 - **Do not create fakes/mocks for an adapter's internal collaborators** when those collaborators are not domain ports. For example, if a sync job internally validates JSON before writing, the validation should be exercised through the sync job's tests — not through a separate `FakeJsonValidator` injected from outside.
 - **Assert on observable outcomes, not internal state.** When testing that an operation preserved or changed data, assert through the public interface (e.g., `repository.festivals()` returns the same list) — not by peeking at internal storage (e.g., `localStorage.read()` returns the same JSON). Internal storage is an implementation detail that could change without affecting behavior.
 - **Prefer behavioral consequence over collaborator state.** When a test injects a collaborator (e.g., a metadata store, a version store), prefer asserting on the behavioral consequence rather than the collaborator's internal state. For example, instead of `assertEquals(PAST_INTERVAL, metadataStore.lastCheckedAt())` to prove "timestamp wasn't saved on failure," test that an immediate retry succeeds — that's the actual consequence the user cares about.
-- **Extract and test independently only for combinatorial explosion.** When testing through the public interface would require an impractical number of test cases to cover all combinations, extract the complex internal logic into its own class with its own tests. But that class stays `internal`/`private` — it is not promoted to a domain port.
+- **Extract and test independently only for combinatorial explosion.** When testing through the public interface would require an impractical number of test cases to cover all combinations, extract the complex internal logic into its own class with its own tests. But that class stays at non-public visibility (Kotlin `internal`, Java package-private, TypeScript module-private, PHP `private`/`protected`) — it is not promoted to a domain port.
 - **Rare exception: injecting fakes for error paths that are impossible to trigger through the public interface** (e.g., simulating a disk-full error, a corrupted file handle, or an OOM crash). These cases are rare and must be explicitly justified.
 
 ## What to test
