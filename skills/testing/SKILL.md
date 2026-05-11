@@ -24,7 +24,7 @@ val found = result.find { it.domain == DOMAIN }
 - Use the minimum fixture/input data needed to prove the behavior; remove extra records that do not affect the assertion.
 - When a behavior can be proven with 1-2 domain values, do not use larger challenge/reference datasets in that test.
 - Prefer semantic shared constants for recurring domain values in tests instead of ad-hoc literals.
-- The before-each setup hook (e.g. `@BeforeEach` in JUnit, `beforeEach` in Jest/Vitest, `setUp` in PHPUnit) is the mandatory place for instantiating fakes, use cases, and controllers that **every test in the suite uses identically**. Never initialize them inline as field declarations. Declare the field without initialization and assign it in setup.
+- The before-each setup hook (e.g. `@BeforeEach` in JUnit, `beforeEach` in Jest/Vitest) is the mandatory place for instantiating fakes, use cases, and controllers that **every test in the suite uses identically**. Never initialize them inline as field declarations. Declare the field without initialization and assign it in setup.
 - Never seed test data (e.g. `repository.save(...)`, `fake.add(...)`) in setup — data setup must live inside each test method to keep tests readable and self-contained.
 - **Prefer enriching the fake over building inline mocks.** When a test needs a port to fail (or behave differently) for one scenario, do NOT build a bespoke mock object inside the test. Instead, give the project's existing fake a small convenience method (e.g. `failWith(failure)`) and call it inline in the test method. The fake stays in setup (it is a shared stateless dependency); the `failWith(...)` call is test-specific data setup and follows the same rule as `repository.save(...)` — it lives inside the test method, never in setup.
 
@@ -75,9 +75,9 @@ class CalculateOccupancyTest {
 
 ## Naming
 
-- Domain/unit test class/file: `<ClassUnderTest>Test` (or the stack's equivalent — e.g., `<ClassUnderTest>.test.ts`, `<ClassUnderTest>Test.php`).
+- Domain/unit test class/file: `<ClassUnderTest>Test` (or the stack's equivalent — e.g., `<ClassUnderTest>.test.ts`).
 - API controller integration/slice test class/file: `<ControllerName>IT` (or the stack's equivalent for narrow integration tests).
-- Test method/case name: snake_case behavior style. Where the language disallows or strongly discourages snake_case identifiers (e.g., JS/TS `it("...")` or PHP `#[TestDox]`), use the equivalent natural-language string form.
+- Test method/case name: snake_case behavior style. Where the language disallows or strongly discourages snake_case identifiers (e.g., JS/TS `it("...")`), use the equivalent natural-language string form.
 - camelCase test method names are not allowed.
 - For failure scenarios, prefer `fails_when_<condition>` over `throws_when_<condition>`.
 - **Use plain business language, not invented jargon.** Avoid verbs the domain doesn't already use (`credits`, `honors`, `respects`, `enrolls`). Prefer plain English a domain expert would say: `ignores_…`, `returns_…`, `saves_…`, `rejects_…`. If a verb makes the reader pause to translate, replace it. Example: `ignores_sightings_from_other_users` reads better than `only_credits_sightings_belonging_to_the_requested_user`.
@@ -92,6 +92,54 @@ Tests must remain declarative and linear. If branching appears necessary, split 
 ## One behavior per test
 
 Each test verifies one behavior. If a test name needs "and", split it. A test name should describe a single observable behavior; multiple assertion calls (e.g., `assertThat(...)`, `expect(...)`) that each prove a different behavior — not different facets of the same outcome — is the same smell.
+
+- **Watch the seed shape, not just the assertions.** A test can name one rule but exercise two if the seed is shaped for both. Example: a test named "returns distinct user IDs" with three rows for user A and one for user B exercises both *deduplication* (rule 1: multiple rows per user collapse to one) and *multi-user enumeration* (rule 2: each distinct user appears) — the single `hasSize(2)` / `toHaveLength(2)` assertion is doing work for both rules. Split: one test seeds two rows for one user (proves dedup, expects a single-element list); the other seeds one row for each of two users (proves enumeration, expects both IDs). Detection heuristic: if removing one *type* of seed variation (the duplicate row, or the second user) still proves the rule the name claims, the removed variation was testing a different rule — split.
+
+```kotlin
+// Bad — one test, two rules. The hasSize(2) does work for both dedup AND enumeration.
+@Test
+fun returns_distinct_user_ids_of_users_with_non_deleted_domains() {
+    seed(listOf(
+        row(USER_A, deletionRequestedAt = null),
+        row(USER_A, deletionRequestedAt = null),
+        row(USER_A, deletionRequestedAt = null), // over-specified — 2 rows is enough for dedup
+        row(USER_B, deletionRequestedAt = null),
+    ))
+
+    val userIds = finder.findAll()
+
+    assertThat(userIds).hasSize(2)
+    assertThat(userIds).containsExactlyInAnyOrder(USER_A, USER_B)
+}
+```
+
+```kotlin
+// Good — split. Each test seeds the minimum for the single rule it names.
+
+@Test
+fun returns_a_user_id_only_once_when_the_user_has_multiple_non_deleted_domains() {
+    seed(listOf(
+        row(USER_A, deletionRequestedAt = null),
+        row(USER_A, deletionRequestedAt = null),
+    ))
+
+    val userIds = finder.findAll()
+
+    assertThat(userIds).containsExactly(USER_A)
+}
+
+@Test
+fun returns_one_user_id_for_each_user_with_at_least_one_non_deleted_domain() {
+    seed(listOf(
+        row(USER_A, deletionRequestedAt = null),
+        row(USER_B, deletionRequestedAt = null),
+    ))
+
+    val userIds = finder.findAll()
+
+    assertThat(userIds).containsExactlyInAnyOrder(USER_A, USER_B)
+}
+```
 
 ## Assertions
 
@@ -162,7 +210,7 @@ class FakeGuestRepository(initialGuests: List<Guest>) : GuestRepository {
 
 ## Response sequencing for external call fakes
 
-- **A single fake should support response sequencing** — configure a list of responses that play back in order. Do not create separate fake classes for success, error, timeout, partial failure, etc. One fake class per port, with response variants as a discriminated union (Kotlin/Scala `sealed class`, TypeScript discriminated union, PHP enum/sealed-class equivalent).
+- **A single fake should support response sequencing** — configure a list of responses that play back in order. Do not create separate fake classes for success, error, timeout, partial failure, etc. One fake class per port, with response variants as a discriminated union (Kotlin/Scala `sealed class`, TypeScript discriminated union, or the stack's equivalent).
 - Multiple fake classes for the same port (e.g., `ThrowingRemoteSource`, `FailingDownloadRemoteSource`, `SpyRemoteSource`) are a violation — unify into one configurable fake with a `Response` variant type and built-in call counting.
 - **Auto-advance**: each call consumes the next response. Last response repeats if the sequence is exhausted. No manual `advance()` calls.
 
@@ -170,7 +218,7 @@ class FakeGuestRepository(initialGuests: List<Guest>) : GuestRepository {
 
 For controllers, use this baseline:
 
-- Narrow integration / slice test setup targeting only the controller under test (e.g., Spring's `@WebMvcTest`, NestJS testing module, Symfony `WebTestCase`, FastAPI `TestClient`).
+- Narrow integration / slice test setup targeting only the controller under test (e.g., Spring's `@WebMvcTest`, NestJS testing module, FastAPI `TestClient`).
 - Injected test HTTP client.
 - Mocked use case dependency (mocking the use case here is acceptable).
 - Request via the test client.
@@ -239,7 +287,7 @@ When designing 4xx tests, distinguish source of failure:
 
 ## Repository integration tests (real DB, contract-style)
 
-- Use the stack's narrow data-layer test setup (e.g., Spring's `@DataJpaTest`, Prisma's test database, Doctrine `KernelTestCase`, SQLAlchemy test session).
+- Use the stack's narrow data-layer test setup (e.g., Spring's `@DataJpaTest`, Prisma's test database, SQLAlchemy test session).
 - Talk to a real database (same engine as production or compatible equivalent).
 - Keep DB schema managed by migration tools.
 - Configure the ORM/data layer to validate the schema against migrations (catch drift) rather than auto-generating it.
@@ -266,7 +314,7 @@ Do not widen visibility only for tests.
 - **Do not create fakes/mocks for an adapter's internal collaborators** when those collaborators are not domain ports. For example, if a sync job internally validates JSON before writing, the validation should be exercised through the sync job's tests — not through a separate `FakeJsonValidator` injected from outside.
 - **Assert on observable outcomes, not internal state.** When testing that an operation preserved or changed data, assert through the public interface (e.g., `repository.festivals()` returns the same list) — not by peeking at internal storage (e.g., `localStorage.read()` returns the same JSON). Internal storage is an implementation detail that could change without affecting behavior.
 - **Prefer behavioral consequence over collaborator state.** When a test injects a collaborator (e.g., a metadata store, a version store), prefer asserting on the behavioral consequence rather than the collaborator's internal state. For example, instead of `assertEquals(PAST_INTERVAL, metadataStore.lastCheckedAt())` to prove "timestamp wasn't saved on failure," test that an immediate retry succeeds — that's the actual consequence the user cares about.
-- **Extract and test independently only for combinatorial explosion.** When testing through the public interface would require an impractical number of test cases to cover all combinations, extract the complex internal logic into its own class with its own tests. But that class stays at non-public visibility (Kotlin `internal`, Java package-private, TypeScript module-private, PHP `private`/`protected`) — it is not promoted to a domain port.
+- **Extract and test independently only for combinatorial explosion.** When testing through the public interface would require an impractical number of test cases to cover all combinations, extract the complex internal logic into its own class with its own tests. But that class stays at non-public visibility (Kotlin `internal`, Java package-private, TypeScript module-private) — it is not promoted to a domain port.
 - **Rare exception: injecting fakes for error paths that are impossible to trigger through the public interface** (e.g., simulating a disk-full error, a corrupted file handle, or an OOM crash). These cases are rare and must be explicitly justified.
 
 ## What to test
