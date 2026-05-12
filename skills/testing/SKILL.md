@@ -319,7 +319,7 @@ Do not widen visibility only for tests.
 
 ## What to test
 
-For **use cases/services**:
+For **UseCases**:
 - Happy path
 - Empty results
 - Validation and edge cases

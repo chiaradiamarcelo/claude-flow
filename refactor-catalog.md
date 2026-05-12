@@ -545,8 +545,8 @@ Any of these patterns is enough to flag:
 3. Delete the middleman class and its tests.
 4. If the middleman was the only thing standing between two layers and the rename it performed had
    meaning, **rename the collaborator** instead of preserving the wrapper. (Example: a read-side
-   port called `*Repository` whose only consumer was a pass-through use case — rename the port
-   to `*Finder`. See *Read-side port named "Repository"* below.)
+   port called `*Repository` whose only consumer was a pass-through UseCase — rename the port
+   to `*Query`. See *Read-side port named "Repository"* below.)
 5. Update tests to use the collaborator (or its fake) directly. Controller integration specs that
    previously mocked the middleman now drive the collaborator's fake via `seed(...)` / `failWith(...)`.
 
@@ -595,7 +595,7 @@ class Controller
 The controller integration test switches from mocking the use case to driving the fake of the
 collaborator. The behavior covered is the same; the level moves closer to the real boundary.
 
-See `~/.claude/conventions/cqrs.md` for the read-side variant of this smell (CQRS context).
+See `~/.claude/skills/cqrs/SKILL.md` for the read-side variant of this smell (CQRS context).
 
 ---
 
@@ -607,30 +607,37 @@ A port called `*Repository` whose only methods are read-shaped: `findAll`, `coun
 `list*`. No `save`, no `delete`, no aggregate-shaped operations. The "Repository" suffix promises
 a consistency boundary the port doesn't actually enforce.
 
+**Not a smell:** a Repository with **both** `save` *and* a `findByX` that loads the aggregate
+whole by its identity. Loading aggregates is part of a Repository's job (Vernon). The smell is
+purely read-only ports that borrow the Repository name.
+
 ### Trigger
 
-You review a port's surface area and notice every method is a read. The port doesn't load
-aggregates and doesn't participate in any write transaction. It exists purely to answer queries.
+You review a port's surface area and notice every method is a read, no method changes state.
+The port doesn't load aggregates for mutation and doesn't participate in any write transaction.
+It exists purely to answer queries.
 
 ### Refactoring
 
-1. Rename the port to drop `Repository`. Use a noun that signals read-only: **Finder**, **Query**,
-   **Reader**, **Report**. Pick the one that reads best at the call site.
-2. Rename the symbol/injection token to match.
+1. Rename the port from `*Repository` to **`*Query`** (one name — not Finder/Reader/Report; this
+   project standardizes on `*Query` for every read-side port).
+2. Rename the symbol/injection token to match (`*_REPOSITORY` → `*_QUERY`).
 3. Rename the method if `Repository`-style verb prefixes leaked in (`listActiveUserIds` →
-   `findAll` if the port is the active-users finder).
-4. Update the adapter's `implements` clause and its method body — body usually doesn't change,
+   `findAll` if the port is the active-users query).
+4. Move the port file from `domain/models/<aggregate>/` (write-side location) to `domain/query/`
+   (read-side peer folder). Read-side ports don't belong inside an aggregate's package.
+5. Update the adapter's `implements` clause and its method body — body usually doesn't change,
    only the method name and signature.
-5. Update fakes (rename file, class, method).
-6. Update the contract test (rename function, file). The scenarios stay.
-7. Often co-occurs with *Pass-through Layer (Middleman)* — when you remove a pass-through use case
+6. Update fakes (rename file, class, method).
+7. Update the contract test (rename function, file). The scenarios stay.
+8. Often co-occurs with *Pass-through Layer (Middleman)* — when you remove a pass-through UseCase
    from above the read-side port, the rename happens in the same refactor.
 
 ### Structure after refactoring
 
-- Port name carries CQRS intent: `*Finder` / `*Query` / `*Reader` makes write-side responsibilities
-  unrepresentable.
-- Controllers (or other application-layer callers) can inject the finder directly per the CQRS
+- Port named `*Query`, located in `domain/query/`.
+- Symbol named `*_QUERY`.
+- Controllers (or other application-layer callers) can inject the query directly per the CQRS
   convention.
 
 ### Tests
@@ -652,13 +659,123 @@ token INTEGRATED_DOMAIN_OWNERS_REPOSITORY
 
 ```
 # After
-interface ActiveUsersFinder
+interface ActiveUsersQuery
   findAll() -> Result<list<UserId>, LookupFailure>
 
-token ACTIVE_USERS_FINDER
+token ACTIVE_USERS_QUERY
 ```
 
 The adapter's `implements` clause changes from the old name to the new one; the body of the
 read method is unchanged.
 
-See `~/.claude/conventions/cqrs.md` for the write/read split rationale.
+See `~/.claude/skills/cqrs/SKILL.md` for the write/read split rationale.
+
+---
+
+## Read-side Query that mirrors the aggregate (pass-through View)
+
+### Smell
+
+A `*Query` port returns a `*View` whose shape is `{ ...aggregate, derivedProp: aggregate.method() }`,
+and its adapter reads the same single row, by the same primary key, that the Repository writes.
+The View duplicates the aggregate's fields and the only "extra" is materializing the aggregate's
+own derivation methods as properties. The split adds a parallel read model, a real adapter, a fake,
+a contract spec, and a mapper — all behaving identically to the Repository read with renamed fields.
+
+This is the read-side counterpart of *Pass-through Layer (Middleman)*: instead of an extra class
+between layers, it's an extra port between the controller and the same data the Repository already
+exposes.
+
+### Trigger
+
+Any of:
+
+- The `*View` type's fields equal `aggregate`'s fields plus methods-as-properties
+  (`view.status = aggregate.statusLevel()`, `view.triggers = aggregate.triggers()`).
+- The `*QueryAdapter` reads the same table, by the same primary key (`user_id`, `order_id`, …)
+  that the `*RepositoryAdapter` writes.
+- The controller would work identically if it injected the Repository and called
+  `findByUserId(...)`, then projected the aggregate via the DTO mapper.
+
+### Refactoring
+
+1. Add `findByX(...)` to the `*Repository` interface, returning the aggregate (Vernon: Repositories
+   load aggregates whole by identity).
+2. Implement `findByX` on the `*RepositoryAdapter` (often a one-line knex/sql query).
+3. Update the HTTP DTO mapper to take the aggregate (not the View) and call the aggregate's
+   derivation methods (`aggregate.statusLevel()`, `aggregate.triggers()`) inline at projection
+   time.
+4. Update the controller to inject the Repository and call `findByX(...)`. Map null → 404.
+5. Delete the `*Query` port, its `*View` model, its contract spec, its fake, and its Postgres
+   (or other) adapter.
+6. Delete any failure types that were only consumed by the Query (`*LookupFailure`) — unless
+   the Repository also needs them.
+
+### Structure after refactoring
+
+- One port (`*Repository`) for the aggregate, with both `save` and `findByX`.
+- One adapter.
+- One fake.
+- One contract spec, exercising the roundtrip.
+- HTTP DTO mapper runs derivation methods on the aggregate inline.
+
+### Tests
+
+- Repository contract gains the `findByX` scenarios (returns aggregate; returns null when absent;
+  per-user isolation).
+- The old Query contract scenarios disappear; their coverage is subsumed by the Repository
+  contract.
+- Controller integration spec switches from `FakeQuery.seed(view)` to
+  `fakeRepository.save(aggregate)`. The HTTP response assertions stay — the projection still
+  produces the same payload.
+
+### When NOT to refactor (when to keep the Query split)
+
+Keep the Query split when the read genuinely diverges from the aggregate:
+
+- Filters on columns the aggregate doesn't carry (`WHERE status = 'critical'` over many rows —
+  wants a denormalized indexed column).
+- Joins across aggregates (`OrderSummaryView { order, customerName, lineItemCount }`).
+- Pagination / list shapes (`PageOf<UserListItem>`).
+- Projection-only data (counts, sums, denormalized facts).
+- Read load heavy enough that eager pre-computation at write time pays off.
+
+If none of those apply, the Query is a middleman — collapse it.
+
+### Example (pseudocode)
+
+```
+# Before — Query reads the same row the Repository writes, returns a View
+# that just lifts the aggregate's methods into properties.
+
+interface DiscoverabilityStatusQuery
+  findByUserId(userId) -> Result<DiscoverabilityStatusView?, LookupFailure>
+
+type DiscoverabilityStatusView = {
+  status: aggregate.statusLevel()    # derived
+  triggers: aggregate.triggers()     # derived
+  evaluatedAt
+  domains: aggregate.domainIssues    # renamed
+}
+
+class Controller(query: DiscoverabilityStatusQuery)
+  GET /status -> toResponseDto(query.findByUserId(...).value)
+```
+
+```
+# After — Query / View / QueryAdapter / FakeQuery / Query-contract all deleted.
+# Repository has both save and findByUserId; DTO mapper takes the aggregate.
+
+interface DiscoverabilityStatusRepository
+  save(status)
+  findByUserId(userId) -> DiscoverabilityStatus?
+
+class Controller(repo: DiscoverabilityStatusRepository)
+  GET /status:
+    let s = repo.findByUserId(...)
+    if s == null: 404
+    return { status: s.statusLevel(), triggers: s.triggers(), evaluatedAt: s.evaluatedAt, domains: s.domainIssues }
+```
+
+See `~/.claude/skills/cqrs/SKILL.md` Rule 5 — *Don't introduce a Query when the read IS the
+aggregate by primary key* — for the underlying convention.
