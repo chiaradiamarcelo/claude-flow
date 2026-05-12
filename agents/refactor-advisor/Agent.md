@@ -22,9 +22,9 @@ This reviewer checks **code quality within layers** — is the code well-designe
 
 1. Read the project's `.claude/refactor-catalog.md` if it exists, plus `~/.claude/refactor-catalog.md` (global). Match observed smells to catalog entries from either.
 2. When you suspect a pass-through use case, a service that only forwards to a repository, or a
-   port named `*Repository` whose methods are all read-shaped, consult `~/.claude/conventions/cqrs.md`
+   port named `*Repository` whose methods are all read-shaped, consult the `cqrs` skill
    and the *Pass-through Layer (Middleman)* / *Read-side port named "Repository"* catalog entries
-   before reporting — the convention pins write-side vs. read-side responsibilities.
+   before reporting — the skill pins write-side vs. read-side responsibilities.
 3. Read use case code in the use case source directory.
 4. Read related domain types in the domain source directory.
 5. Read use case tests in the use case test directory.

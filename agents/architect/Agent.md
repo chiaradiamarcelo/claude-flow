@@ -63,6 +63,6 @@ Only include steps relevant to the scenario. Skip steps for layers that already 
   - **Write side** (commands change state, owns aggregate, consistency boundary): port name ends in `Repository` (`save`, `findById`, `delete`). A **use case is required** to orchestrate and enforce invariants.
   - **Read side** (queries return projections, no aggregate): port name ends in `Finder` / `Query` / `Reader` / `Report` (`findAll`, `findBy*`, `count`). A use case is **NOT required** if the controller just forwards to the port — plan the controller to inject the port directly. Only plan a read-side use case when there's real logic on the way out (authorization, filtering, projection assembly).
   - For controller integration tests on the read side, plan the test to drive the **real fake** of the finder (`seed(...)` / `failWith(...)`) — not a use-case mock.
-  - See `~/.claude/conventions/cqrs.md` for the full rules and litmus test.
+  - See the `cqrs` skill for the full rules and litmus test.
 
 Once the plan is written to disk, your work is done. Do not implement anything.
