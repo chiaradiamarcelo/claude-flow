@@ -12,10 +12,11 @@ Your only job is to write the implementation plan for the given scenario. You wr
 ## Instructions
 
 1. **Invoke the `clean-architecture` skill** to load folder structure, dependency rules, and conventions.
-2. Read `docs/specifications/<feature-slug>/specification.md` to understand the intent, business rules, and the scenario to plan.
-3. Read existing source files to identify what already exists (domain, ports, use cases, controllers, fakes).
-4. Determine which layers need to be created or modified for this scenario.
-5. Create a new file `docs/specifications/<feature-slug>/SCENARIO-XX.md` with a concrete, ordered checklist of files and classes to create or modify.
+2. **If the scenario plans new HTTP/REST endpoints, controllers, request/response DTOs, or exception filters, also invoke the `api-conventions` skill** so the controller/DTO steps anticipate REST URL design, status-code mapping, input validation scope, and HTTP semantics.
+3. Read `docs/specifications/<feature-slug>/specification.md` to understand the intent, business rules, and the scenario to plan.
+4. Read existing source files to identify what already exists (domain, ports, use cases, controllers, fakes).
+5. Determine which layers need to be created or modified for this scenario.
+6. Create a new file `docs/specifications/<feature-slug>/SCENARIO-XX.md` with a concrete, ordered checklist of files and classes to create or modify.
 
 ## Plan format
 
@@ -64,5 +65,6 @@ Only include steps relevant to the scenario. Skip steps for layers that already 
   - **Read side** (queries return projections, no aggregate): port name ends in `Finder` / `Query` / `Reader` / `Report` (`findAll`, `findBy*`, `count`). A use case is **NOT required** if the controller just forwards to the port — plan the controller to inject the port directly. Only plan a read-side use case when there's real logic on the way out (authorization, filtering, projection assembly).
   - For controller integration tests on the read side, plan the test to drive the **real fake** of the finder (`seed(...)` / `failWith(...)`) — not a use-case mock.
   - See the `cqrs` skill for the full rules and litmus test.
+- **For HTTP endpoints, the controller/DTO step must reflect the `api-conventions` skill.** When planning a new endpoint, name the resource-oriented URL, the HTTP method, the expected success status code (`201` + `Location` for create, `204` for empty-body update, `200` for read), and which 4xx/5xx codes the controller test must cover. Plan the controller integration test to include the API validation matrix (happy path / malformed input / type-parse error / missing required field / domain invariant violation / 404 / 500 where applicable). If the scenario adds a new exception type, plan how it maps to a status code at the controller boundary.
 
 Once the plan is written to disk, your work is done. Do not implement anything.

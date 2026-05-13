@@ -30,6 +30,10 @@ Invoke these skills **once** at the start, not per step:
 - `tdd` — red-green-refactor discipline.
 - `testing` — test structure, naming, fake usage.
 
+Additionally, invoke conditionally based on what the scenario plan touches:
+- `api-conventions` — if the plan includes a controller, request/response DTO, route, or exception filter step.
+- `cqrs` — if the plan adds a new port (to decide write-side `Repository` vs read-side `Finder`/`Query`) or a new read-side use case (to apply the middleman litmus test).
+
 ## Implementation mode
 
 1. Read `docs/specifications/<feature-slug>/specification.md` for context (intent, business rules, scenario text). **Do not modify it.**
