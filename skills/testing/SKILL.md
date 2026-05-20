@@ -141,11 +141,47 @@ fun returns_one_user_id_for_each_user_with_at_least_one_non_deleted_domain() {
 }
 ```
 
+## Designing the test list (ZOMBIES + mutation check)
+
+Before writing tests for a behavior, walk the **ZOMBIES** categories explicitly. Don't invent "interesting" cases — invent *systematic* ones. The categories are designed to force progressively more complex production code, and the early ones are usually the strongest discriminators for catching inversions, off-by-ones, and missing filters.
+
+- **Z**ero — empty / null / no-result input
+- **O**ne — exactly one item (catches inversions and missing filters)
+- **M**any — N>1 items: all-same, all-different, mixed
+- **B**oundary — min/max, off-by-one, time-window edges
+- **I**nterface — the contract shape (types, fields, optional/required)
+- **E**xceptions — failures, errors, infrastructure faults
+- **S**imple — keep each scenario minimal; resist "interesting" combinations
+
+For every test in the list, ask the **mutation question**:
+
+> "If I flip an operator (`>` ↔ `<`, `=== 1` ↔ `=== 0`, `&&` ↔ `||`) or remove a filter clause in the production code, would this test catch it?"
+
+If you can't name a mutation the test rules out, the test is vacuous — redesign or delete.
+
+### Asymmetric data for discriminating filters
+
+A test on a filtering or aggregating function must use data that distinguishes the correct implementation from likely mutants. Symmetric data (e.g. one matching row and one non-matching row, asserting `count == 1`) is a smell — both the correct predicate and its inversion give the same result. Pick counts that diverge.
+
+```kotlin
+// Bad — 1 matching + 1 non-matching with predicate `flagged = 1`: count is 1 either way.
+// Mutation `flagged = 0` also yields 1. Test catches no mutation.
+seed(listOf(row(flagged = true), row(flagged = false)))
+assertThat(query.count()).isEqualTo(1)
+
+// Good — 2 matching + 1 non-matching: correct predicate yields 2, mutation yields 1.
+seed(listOf(row(flagged = true), row(flagged = true), row(flagged = false)))
+assertThat(query.count()).isEqualTo(2)
+```
+
+References: James Grenning, ["TDD Guided by Zombies"](https://blog.wingman-sw.com/tdd-guided-by-zombies).
+
 ## Assertions
 
 - Prefer the project's assertion library for consistent style.
 - For comparisons, prefer `assertThat(actual).isEqualTo(expected)` style or equivalent.
 - **Precision-sensitive values**: MUST use comparison methods that ignore scale/representation differences.
+- **Pick numbers that produce exact assertions.** When you control the test fixture, design it so percentages and ratios resolve to integers (1/2 = 50, 2/100 = 2, 1/4 = 25) and assert with exact equality. Approximate/tolerance matchers (`toBeCloseTo`, `isCloseTo`, `within`) are for values the *production code* legitimately makes fuzzy (currency rounding, trigonometry, accumulated multiplications). A tolerance assertion over a fixture you chose to be fractional (e.g. `1/3 * 100` with ε) is a smell — change the seed so the math resolves cleanly.
 - Flag mixed assertion styles when a single style can keep tests consistent.
 - Avoid magic numbers; use named constants/fixtures where meaning matters.
 - **No redundant intermediate assertions**: do not assert a precondition that is already tested implicitly by the next assertion. For example, asserting an Optional/Maybe is present before accessing its value is redundant if the next line asserts a property of the unwrapped value — the test will fail anyway if the value is absent.

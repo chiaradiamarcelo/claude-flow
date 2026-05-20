@@ -69,6 +69,28 @@ Apply all design and code conventions from the `clean-architecture` skill, plus 
 ### Mapper cleanliness
 - Mappers should map data only, not apply business rules.
 
+### Readability — comments and function length
+- **Comment as a missing name.** Block comments that summarize *what* the next 3–10 lines do
+  are a code smell. Recommend Extract Variable (for boolean expressions / magic values) or
+  Extract Method (for blocks). Comments that survive should explain *why*, not *what*. See
+  the *Comment as a missing name* catalog entry.
+- **Long functions.** Flag any function that exceeds ~15 lines or visibly contains 2+
+  distinct phases. Recommend *Compose method*: extract each phase into a named helper so the
+  top-level function reads as a table of contents. Pure helpers belong as module-level
+  functions; the class / service keeps only the IO and orchestration methods.
+
+### Behavior placement — feature envy
+- **Feature envy.** Flag free functions (or methods on the wrong class) whose body reads ≥2
+  fields of the same parameter to derive a value. The clearest signal: two or three functions
+  in a row take the same data type as their first argument and read its fields. Recommend
+  *Feature envy → Move method*: turn the data type into a class (private constructor + named
+  static factory) and move the envious functions onto it as methods. The orchestrator that
+  used to thread the data through free functions becomes a sequence of method calls. See the
+  *Feature envy → Move method* catalog entry.
+- Distinguish from *Anemic domain model to rich model* by scope: feature envy applies to
+  module-local data bags, anemic-model applies to domain entities exported across layers.
+  Same fix shape, different blast radius.
+
 ## Output format
 
 **SUGGESTIONS** (ordered by impact):

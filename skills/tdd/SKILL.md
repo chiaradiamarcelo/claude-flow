@@ -11,6 +11,34 @@ Implement using strict TDD: **$ARGUMENTS**
 
 **No production code without a failing test first.** If you didn't watch the test fail, you don't know if it tests the right thing. Code written before a test must be deleted and reimplemented from the test — no exceptions.
 
+## Picking the next test (ZOMBIES + TPP)
+
+The cycle below tells you *how* to do red-green-refactor. **ZOMBIES** and the **Transformation Priority Premise** tell you *which test to write next*.
+
+Walk the **ZOMBIES** categories in order — earlier categories force the simplest production transformations and are usually the strongest discriminators for catching inversions and off-by-ones. Resist jumping straight to "many" or "mixed" — One tests carry more information than they look like they do.
+
+- **Z**ero — empty / null input → forces a default-return implementation
+- **O**ne — exactly one item → forces actual filtering / branching logic
+- **M**any — N>1 items → forces aggregation / iteration
+- **B**oundary — edges, off-by-ones, window limits
+- **I**nterface — contract shape, optional vs required
+- **E**xceptions — error paths
+- **S**imple — keep each transformation small
+
+Each new test should force the **next-simplest transformation** in production code (Uncle Bob's TPP). Rough priority, simplest first:
+
+1. nothing → constant
+2. constant → variable
+3. statement → conditional (`if`)
+4. scalar → list / aggregation
+5. unconditional → loop
+
+The implementation that emerges is whatever satisfies the contract — SQL, in-memory, HTTP, whatever. **It is downstream of the test list, not the source of it.** If you find yourself designing tests against an existing implementation (e.g. an already-written SQL string), you are working in reverse: write the tests against the *port contract* and let the implementation be accidental.
+
+Pair every test you pick with the **mutation question** (see the `testing` skill): if no mutation of the production code would make this test fail, the test is vacuous.
+
+References: James Grenning, ["TDD Guided by Zombies"](https://blog.wingman-sw.com/tdd-guided-by-zombies); Robert C. Martin, ["The Transformation Priority Premise"](https://blog.cleancoder.com/uncle-bob/2013/05/27/TheTransformationPriorityPremise.html).
+
 ## The cycle (one behavior at a time)
 
 Each behavior is one tracer bullet: RED → GREEN → REFACTOR. Then move to the next behavior. Do not batch tests across behaviors.
