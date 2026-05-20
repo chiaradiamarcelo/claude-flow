@@ -65,6 +65,5 @@ When writing or modifying tests, invoke the `testing` skill for full conventions
 
 The `refactor-advisor` agent enforces patterns from `~/.claude/refactor-catalog.md` —
 *Comment as a missing name*, *Compose method*, *Feature envy → Move method*, and others.
-Run `/run-reviewers` after non-trivial changes.
 
 
