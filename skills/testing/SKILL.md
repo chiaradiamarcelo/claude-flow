@@ -82,7 +82,9 @@ class CalculateOccupancyTest {
 - For failure scenarios, prefer `fails_when_<condition>` over `throws_when_<condition>`.
 - **Use plain business language, not invented jargon.** Avoid verbs the domain doesn't already use (`credits`, `honors`, `respects`, `enrolls`). Prefer plain English a domain expert would say: `ignores_…`, `returns_…`, `saves_…`, `rejects_…`. If a verb makes the reader pause to translate, replace it. Example: `ignores_sightings_from_other_users` reads better than `only_credits_sightings_belonging_to_the_requested_user`.
 - Prefer `returns_<status>_when_<condition>` for API tests.
-- Avoid implementation details in test names.
+- **Name the behavior, not the mechanism.** A test name should communicate something useful to whoever reads it — the observable outcome or condition from the caller's point of view — not the internal implementation that happens to produce it. The reader rarely cares *how* the work is done.
+  - **Exception: when the mechanism IS a behavior you care about, name it.** A cache is an implementation detail from the outside — but if caching is a guarantee you must uphold (e.g. `does_not_refetch_on_second_call`), then it's behavior worth naming and testing. The test is whether the mechanism is a contract the reader relies on, or just incidental plumbing.
+  - **Example (incidental → drop it):** `when_aggregation_fails` / `fails_when_the_cached_urls_query_throws` — the aggregation step and the table name are internal mechanics that tell the reader nothing about the contract. The contract is simply that a failing run is reported as a failure: `when_the_job_fails` / `propagates_the_error`.
 
 ## Logic in Tests (Forbidden)
 
