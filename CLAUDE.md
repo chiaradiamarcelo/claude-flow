@@ -15,9 +15,12 @@
      checkout is on. All pipeline artifacts live inside it.
   3. **Do not warm dependencies yourself.** A `PostToolUse` hook on `EnterWorktree`
      runs the repo's `.claude/warm-deps.sh` detached and silently if present.
-     Kotlin/Java (Gradle/Maven) repos need none — dependencies live in a global
-     cache, so it is a no-op. If you later need to confirm deps are ready, read the
-     one-line `.claude/warm-deps.status` (`ok` = ready), never `.claude/warm-deps.log`.
+     A global default (`~/.claude/warm-deps.sh`) auto-detects the ecosystem
+     (pnpm/npm/yarn → install; Kotlin/Java/Gradle/Maven/Go/Rust → no-op), and any
+     repo can override it with its own `.claude/warm-deps.sh`. If you later need to
+     confirm deps are ready, read the one-line `.claude/warm-deps.status` (`ok` =
+     ready), never `.claude/warm-deps.log`. Convention:
+     `~/.claude/hooks/worktree-warming.md`.
 - **New features/use cases**: after Step 0, run `/intent-and-goal`.
 - **Scenarios first**: follow the `/intent-and-goal` flow to refine the intent, then propose Gherkin scenarios, and create a Source of Truth (SoT) specification file before any code is written.
 - **Sequential pipeline.**

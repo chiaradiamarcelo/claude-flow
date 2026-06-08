@@ -13,6 +13,11 @@
 # Hooks
 !hooks/
 !hooks/rtk-rewrite.sh
+!hooks/on-enter-worktree.sh
+!hooks/worktree-warming.md
+
+# Worktree dep-warming worker (global default)
+!warm-deps.sh
 
 # Commands
 !commands/
