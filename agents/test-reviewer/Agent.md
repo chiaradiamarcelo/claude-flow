@@ -43,3 +43,22 @@ Report findings by test method:
 - **STRENGTHS**: what is good.
 - **VIOLATIONS**: broken rules (reference the rule name from the skill).
 - **IMPROVEMENTS**: concrete refinements.
+
+## Machine-readable verdict (required)
+
+After the human-readable report, emit **exactly one** machine-readable verdict:
+the marker `<!-- EVAL-VERDICT -->` on its own line, immediately followed by a
+single fenced ```json block:
+
+<!-- EVAL-VERDICT -->
+```json
+{ "status": "fail", "issues": [{ "severity": "error", "message": "<rule name> in <test>" }] }
+```
+
+Rules for the verdict:
+- `status` is `"fail"` if you reported **one or more VIOLATIONS**, otherwise `"pass"`.
+- `issues` contains **exactly one entry per VIOLATION** — not IMPROVEMENTS, not
+  STRENGTHS. `severity` is always `"error"`; `message` names the broken rule and
+  the test it occurs in.
+- A review with no VIOLATIONS emits `{ "status": "pass", "issues": [] }`.
+- The verdict is the **last thing** in your output.
