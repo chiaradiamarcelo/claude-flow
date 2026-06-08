@@ -1,4 +1,7 @@
 {
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "permissions": {
     "allow": [
       "Bash(pnpm ts-mocha:*)",
@@ -13,6 +16,19 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "EnterWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/warm-worktree-deps.sh",
+            "timeout": 15,
+            "statusMessage": "Warming worktree deps in background..."
           }
         ]
       }

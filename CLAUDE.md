@@ -4,7 +4,21 @@
 
 ## Workflow rules
 
-- **New features/use cases**: when starting a new task, run `/intent-and-goal`.
+- **Step 0 — fresh worktree (MANDATORY, before any feature work):** Every
+  `/intent-and-goal` pipeline must start from a clean, up-to-date default branch
+  in an isolated worktree — never on the shared checkout's current branch.
+  1. If the session is **already in a worktree**, skip this step.
+  2. Otherwise call the **`EnterWorktree`** tool with `name` set to a short slug
+     of the feature. With `worktree.baseRef: fresh` (set in `settings.json`) this
+     branches off `origin/<default-branch>` after fetching, so the worktree starts
+     from current master on its own branch — regardless of which branch the main
+     checkout is on. All pipeline artifacts live inside it.
+  3. **Do not warm dependencies yourself.** A `PostToolUse` hook on `EnterWorktree`
+     runs the repo's `.claude/warm-deps.sh` detached and silently if present.
+     Kotlin/Java (Gradle/Maven) repos need none — dependencies live in a global
+     cache, so it is a no-op. If you later need to confirm deps are ready, read the
+     one-line `.claude/warm-deps.status` (`ok` = ready), never `.claude/warm-deps.log`.
+- **New features/use cases**: after Step 0, run `/intent-and-goal`.
 - **Scenarios first**: follow the `/intent-and-goal` flow to refine the intent, then propose Gherkin scenarios, and create a Source of Truth (SoT) specification file before any code is written.
 - **Sequential pipeline.**
   After scenarios are defined, run them one at a time:
