@@ -216,6 +216,9 @@ Available templates:
 | [skills/tdd/](skills/tdd/SKILL.md) | TDD red-green-refactor cycle enforcement |
 | [skills/testing/](skills/testing/SKILL.md) | Test structure, naming, fakes, and coverage conventions |
 | [skills/adr/](skills/adr/SKILL.md) | Architecture Decision Record creation |
+| **Evals — testing the pipeline** | |
+| [evals/README.md](evals/README.md) | Eval corpus + **testing strategy** for the pipeline's own agents — the confidence pyramid (unit fixtures → integration → acceptance), how non-determinism and drift are handled |
+| [commands/run-evals.md](commands/run-evals.md) | `/run-evals <agent>` — dispatch an agent against its fixtures and grade with the deterministic model-free grader |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Template files (e.g., `review-triggers.typescript.json` for project trigger overrides) |
