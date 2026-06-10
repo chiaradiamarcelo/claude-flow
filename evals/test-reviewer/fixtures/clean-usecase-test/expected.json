@@ -1,0 +1,11 @@
+{
+  "fixture": "clean-usecase-test",
+  "description": "A use-case test that follows every convention: GWT separated by blank lines, snake_case behavioral name, fake and use case built in @BeforeEach, data seeded inside the test, named constant, single behavior, exact assertion. The reviewer must report no violations.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "pass",
+      "issueCount": { "max": 0 }
+    }
+  }
+}

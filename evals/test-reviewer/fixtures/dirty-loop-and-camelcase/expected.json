@@ -1,0 +1,12 @@
+{
+  "fixture": "dirty-loop-and-camelcase",
+  "description": "A test that breaks hard rules: a for-loop in the test body (forbidden control flow), a camelCase method name, no blank-line GWT separation, and repeated magic literals. The reviewer must fail it and mention the loop.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "fail",
+      "issueCount": { "min": 1 },
+      "mustMention": ["loop"]
+    }
+  }
+}
