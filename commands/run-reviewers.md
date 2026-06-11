@@ -53,6 +53,11 @@ Check if `.claude/review-triggers.json` exists in the project root. If it does, 
 
 For each reviewer, check if ANY target file matches ANY of its `triggers` glob patterns (after overrides). Skip reviewers with no matching files.
 
+**Matching is purely glob-based — mechanical, not topical.** A reviewer fires **if and only if** at least one target file *path* matches at least one of its trigger globs. Do **not** fire a reviewer because the changeset *seems* related to its domain, because a file's *content or topic* looks relevant, or "just in case." Only a glob path match counts.
+
+- A reviewer with **zero** matching files goes in `skips`, never `fires`.
+- A changeset that matches **no** reviewer (e.g. a docs-only change: `README.md`, `docs/**/*.md`) yields an **empty** `fires:` line with every reviewer in `skips`. That is a valid, expected outcome — not an error, and not a reason to fire a reviewer anyway.
+
 ### Dry run (routing assertion — used by the live test)
 
 If `--dry-run` appears in **$ARGUMENTS**, stop after this step: do NOT dispatch

@@ -220,6 +220,23 @@ Both **run the thing in a fresh `claude -p` process** (the in-session `Agent`
 tool caches a stale definition) under **least-privilege, read-only** tool
 allowlists; both **assert deterministically** (no model in the grader).
 
+### Quarantine (the flaky-pair escape hatch)
+
+Routing is decided by the *model* reading `run-reviewers.md`, so it is itself
+non-deterministic. Positive assertions ("this reviewer fires") are stable.
+The hard case is the **universal-negative** — a docs-only changeset where
+*nobody* should fire: the model must conclude no glob matches, and it
+occasionally over-fires the `src/main`/test reviewers anyway, even after Step 4
+of the command was tightened to "match by glob only, never by topic." That pair
+flaps ~half the time — too flaky to gate on, exactly the case the pyramid
+section flagged for `pass@k` / quarantine.
+
+A fixture with `"quarantine": true` (+ a `quarantineReason`) still runs and
+prints its **real** result — labelled `QUAR` instead of `PASS`/`FAIL` — but
+never fails the gate. It keeps the finding visible without shipping a red that
+flaps. `no-match-skips-all` is quarantined for this reason; revisit it if
+routing is ever moved out of the model into deterministic code.
+
 ### Running the suite
 
 ```bash

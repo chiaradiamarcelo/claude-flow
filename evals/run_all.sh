@@ -83,7 +83,9 @@ for f in exp["changed_files"]:
     open(p, "w").close()
 PY
     out="$(mktemp)"
-    ( cd "$scratch" && claude -p "/run-reviewers --dry-run" "${CMD_TOOLS[@]}" 2>/dev/null ) > "$out"
+    # </dev/null: don't let `claude -p` read the script's inherited stdin (same
+    # hygiene as Phase 1) — without it the headless run can misbehave.
+    ( cd "$scratch" && claude -p "/run-reviewers --dry-run" "${CMD_TOOLS[@]}" </dev/null 2>/dev/null ) > "$out"
     python3 evals/check_routing.py "${fxdir}expected.json" "$out" || fail=1
     rm -rf "$scratch" "$out"
   done
