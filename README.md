@@ -222,6 +222,7 @@ Available templates:
 | [evals/run_all.sh](evals/run_all.sh) | One-command suite runner — structural + agent fixture evals + live command routing tests |
 | [evals/eval_grade.py](evals/eval_grade.py) | Deterministic, model-free grader for agent fixtures + fingerprint cache (caching + diff-scoping) |
 | [evals/check_routing.py](evals/check_routing.py) | Deterministic grader for the live `/run-reviewers` routing test |
+| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — measured discoveries: a grader bug that looked like model flakiness, `@`-include vs on-demand skill loading (~1.8× cost), the eval cost model, and how to write robust agent evals |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Template files (e.g., `review-triggers.typescript.json` for project trigger overrides) |

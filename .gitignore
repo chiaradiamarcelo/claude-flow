@@ -46,6 +46,10 @@
 !memory/**
 !MEMORY.md
 
+# Docs (engineering findings / lab notebook)
+!docs/
+!docs/**
+
 # Evals
 !evals/
 !evals/**

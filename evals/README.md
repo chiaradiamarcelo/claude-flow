@@ -249,3 +249,10 @@ for pairs that are flaky *because the agent is*, not because the grader is.
 
 Phases: **0** structural (free) → **1** agent fixture evals (cached) → **2**
 command routing tests. Exits non-zero on any failure.
+
+## Findings / lab notebook
+
+Measured discoveries from running this harness live in [`docs/`](../docs/README.md):
+a grader bug that masqueraded as model flakiness, an `@`-include vs on-demand
+skill-loading cost experiment (~1.8×), the eval cost model (~$0.06/dispatch), and
+the conventions for writing robust agent evals.
