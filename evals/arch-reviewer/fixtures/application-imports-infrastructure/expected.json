@@ -1,0 +1,12 @@
+{
+  "fixture": "application-imports-infrastructure",
+  "description": "An application use case that depends on a concrete infrastructure adapter (AccountPostgresAdapter) instead of the domain Repository port. The application layer may depend on the domain only; depending on infrastructure inverts the dependency rule. The reviewer must fail it and flag the application-to-infrastructure dependency.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["infrastructure"]
+    }
+  }
+}

@@ -24,6 +24,10 @@ the eval suite (`evals/run_all.sh`).
 4. [Writing robust agent evals](findings/04-writing-robust-agent-evals.md)
    — fresh-process requirement, tolerant assertions, `mustMention` substring
    pitfalls, when (not) to quarantine.
+5. [Exhaustive corpora for the other four reviewers](findings/05-exhaustive-corpora-for-all-reviewers.md)
+   — 50 fixtures across api/arch/refactor/ui. Clean *controls* split reviewers in
+   two: **structural** reviewers PASS clean code; the **advisory** reviewer never
+   can (the strict-gate evidence, now encoded as a regression test).
 
 ## Conventions used across these notes
 

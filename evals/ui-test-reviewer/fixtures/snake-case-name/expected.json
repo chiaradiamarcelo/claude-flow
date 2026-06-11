@@ -1,0 +1,11 @@
+{
+  "fixture": "snake-case-name",
+  "description": "A clean component test whose only flaw is a snake_case test name ('renders_the_user_name_when_a_name_is_provided'). UI test names are plain English, not snake_case. The reviewer must fail it and flag the snake_case naming.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["snake"]
+    }
+  }
+}

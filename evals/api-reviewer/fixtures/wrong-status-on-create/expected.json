@@ -1,0 +1,11 @@
+{
+  "fixture": "wrong-status-on-create",
+  "description": "A thin, RESTfully-routed create endpoint that returns a response DTO but defaults to 200 OK on resource creation — it should respond 201 Created. The reviewer must fail it and flag the semantically wrong status code (should be 201).",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["201"]
+    }
+  }
+}

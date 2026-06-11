@@ -1,0 +1,12 @@
+{
+  "fixture": "multi-action-controller",
+  "description": "A single fat controller class wiring three unrelated business actions (deposit, withdraw, close) and three use cases. Each handler is thin and the URLs are RESTful, so the only smell is the multi-action class: the convention is one controller per business action. The reviewer must fail it and flag the multiple actions in one controller.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["controller"]
+    }
+  }
+}

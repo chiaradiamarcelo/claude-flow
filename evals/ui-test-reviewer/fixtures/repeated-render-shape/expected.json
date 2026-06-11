@@ -1,0 +1,11 @@
+{
+  "fixture": "repeated-render-shape",
+  "description": "Three tests that each repeat the exact same multi-prop renderWithProviders(<ProfileCard ... />) call. When the same render shape appears in 3+ tests, extract a local renderProfileCard(...) helper. The reviewer must fail it and suggest extracting a render helper.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["helper"]
+    }
+  }
+}

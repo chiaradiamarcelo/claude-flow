@@ -1,0 +1,12 @@
+{
+  "fixture": "business-logic-in-controller",
+  "description": "A controller whose URL and response modeling are clean, but the handler enforces an overdraft rule and computes a withdrawal fee — business logic that belongs in the use case. The reviewer must fail it and flag the business logic in the controller.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["logic"]
+    }
+  }
+}

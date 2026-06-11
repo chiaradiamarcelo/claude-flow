@@ -1,0 +1,11 @@
+{
+  "fixture": "get-prefix-accessor",
+  "description": "A domain entity whose accessors use the Java-style get prefix (getId(), getBalanceCents()). The convention is get-less accessors — accountId() / balance(). The advisor must flag the get-prefixed accessors.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["prefix"]
+    }
+  }
+}

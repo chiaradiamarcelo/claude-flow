@@ -1,0 +1,12 @@
+{
+  "fixture": "swallowed-integrity-error",
+  "description": "A query adapter that, on detecting duplicate account IDs (a data-integrity error), silently returns an empty list instead of throwing. An empty result is indistinguishable from 'no data' and hides a real problem. The advisor must flag this as a VIOLATION and say it should throw rather than swallow the error.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["throw"]
+    }
+  }
+}

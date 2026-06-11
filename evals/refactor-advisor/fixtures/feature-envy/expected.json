@@ -1,0 +1,11 @@
+{
+  "fixture": "feature-envy",
+  "description": "Three free functions in a row that each take a Quote as their first argument and read its fields to derive a value. This is the 'Feature envy -> Move method' smell: the functions envy Quote's data and should become methods on it (private constructor + named factory). The advisor must flag the feature envy.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["envy"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fixture": "controller-depends-on-adapter",
+  "description": "An API controller that injects a concrete infrastructure adapter (AccountPostgresAdapter) directly instead of an application use case or a domain read-side port. The API layer must not reach into infrastructure internals. The reviewer must fail it and flag the controller depending on the adapter.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["adapter"]
+    }
+  }
+}

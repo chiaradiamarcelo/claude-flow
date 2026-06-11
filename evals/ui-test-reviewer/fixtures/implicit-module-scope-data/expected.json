@@ -1,0 +1,11 @@
+{
+  "fixture": "implicit-module-scope-data",
+  "description": "A component test that relies on a module-scope `invoice` fixture defined far from the test body, carrying many fields the assertion does not need (only the amount is asserted). Test data should be minimal and visible in the test, not an implicit module-level fixture. The reviewer must fail it and flag the implicit module-scope test data.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["module"]
+    }
+  }
+}

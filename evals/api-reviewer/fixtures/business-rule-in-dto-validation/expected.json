@@ -1,0 +1,12 @@
+{
+  "fixture": "business-rule-in-dto-validation",
+  "description": "A request DTO whose @NotBlank (format) is fine, but @Min(10_000) encodes a business rule (minimum opening balance) and the @Pattern enumerates the domain's allowed account types. Business invariants must live in the domain so every entry point enforces them, not in API-layer validation annotations. The reviewer must fail it and flag the business rule in DTO validation.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["validation"]
+    }
+  }
+}

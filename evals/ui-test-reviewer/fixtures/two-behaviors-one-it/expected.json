@@ -1,0 +1,11 @@
+{
+  "fixture": "two-behaviors-one-it",
+  "description": "A single it(...) that verifies two distinct observable behaviors — that onSearch is called with the query AND that the input is cleared — as signalled by both the 'and' in its name and the two unrelated assertions. Each test should cover one behavior. The reviewer must fail it and flag the two behaviors in one test.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["behavior"]
+    }
+  }
+}

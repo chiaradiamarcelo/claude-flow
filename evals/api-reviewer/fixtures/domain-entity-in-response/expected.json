@@ -1,0 +1,12 @@
+{
+  "fixture": "domain-entity-in-response",
+  "description": "A thin, RESTfully-routed read controller that returns the domain Account aggregate directly instead of mapping it to a response DTO. Everything else is clean; the only smell is the domain entity leaking across the HTTP boundary. The reviewer must fail it and flag the domain entity in the response.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["domain"]
+    }
+  }
+}

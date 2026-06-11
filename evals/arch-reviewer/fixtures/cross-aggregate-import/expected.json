@@ -1,0 +1,12 @@
+{
+  "fixture": "cross-aggregate-import",
+  "description": "The Account aggregate package imports from a sibling aggregate package (domain/models/loan/Loan) and reaches into it directly. One aggregate package must never import from another — cross-aggregate orchestration belongs in a use case that holds both Repositories. The reviewer must fail it and flag the cross-aggregate import.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["aggregate"]
+    }
+  }
+}

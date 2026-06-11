@@ -1,0 +1,11 @@
+{
+  "fixture": "usecase-with-interface",
+  "description": "A use case declared as an interface. The conventions are explicit: do not use interfaces for use cases — use the concrete class directly (a use case is one business action, not a swappable port). The reviewer must fail it and flag the use case interface.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["interface"]
+    }
+  }
+}

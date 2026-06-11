@@ -4,6 +4,8 @@
 #   ./evals/run_all.sh             # all phases
 #   ./evals/run_all.sh --commands  # only command routing tests (cheap-ish)
 #   ./evals/run_all.sh --agents    # only agent fixture evals
+#   ./evals/run_all.sh api-reviewer            # only that reviewer's corpus
+#   ./evals/run_all.sh --agents api-reviewer   # same (explicit)
 #
 # Phase 0 (structural) is free. Phases 1 & 2 spend tokens via `claude -p`
 # (Phase 1 is fingerprint-cached; Phase 2 uses the cheap --dry-run path).
@@ -16,18 +18,23 @@ AGENT_TOOLS=(--allowedTools Read Glob Grep)
 CMD_TOOLS=(--allowedTools "Bash(git *)" Grep Glob Read)
 fail=0
 do_agents=1; do_commands=1
+ONLY_AGENT=""
 case "${1:-}" in
-  --agents)   do_commands=0 ;;
+  --agents)   do_commands=0; ONLY_AGENT="${2:-}" ;;
   --commands) do_agents=0 ;;
+  --*)        echo "usage: run_all.sh [--agents|--commands] [agent-name]"; exit 2 ;;
   "")         ;;
-  *) echo "usage: run_all.sh [--agents|--commands]"; exit 2 ;;
+  *)          ONLY_AGENT="$1" ;;            # bare agent name → just that corpus
 esac
+# A specific reviewer filter means the command routing tests don't apply.
+[ -n "$ONLY_AGENT" ] && [ "$ONLY_AGENT" != "run-reviewers" ] && do_commands=0
 
 echo "== Phase 0: structural (free, no model) =="
 for d in evals/*/; do
   [ -d "${d}fixtures" ] || continue
   # the agent-fixture schema check applies only to agent corpora
   [ -f "agents/$(basename "$d")/Agent.md" ] || continue
+  [ -n "$ONLY_AGENT" ] && [ "$(basename "$d")" != "$ONLY_AGENT" ] && continue
   python3 evals/eval_grade.py --evals-dir "$d" --check-corpus || fail=1
 done
 
@@ -37,6 +44,7 @@ if [ "$do_agents" = 1 ]; then
     [ -d "${adir}fixtures" ] || continue
     agent="$(basename "$adir")"
     [ -f "agents/$agent/Agent.md" ] || continue   # skip command-test corpora
+    [ -n "$ONLY_AGENT" ] && [ "$agent" != "$ONLY_AGENT" ] && continue
     vd="$(mktemp -d)"
     # Capture RUN pairs first. A `--plan | while read` pipe would let `claude -p`
     # (which reads stdin) swallow the remaining pairs — only the first dispatches.

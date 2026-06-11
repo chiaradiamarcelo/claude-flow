@@ -1,0 +1,11 @@
+{
+  "fixture": "primitive-obsession",
+  "description": "A use case whose signature threads raw primitives for rich business concepts — email address, phone number, country code, money amount, currency — as String/Long. These are value objects waiting to be extracted (validation and behavior should live on them). The advisor must flag the primitive obsession.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["primitive"]
+    }
+  }
+}

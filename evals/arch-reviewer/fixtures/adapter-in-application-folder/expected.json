@@ -1,0 +1,12 @@
+{
+  "fixture": "adapter-in-application-folder",
+  "description": "A Postgres repository adapter (JdbcTemplate-backed, implementing AccountRepository) declared in the application package instead of infrastructure. All adapters live in infrastructure; placing one in application drags JDBC/framework dependencies into a layer that must stay framework-agnostic. The reviewer must fail it and flag the misplaced adapter — it belongs in infrastructure.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["infrastructure"]
+    }
+  }
+}
