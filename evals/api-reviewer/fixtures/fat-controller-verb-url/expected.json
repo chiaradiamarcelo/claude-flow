@@ -1,0 +1,12 @@
+{
+  "fixture": "fat-controller-verb-url",
+  "description": "A controller that breaks several API-boundary rules at once: a verb in the URL (/createAccount), business logic in the handler (negative-amount check + fee computation), it talks to a repository instead of a use case, and it returns the domain Account entity directly. The reviewer must fail it and flag the verb-in-URL and/or domain-entity leak.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["URL"]
+    }
+  }
+}
