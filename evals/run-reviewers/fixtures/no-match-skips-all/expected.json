@@ -1,9 +1,7 @@
 {
   "fixture": "no-match-skips-all",
   "command": "run-reviewers",
-  "quarantine": true,
-  "quarantineReason": "Flaky — non-gating. This is a universal-negative ('nobody fires'), the hardest case for model-driven routing: the model must correctly conclude that NO trigger glob matches. Even after Step 4 of run-reviewers.md was tightened to 'match by glob only, never by topic', the model still over-fires the src/main & test reviewers on a docs-only changeset roughly half the time. Per evals/README.md we quarantine pairs too flaky to gate on (pass@k territory) rather than ship a red that flaps. The positive-assertion fixtures (controller-fires-api, routing-basic) are stable and DO gate. Revisit if routing is ever moved out of the model into deterministic code.",
-  "description": "The negation case. Reviewer triggers are POSITIVE globs only — there is no `!`-negation syntax in a trigger list. The negation the router actually supports is 'no trigger matched', which skips the reviewer. This changeset is docs-only (a README + a markdown guide) and matches NO reviewer's triggers, so every reviewer should be skipped and `fires` empty.",
+  "description": "The negation case. Reviewer triggers are POSITIVE globs only — there is no `!`-negation syntax in a trigger list. The negation the router supports is 'no trigger matched', which skips the reviewer. This changeset is docs-only (a README + a markdown guide) and matches NO reviewer's triggers, so every reviewer is skipped and `fires` is empty. NOTE: this fixture appeared flaky for a while and was briefly quarantined — that was a red herring. The command reliably produced an empty `fires:` line all along; the bug was in the grader (check_routing.py), whose `fires:` regex used `\\s*` after the colon and so swallowed the newline on an EMPTY fires line, capturing the next (`skips:`) line as the fired set. Fixed by matching `[ \\t]*` instead. The universal-negative (empty fires) is the only case that exposed it.",
   "changed_files": ["README.md", "docs/architecture-guide.md"],
   "fires": [],
   "does_not_fire": ["api-reviewer", "arch-reviewer", "refactor-advisor", "test-reviewer", "ui-test-reviewer"]

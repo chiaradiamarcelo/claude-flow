@@ -27,7 +27,11 @@ def fired_set(output):
     carries a space/colon and is dropped — it is not a fired reviewer. A
     genuinely over-fired reviewer name still matches and still counts, so this
     removes format noise without masking a real misroute."""
-    m = re.search(r"(?im)^\s*fires:\s*(.*)$", output)
+    # [ \t] (not \s) after the colon: \s includes \n, so on an EMPTY `fires:`
+    # line it would swallow the newline and capture the next line (`skips:`),
+    # reporting the skipped reviewers as fired. That bug only ever bites the
+    # universal-negative (empty fires) case.
+    m = re.search(r"(?im)^[ \t]*fires:[ \t]*(.*)$", output)
     if not m:
         return None
     return {tok for raw in m.group(1).split(",")

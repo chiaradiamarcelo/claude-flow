@@ -222,20 +222,22 @@ allowlists; both **assert deterministically** (no model in the grader).
 
 ### Quarantine (the flaky-pair escape hatch)
 
-Routing is decided by the *model* reading `run-reviewers.md`, so it is itself
-non-deterministic. Positive assertions ("this reviewer fires") are stable.
-The hard case is the **universal-negative** — a docs-only changeset where
-*nobody* should fire: the model must conclude no glob matches, and it
-occasionally over-fires the `src/main`/test reviewers anyway, even after Step 4
-of the command was tightened to "match by glob only, never by topic." That pair
-flaps ~half the time — too flaky to gate on, exactly the case the pyramid
-section flagged for `pass@k` / quarantine.
+For a genuinely flaky pair, a fixture can set `"quarantine": true` (+ a
+`quarantineReason`): it still runs and prints its **real** result — labelled
+`QUAR` instead of `PASS`/`FAIL` — but never fails the gate. Use it sparingly,
+for pairs that are flaky *because the agent is*, not because the grader is.
 
-A fixture with `"quarantine": true` (+ a `quarantineReason`) still runs and
-prints its **real** result — labelled `QUAR` instead of `PASS`/`FAIL` — but
-never fails the gate. It keeps the finding visible without shipping a red that
-flaps. `no-match-skips-all` is quarantined for this reason; revisit it if
-routing is ever moved out of the model into deterministic code.
+> **War story — be sure it's the agent, not the grader.** The
+> `no-match-skips-all` routing fixture (a docs-only changeset → nobody should
+> fire) looked ~50% flaky and got quarantined on the theory that the model was
+> "routing by topic." Wrong. The command produced an empty `fires:` line all
+> along; the bug was in the grader: `check_routing.py`'s `fires:` regex used
+> `\s*` after the colon, and `\s` matches `\n`, so on an **empty** `fires:` line
+> it swallowed the newline and captured the next (`skips:`) line — reporting the
+> *skipped* reviewers as *fired*. It only ever bit the universal-negative.
+> Fixed by matching `[ \t]*`. Lesson: a deterministic grader can have
+> non-obvious bugs that masquerade as agent flakiness; reproduce the raw output
+> and parse it by hand before blaming the model or reaching for quarantine.
 
 ### Running the suite
 
