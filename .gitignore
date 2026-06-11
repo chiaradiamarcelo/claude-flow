@@ -49,8 +49,9 @@
 # Evals
 !evals/
 !evals/**
-# ...but not the regenerable per-machine fingerprint cache
+# ...but not the regenerable per-machine fingerprint cache or temp progress notes
 evals/**/.eval-cache.json
+evals/PROGRESS.md
 
 # macOS junk — re-ignore everywhere (the broad !dir/** whitelists re-include it)
 **/.DS_Store
