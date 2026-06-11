@@ -1,0 +1,11 @@
+{
+  "fixture": "status-not-asserted-first",
+  "description": "A controller slice test (`...IT`) asserts the response body before the HTTP status. The skill's controller baseline requires asserting HTTP status first, then payload/headers. The reviewer must flag the assertion ordering.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["status"]
+    }
+  }
+}

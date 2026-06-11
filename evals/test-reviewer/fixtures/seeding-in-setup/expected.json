@@ -1,0 +1,11 @@
+{
+  "fixture": "seeding-in-setup",
+  "description": "The before-each setup hook seeds test data (`accounts.save(...)`). The skill forbids seeding in setup — data setup must live inside each test method. The reviewer must flag the seeding in setup.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["seed"]
+    }
+  }
+}

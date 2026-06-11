@@ -1,0 +1,11 @@
+{
+  "fixture": "symmetric-filter-data",
+  "description": "A filtering use case tested with symmetric data: 1 matching (active) + 1 non-matching (inactive), asserting count == 1. The correct predicate and its inversion both yield 1, so the test catches no mutation. The skill requires asymmetric data (e.g. 2 matching + 1 non-matching → 2). The reviewer must flag the symmetric/non-discriminating data.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["symmetric"]
+    }
+  }
+}

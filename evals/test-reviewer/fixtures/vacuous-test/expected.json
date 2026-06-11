@@ -1,0 +1,11 @@
+{
+  "fixture": "vacuous-test",
+  "description": "A vacuous test: it only asserts the returned account `isNotNull()`, which passes regardless of whether the account was created correctly. The skill says to delete vacuous tests (a test that passes regardless of correctness gives false confidence). The reviewer must flag it.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["vacuous"]
+    }
+  }
+}

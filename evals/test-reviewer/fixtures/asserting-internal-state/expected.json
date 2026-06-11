@@ -1,0 +1,11 @@
+{
+  "fixture": "asserting-internal-state",
+  "description": "The test asserts on internal storage (`localStore.readRawJson()` equals the raw remote JSON) instead of the observable outcome through the public interface. The skill says to assert on observable outcomes, not internal state. The reviewer must flag the internal-state assertion.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["internal"]
+    }
+  }
+}

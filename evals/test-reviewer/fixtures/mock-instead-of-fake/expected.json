@@ -1,0 +1,11 @@
+{
+  "fixture": "mock-instead-of-fake",
+  "description": "An infrastructure port (AccountRepository) is mocked with Mockito instead of using a hand-written fake. The skill mandates fakes for infrastructure ports. The reviewer must flag the use of a mock where a fake is required.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["fake"]
+    }
+  }
+}

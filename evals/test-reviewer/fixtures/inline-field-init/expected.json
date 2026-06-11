@@ -1,0 +1,11 @@
+{
+  "fixture": "inline-field-init",
+  "description": "The fake and use case are instantiated inline as field declarations. The skill requires them declared without initialization and assigned in the before-each setup hook. The reviewer must flag the inline field initialization.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["setup"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fixture": "mixed-assertion-styles",
+  "description": "Two tests in the same suite use different assertion styles — JUnit `assertEquals(...)` in one and AssertJ `assertThat(...).isEqualTo(...)` in the other. The skill says to flag mixed assertion styles when a single style can keep tests consistent. The reviewer must flag the inconsistency.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["mixed"]
+    }
+  }
+}

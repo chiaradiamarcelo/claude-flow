@@ -1,0 +1,11 @@
+{
+  "fixture": "sleep-in-async",
+  "description": "An async test uses `Thread.sleep(1000)` to wait for completion. The skill requires deterministic waiting/assertion for async tests — no sleeps. The reviewer must flag the sleep.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["sleep"]
+    }
+  }
+}

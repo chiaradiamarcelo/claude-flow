@@ -1,0 +1,11 @@
+{
+  "fixture": "class-field-test-data",
+  "description": "Test data (`private val account = BankAccount(...)`) is built as a class-level field and used implicitly by the test via `accounts.save(account)`. The skill requires all test data referenced in a test to be visible in the test body; class-level data fields are a violation. The reviewer must flag the class-level test-data field.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["visib"]
+    }
+  }
+}
