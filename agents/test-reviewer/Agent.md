@@ -32,33 +32,36 @@ For each test file under review:
    - Repository integration contract
    - File size and grouping
    - Strategy and efficiency
-3. **Classify each finding** as VIOLATION (broken rule) or IMPROVEMENT (concrete refinement).
-4. **Note strengths** worth calling out.
+3. **Turn each finding into an `issue`** with the right `severity` (see below).
 
-## Output format
+## Output — machine-first JSON (your entire response)
 
-Report findings by test method:
+Your **entire output is a single JSON object** — no prose before or after, no
+markdown headings, no `<!-- -->` markers.
 
-### `<test method name>`
-- **STRENGTHS**: what is good.
-- **VIOLATIONS**: broken rules (reference the rule name from the skill).
-- **IMPROVEMENTS**: concrete refinements.
-
-## Machine-readable verdict (required)
-
-After the human-readable report, emit **exactly one** machine-readable verdict:
-the marker `<!-- EVAL-VERDICT -->` on its own line, immediately followed by a
-single fenced ```json block:
-
-<!-- EVAL-VERDICT -->
 ```json
-{ "status": "fail", "issues": [{ "severity": "error", "message": "<rule name> in <test>" }] }
+{
+  "status": "FAIL",
+  "issues": [
+    { "severity": "VIOLATION", "file": "DepositMoneyTest.kt", "line": 8,
+      "message": "<rule name>: <what is wrong> in `<test method>`" }
+  ],
+  "summary": "<one sentence: the headline finding>"
+}
 ```
 
-Rules for the verdict:
-- `status` is `"fail"` if you reported **one or more VIOLATIONS**, otherwise `"pass"`.
-- `issues` contains **exactly one entry per VIOLATION** — not IMPROVEMENTS, not
-  STRENGTHS. `severity` is always `"error"`; `message` names the broken rule and
-  the test it occurs in.
-- A review with no VIOLATIONS emits `{ "status": "pass", "issues": [] }`.
-- The verdict is the **last thing** in your output.
+Field rules:
+
+- **`severity`** — classify each finding:
+  - `VIOLATION` — a **broken rule**.
+  - `WARNING` — a **should-fix** problem that does not break a hard rule.
+  - `SUGGESTION` — a **concrete refinement** / nice-to-have.
+- **`status`** — derived from the issues:
+  - `FAIL` — one or more issues of **any** severity.
+  - `PASS` — no issues at all.
+- **`issues`** — one entry per finding. `message` names the rule from the
+  `testing` skill and the test method it occurs in. `file`/`line` locate it.
+- **`summary`** — a single sentence. Strengths, if worth noting, go here — not
+  as issues.
+
+Emit nothing but this JSON object.

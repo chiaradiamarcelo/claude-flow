@@ -219,6 +219,9 @@ Available templates:
 | **Evals — testing the pipeline** | |
 | [evals/README.md](evals/README.md) | Eval corpus + **testing strategy** for the pipeline's own agents — the confidence pyramid (unit fixtures → integration → acceptance), how non-determinism and drift are handled |
 | [commands/run-evals.md](commands/run-evals.md) | `/run-evals <agent>` — dispatch an agent against its fixtures and grade with the deterministic model-free grader |
+| [evals/run_all.sh](evals/run_all.sh) | One-command suite runner — structural + agent fixture evals + live command routing tests |
+| [evals/eval_grade.py](evals/eval_grade.py) | Deterministic, model-free grader for agent fixtures + fingerprint cache (caching + diff-scoping) |
+| [evals/check_routing.py](evals/check_routing.py) | Deterministic grader for the live `/run-reviewers` routing test |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Template files (e.g., `review-triggers.typescript.json` for project trigger overrides) |

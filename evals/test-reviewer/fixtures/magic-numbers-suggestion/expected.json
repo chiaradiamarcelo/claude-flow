@@ -1,0 +1,16 @@
+{
+  "fixture": "magic-numbers-suggestion",
+  "description": "A use-case test suite with full ZOMBIES coverage and perfect structure, but using repeated raw literals (\"ACC-001\", 100, 50, 150, 0) instead of named/shared constants. The reviewer must not error or warn, but must suggest extracting the magic values into constants.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": {
+        "VIOLATION": { "max": 0 },
+        "WARNING": { "max": 0 },
+        "SUGGESTION": { "min": 1 }
+      },
+      "mustMention": ["constant"]
+    }
+  }
+}

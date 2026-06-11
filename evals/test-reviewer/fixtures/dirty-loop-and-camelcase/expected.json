@@ -4,8 +4,8 @@
   "applicableAgents": ["test-reviewer"],
   "agents": {
     "test-reviewer": {
-      "expectedStatus": "fail",
-      "issueCount": { "min": 1 },
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
       "mustMention": ["loop"]
     }
   }

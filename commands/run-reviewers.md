@@ -53,6 +53,22 @@ Check if `.claude/review-triggers.json` exists in the project root. If it does, 
 
 For each reviewer, check if ANY target file matches ANY of its `triggers` glob patterns (after overrides). Skip reviewers with no matching files.
 
+### Dry run (routing assertion — used by the live test)
+
+If `--dry-run` appears in **$ARGUMENTS**, stop after this step: do NOT dispatch
+(Step 5) or consolidate (Step 6). Print the routing decision in exactly this
+format (machine-greppable), then stop:
+
+```
+ROUTING
+fires: <comma-separated names of reviewers with >=1 matched file, sorted>
+skips: <comma-separated names of discovered reviewers with no match, sorted>
+```
+
+This exercises file detection (Step 1) → reviewer discovery (Step 2) → trigger
+overrides (Step 3) → routing (Step 4) end-to-end, without spending tokens
+dispatching reviewers.
+
 ## Step 5: Launch relevant reviewers in parallel
 
 Spawn all matching reviewers in a **single message** using the `Agent` tool:
