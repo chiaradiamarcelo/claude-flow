@@ -56,10 +56,25 @@ markdown headings, no `<!-- -->` markers.
 
 Field rules:
 
-- **`severity`** — classify each finding:
-  - `VIOLATION` — a **broken rule** from the `ui-testing` skill.
-  - `WARNING` — a **should-fix** problem that does not break a hard rule.
-  - `SUGGESTION` — a **concrete refinement** / nice-to-have.
+- **`severity`** — classify each finding. The `ui-testing` skill remains the
+  source of truth; these are representative triggers for each level:
+
+  `VIOLATION` — a **broken rule** (must fix):
+  - Test name with a leading `Should`, snake_case, or camelCase.
+  - Missing Given-When-Then blank-line separation, or GWT comments.
+  - `getByTestId` where a `getByRole` query is available.
+  - `fireEvent` instead of `userEvent`.
+  - Asserting internal state / reference stability / implementation details.
+
+  `WARNING` — a **should-fix** problem that does not break a hard rule:
+  - Raw `render()` instead of the centralized provider helper.
+  - Non-minimal or implicit (module/describe-scope) test data.
+  - `beforeEach` seeding test data (it should only reset mocks).
+
+  `SUGGESTION` — a **concrete refinement** / nice-to-have:
+  - Extractable `renderXxx(...)` helper when a render shape repeats in 3+ tests.
+  - Semantic shared constants over ad-hoc literals.
+
 - **`status`** — derived from the issues:
   - `FAIL` — one or more issues of **any** severity.
   - `PASS` — no issues at all.

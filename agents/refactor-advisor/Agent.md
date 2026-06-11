@@ -110,13 +110,27 @@ markdown headings, no `<!-- -->` markers.
 Field rules:
 
 - **`severity`** — classify each finding. This advisor is improvement-oriented,
-  so most findings are `SUGGESTION`. Reserve the stronger levels for genuine
-  rule breaks:
-  - `VIOLATION` — a **broken rule** (e.g. silently downgrading a data-integrity
-    error to an empty result; business rules in a mapper).
-  - `WARNING` — a **should-fix** quality problem that does not break a hard rule.
-  - `SUGGESTION` — a **concrete refinement** / nice-to-have. When a catalog
-    entry matches, name the pattern in the `message`.
+  so most findings are `SUGGESTION`; reserve the stronger levels for genuine rule
+  breaks. What triggers each level:
+
+  `VIOLATION` — a **broken rule** (must fix):
+  - Silently downgrading a data-integrity error to an empty result / default.
+  - Business rules applied inside a mapper.
+
+  `WARNING` — a **should-fix** quality problem that does not break a hard rule:
+  - Duplicated validation or inconsistent error mapping across layers.
+  - Hard-coded business-policy constant that should be configurable.
+  - Invalid domain state constructible from outside (missing invariant).
+
+  `SUGGESTION` — a **concrete refinement** / nice-to-have (name the catalog
+  entry in the `message` when one matches):
+  - Anemic domain model → rich model (standalone calculator/service that owns
+    an entity's own derived field).
+  - Primitive obsession → extract a value object.
+  - Comment as a missing name → Extract Variable / Extract Method.
+  - Long function (2+ phases) → Compose method.
+  - Feature envy → Move method.
+
 - **`status`** — derived from the issues:
   - `FAIL` — one or more issues of **any** severity.
   - `PASS` — no issues at all (the code is already clean — say so in `summary`).
