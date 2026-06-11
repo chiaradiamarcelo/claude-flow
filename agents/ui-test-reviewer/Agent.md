@@ -36,14 +36,36 @@ For each test file under review:
    - Behavioral assertions only — no internal state, no reference stability, no implementation-detail asserts.
    - `beforeEach` discipline: stateless dependencies + mock resets only; never test-data seeding.
    - `expect.arrayContaining` is subset matching — pair with `toHaveLength` or sort both sides for equality.
-3. **Classify each finding** as VIOLATION (broken rule) or IMPROVEMENT (concrete refinement).
-4. **Note strengths.**
+3. **Turn each finding into an `issue`** with the right `severity` (see below).
 
-## Output format
+## Output — machine-first JSON (your entire response)
 
-### `<test or describe block>`
-- **STRENGTHS**: what is good.
-- **VIOLATIONS**: broken rules.
-- **IMPROVEMENTS**: concrete refinements.
+Your **entire output is a single JSON object** — no prose before or after, no
+markdown headings, no `<!-- -->` markers.
 
-End with **VERDICT**: PASS or FAIL.
+```json
+{
+  "status": "FAIL",
+  "issues": [
+    { "severity": "VIOLATION", "file": "LoginForm.test.tsx", "line": 14,
+      "message": "<rule name>: <what is wrong> in `<test name>`" }
+  ],
+  "summary": "<one sentence: the headline finding>"
+}
+```
+
+Field rules:
+
+- **`severity`** — classify each finding:
+  - `VIOLATION` — a **broken rule** from the `ui-testing` skill.
+  - `WARNING` — a **should-fix** problem that does not break a hard rule.
+  - `SUGGESTION` — a **concrete refinement** / nice-to-have.
+- **`status`** — derived from the issues:
+  - `FAIL` — one or more issues of **any** severity.
+  - `PASS` — no issues at all.
+- **`issues`** — one entry per finding. `message` names the rule from the
+  `ui-testing` skill and the test it occurs in. `file`/`line` locate it.
+- **`summary`** — a single sentence. Strengths, if worth noting, go here — not
+  as issues.
+
+Emit nothing but this JSON object.
