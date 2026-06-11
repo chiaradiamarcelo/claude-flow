@@ -52,10 +52,24 @@ markdown headings, no `<!-- -->` markers.
 
 Field rules:
 
-- **`severity`** — classify each finding:
-  - `VIOLATION` — a **broken rule**.
-  - `WARNING` — a **should-fix** problem that does not break a hard rule.
-  - `SUGGESTION` — a **concrete refinement** / nice-to-have.
+- **`severity`** — classify each finding. The `testing` skill remains the source
+  of truth; these are representative triggers for each level:
+
+  `VIOLATION` — a **broken rule** (must fix):
+  - Forbidden logic in a test body (`if`/`for`/`while`/`switch`).
+  - camelCase or `Should`-prefixed test names (naming convention break).
+  - Missing Given-When-Then blank-line separation, or GWT comments.
+  - More than one behavior asserted in a single test.
+
+  `WARNING` — a **should-fix** problem that does not break a hard rule:
+  - Missing coverage (happy-path only; absent boundary / error cases).
+  - Non-minimal test data (seeding more than the assertion needs).
+  - Mock used where a fake is the convention (or multiple fakes per port).
+
+  `SUGGESTION` — a **concrete refinement** / nice-to-have:
+  - Magic numbers / repeated literals that should be named constants.
+  - Extractable shared fixture or helper for repeated setup.
+
 - **`status`** — derived from the issues:
   - `FAIL` — one or more issues of **any** severity.
   - `PASS` — no issues at all.

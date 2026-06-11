@@ -50,13 +50,21 @@ markdown headings, no `<!-- -->` markers.
 
 Field rules:
 
-- **`severity`** — classify each finding:
-  - `VIOLATION` — a **broken rule** (dependency-rule break, framework/DTO
-    leakage into domain, file in the wrong layer/folder).
-  - `WARNING` — a **should-fix** problem that does not break a hard rule
-    (controller depending on adapters directly, infrastructure orchestration in
-    the domain layer, over-engineered domain port).
-  - `SUGGESTION` — a **concrete refinement** / nice-to-have.
+- **`severity`** — classify each finding. What triggers each level:
+
+  `VIOLATION` — a **broken rule** (must fix):
+  - Dependency rule breaks (wrong imports across layers).
+  - Framework leakage into domain.
+  - DTO leakage into domain.
+  - Files in the wrong layer/folder.
+
+  `WARNING` — a **should-fix** problem that does not break a hard rule:
+  - Controller depending on adapters directly.
+  - Infrastructure orchestration in the domain layer.
+  - Over-engineered domain port (single consumer, wraps one infra operation).
+
+  `SUGGESTION` — a **concrete refinement** / nice-to-have.
+
 - **`status`** — derived from the issues:
   - `FAIL` — one or more issues of **any** severity.
   - `PASS` — no issues at all.

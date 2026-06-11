@@ -57,15 +57,24 @@ markdown headings, no `<!-- -->` markers.
 
 Field rules:
 
-- **`severity`** — classify each finding:
-  - `VIOLATION` — a **broken rule** (business logic in a controller, domain
-    entity exposed in a response, multiple use cases in one controller, verbs in
-    URLs / non-REST paths, business rules enforced via API validation,
-    semantically wrong status code).
-  - `WARNING` — a **should-fix** problem that does not break a hard rule
-    (inconsistent error shape, missing status code for an error path, validation
-    mixing format and business concerns, missing `Location` on `201`).
-  - `SUGGESTION` — a **concrete refinement** / nice-to-have.
+- **`severity`** — classify each finding. What triggers each level:
+
+  `VIOLATION` — a **broken rule** (must fix):
+  - Business logic in controllers.
+  - Domain entities exposed in API responses.
+  - Multiple use cases in a single controller class.
+  - Verbs in URLs or non-REST URL patterns.
+  - Business rules enforced via API-layer validation.
+  - Semantically wrong status code.
+
+  `WARNING` — a **should-fix** problem that does not break a hard rule:
+  - Inconsistent error response structure.
+  - Missing HTTP status codes for error paths.
+  - Input validation that mixes format and business concerns.
+  - Missing `Location` header on `201`.
+
+  `SUGGESTION` — a **concrete refinement** / nice-to-have.
+
 - **`status`** — derived from the issues:
   - `FAIL` — one or more issues of **any** severity.
   - `PASS` — no issues at all.
