@@ -91,10 +91,37 @@ Apply all design and code conventions from the `clean-architecture` skill, plus 
   module-local data bags, anemic-model applies to domain entities exported across layers.
   Same fix shape, different blast radius.
 
-## Output format
+## Output — machine-first JSON (your entire response)
 
-**SUGGESTIONS** (ordered by impact):
-1. What to change, why, and a short code sketch (before/after).
+Your **entire output is a single JSON object** — no prose before or after, no
+markdown headings, no `<!-- -->` markers.
 
-**NO CHANGES NEEDED**:
-- If code is already clean, say so explicitly.
+```json
+{
+  "status": "FAIL",
+  "issues": [
+    { "severity": "SUGGESTION", "file": "TransferMoney.kt", "line": 12,
+      "message": "<pattern/rule name>: <what to change and why> in `<symbol>`" }
+  ],
+  "summary": "<one sentence: the headline improvement>"
+}
+```
+
+Field rules:
+
+- **`severity`** — classify each finding. This advisor is improvement-oriented,
+  so most findings are `SUGGESTION`. Reserve the stronger levels for genuine
+  rule breaks:
+  - `VIOLATION` — a **broken rule** (e.g. silently downgrading a data-integrity
+    error to an empty result; business rules in a mapper).
+  - `WARNING` — a **should-fix** quality problem that does not break a hard rule.
+  - `SUGGESTION` — a **concrete refinement** / nice-to-have. When a catalog
+    entry matches, name the pattern in the `message`.
+- **`status`** — derived from the issues:
+  - `FAIL` — one or more issues of **any** severity.
+  - `PASS` — no issues at all (the code is already clean — say so in `summary`).
+- **`issues`** — one entry per finding. `message` names the pattern/rule and the
+  symbol it applies to, with the change and the why. `file`/`line` locate it.
+- **`summary`** — a single sentence headline.
+
+Emit nothing but this JSON object.
