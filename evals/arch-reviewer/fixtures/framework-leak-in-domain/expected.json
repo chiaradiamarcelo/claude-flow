@@ -1,0 +1,12 @@
+{
+  "fixture": "framework-leak-in-domain",
+  "description": "A domain aggregate root that imports JPA + Spring annotations (@Entity, @Id, @Version). This breaks the dependency rule / domain purity: the domain layer must not depend on frameworks. The reviewer must fail it and mention the domain.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["domain"]
+    }
+  }
+}

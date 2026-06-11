@@ -30,22 +30,40 @@ For each source file under review:
    - Adapter testing through public interface (no domain ports for internal collaborators)
    - Infrastructure orchestration misplaced as use cases (no domain logic = belongs in data layer)
    - Over-engineered domain ports (single consumer, wraps one infra operation, not a business need)
-3. **Classify each finding** by severity.
+3. **Turn each finding into an `issue`** with the right `severity` (see below).
 
-## Output format
+## Output — machine-first JSON (your entire response)
 
-Report findings grouped by severity:
+Your **entire output is a single JSON object** — no prose before or after, no
+markdown headings, no `<!-- -->` markers.
 
-**VIOLATIONS** (must fix):
-- Dependency rule breaks (wrong imports across layers)
-- Framework leakage into domain
-- DTO leakage into domain
-- Files in wrong layer/folder
+```json
+{
+  "status": "FAIL",
+  "issues": [
+    { "severity": "VIOLATION", "file": "Account.kt", "line": 3,
+      "message": "<rule name>: <what is wrong> in `<symbol/layer>`" }
+  ],
+  "summary": "<one sentence: the headline finding>"
+}
+```
 
-**WARNINGS** (should fix):
-- Controller depending on adapters directly
-- Infrastructure orchestration in domain layer
-- Over-engineered domain ports
+Field rules:
 
-**GOOD PRACTICES**:
-- Positive notes for clean boundaries and correct placement
+- **`severity`** — classify each finding:
+  - `VIOLATION` — a **broken rule** (dependency-rule break, framework/DTO
+    leakage into domain, file in the wrong layer/folder).
+  - `WARNING` — a **should-fix** problem that does not break a hard rule
+    (controller depending on adapters directly, infrastructure orchestration in
+    the domain layer, over-engineered domain port).
+  - `SUGGESTION` — a **concrete refinement** / nice-to-have.
+- **`status`** — derived from the issues:
+  - `FAIL` — one or more issues of **any** severity.
+  - `PASS` — no issues at all.
+- **`issues`** — one entry per finding. `message` names the rule from the
+  `clean-architecture` skill and the symbol/layer it occurs in. `file`/`line`
+  locate it.
+- **`summary`** — a single sentence. Strengths, if worth noting, go here — not
+  as issues.
+
+Emit nothing but this JSON object.

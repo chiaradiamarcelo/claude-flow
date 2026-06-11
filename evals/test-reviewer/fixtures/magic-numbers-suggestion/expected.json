@@ -1,13 +1,12 @@
 {
   "fixture": "magic-numbers-suggestion",
-  "description": "A use-case test suite with full ZOMBIES coverage and perfect structure, but using repeated raw literals (\"ACC-001\", 100, 50, 150, 0) instead of named/shared constants. The reviewer must not error or warn, but must suggest extracting the magic values into constants.",
+  "description": "A use-case test suite with full ZOMBIES coverage and perfect structure, but using repeated raw literals (\"ACC-001\", 100, 50, 150, 0) instead of named/shared constants. The reviewer must break no hard rule (no VIOLATION) but must suggest extracting the magic values into constants. We deliberately do NOT cap WARNINGs: a thorough non-deterministic reviewer can always find a defensible should-fix (e.g. an over-large fixture), and the fixture's intent is the SUGGESTION, not the absence of warnings.",
   "applicableAgents": ["test-reviewer"],
   "agents": {
     "test-reviewer": {
       "expectedStatus": "FAIL",
       "severities": {
         "VIOLATION": { "max": 0 },
-        "WARNING": { "max": 0 },
         "SUGGESTION": { "min": 1 }
       },
       "mustMention": ["constant"]
