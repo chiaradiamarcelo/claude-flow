@@ -44,6 +44,7 @@ if [ "$do_agents" = 1 ]; then
     [ -d "${adir}fixtures" ] || continue
     agent="$(basename "$adir")"
     [ -f "agents/$agent/Agent.md" ] || continue   # skip command-test corpora
+    [ "$agent" = "architect" ] && continue        # plan-producing agent: Phase 1b
     [ -n "$ONLY_AGENT" ] && [ "$agent" != "$ONLY_AGENT" ] && continue
     vd="$(mktemp -d)"
     # Capture RUN pairs first. A `--plan | while read` pipe would let `claude -p`
@@ -71,6 +72,25 @@ PY
     python3 evals/eval_grade.py --evals-dir "$adir" --actuals "$actuals" --write-cache \
       || { fail=1; echo "--- verdicts ($agent) ---"; cat "$actuals"; echo; }
     rm -rf "$vd" "$actuals"
+  done
+fi
+
+if [ "$do_agents" = 1 ] && { [ -z "$ONLY_AGENT" ] || [ "$ONLY_AGENT" = "architect" ]; } \
+   && [ -d evals/architect/fixtures ]; then
+  echo ""; echo "== Phase 1b: plan-producing agent evals (architect) =="
+  # The architect WRITES a plan file rather than emitting a JSON verdict, so it
+  # can't use the Phase 1 reviewer path. Dispatch it in a scratch copy of the
+  # fixture input/ (it reads specification.md, writes SCENARIO-XX.md), then grade
+  # the artifact with check_plan.py (no fingerprint cache — always dispatches).
+  ARCH_TOOLS=(--allowedTools Read Write Edit Glob Grep Skill)
+  for fx in evals/architect/fixtures/*/; do
+    [ -f "${fx}expected.json" ] || continue
+    scratch="$(mktemp -d)"
+    cp -R "${fx}input/." "$scratch/" 2>/dev/null
+    prompt="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("prompt",""))' "${fx}expected.json")"
+    ( cd "$scratch" && claude -p "$prompt" --agent architect "${ARCH_TOOLS[@]}" </dev/null >/dev/null 2>&1 )
+    python3 evals/check_plan.py "${fx}expected.json" --input-dir "${fx}input" --scratch-dir "$scratch" || fail=1
+    rm -rf "$scratch"
   done
 fi
 

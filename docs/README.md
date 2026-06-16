@@ -28,6 +28,11 @@ the eval suite (`evals/run_all.sh`).
    — 50 fixtures across api/arch/refactor/ui. Clean *controls* split reviewers in
    two: **structural** reviewers PASS clean code; the **advisory** reviewer never
    can (the strict-gate evidence, now encoded as a regression test).
+6. [Testing a generative agent (the architect)](findings/06-testing-a-generative-agent-the-architect.md)
+   — the architect *writes a plan file*, so we **grade the artifact, not stdout**:
+   new `check_plan.py` + a scratch-dir dispatch (`run_all.sh` Phase 1b). Confirms
+   it plans-not-implements (`writesNoCode`), embeds `201`+`Location` for creates,
+   and routes read-side scenarios to a `Query` port.
 
 ## Conventions used across these notes
 

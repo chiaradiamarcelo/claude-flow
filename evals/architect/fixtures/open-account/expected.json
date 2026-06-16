@@ -1,0 +1,17 @@
+{
+  "fixture": "open-account",
+  "description": "A write-side create scenario that introduces a new HTTP endpoint. Beyond the write-side basics (use-case test before controller, Repository contract test, identity equality test, no code written), the architect must reflect the api-conventions skill in the controller step: a create returns 201 Created with a Location header. We assert those facts coarsely. (If 'Location' is absent, that is a genuine finding about the architect not applying the 201+Location rule — not necessarily a bad assertion.)",
+  "applicableAgents": ["architect"],
+  "feature": "open-account",
+  "scenario": "SCENARIO-01",
+  "prompt": "Plan SCENARIO-01 for the feature open-account. The specification is at docs/specifications/open-account/specification.md. Write the scenario plan file and nothing else.",
+  "agents": {
+    "architect": {
+      "planMustExist": true,
+      "writesNoCode": true,
+      "minSteps": 5,
+      "mustMention": ["contract", "equality", "201", "Location"],
+      "orderedBefore": [["Test", "Controller"]]
+    }
+  }
+}
