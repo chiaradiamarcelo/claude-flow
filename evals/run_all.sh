@@ -45,6 +45,7 @@ if [ "$do_agents" = 1 ]; then
     agent="$(basename "$adir")"
     [ -f "agents/$agent/Agent.md" ] || continue   # skip command-test corpora
     [ "$agent" = "architect" ] && continue        # plan-producing agent: Phase 1b
+    [ "$agent" = "developer" ] && continue         # build-outcome agent: Phase 1c
     [ -n "$ONLY_AGENT" ] && [ "$agent" != "$ONLY_AGENT" ] && continue
     vd="$(mktemp -d)"
     # Capture RUN pairs first. A `--plan | while read` pipe would let `claude -p`
@@ -91,6 +92,34 @@ if [ "$do_agents" = 1 ] && { [ -z "$ONLY_AGENT" ] || [ "$ONLY_AGENT" = "architec
     ( cd "$scratch" && claude -p "$prompt" --agent architect "${ARCH_TOOLS[@]}" </dev/null >/dev/null 2>&1 )
     python3 evals/check_plan.py "${fx}expected.json" --input-dir "${fx}input" --scratch-dir "$scratch" || fail=1
     rm -rf "$scratch"
+  done
+fi
+
+# Phase 1c is the integration layer (developer → real build). It's EXPENSIVE
+# (opus agent + a full TDD loop + Gradle, minutes & ~$1-4) so it is strictly
+# opt-in: it runs ONLY for `run_all.sh developer`, never in the default suite or
+# a bare --agents run.
+if [ "$ONLY_AGENT" = "developer" ] && [ -d evals/developer/fixtures ]; then
+  echo ""; echo "== Phase 1c: developer integration evals (golden repo, ./gradlew test) =="
+  DEV_TOOLS=(--allowedTools Read Write Edit Glob Grep Bash Skill)
+  for fx in evals/developer/fixtures/*/; do
+    [ -f "${fx}expected.json" ] || continue
+    scratch="$(mktemp -d)"
+    cp -R evals/golden-repo/. "$scratch/" 2>/dev/null   # pristine buildable skeleton
+    rm -rf "$scratch/build" "$scratch/.gradle"
+    cp -R "${fx}input/." "$scratch/" 2>/dev/null         # overlay frozen spec + plan
+    prompt="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("prompt",""))' "${fx}expected.json")"
+    echo "  dispatching developer on $(basename "$fx") — full TDD loop, may take minutes ..."
+    ( cd "$scratch" && claude -p "$prompt" --agent developer "${DEV_TOOLS[@]}" </dev/null >"$scratch/.agent.log" 2>&1 )
+    # Independent verdict: WE run the build, never trust the agent's self-report.
+    ( cd "$scratch" && ./gradlew test --console=plain >"$scratch/.gradle.log" 2>&1 ); ge=$?
+    if python3 evals/check_build.py "${fx}expected.json" --scratch-dir "$scratch" --build-exit "$ge"; then
+      rm -rf "$scratch"
+    else
+      fail=1
+      echo "    --- gradle tail ---"; tail -25 "$scratch/.gradle.log" 2>/dev/null | sed 's/^/    /'
+      echo "    (scratch kept for debugging: $scratch)"
+    fi
   done
 fi
 

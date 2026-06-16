@@ -33,6 +33,12 @@ the eval suite (`evals/run_all.sh`).
    new `check_plan.py` + a scratch-dir dispatch (`run_all.sh` Phase 1b). Confirms
    it plans-not-implements (`writesNoCode`), embeds `201`+`Location` for creates,
    and routes read-side scenarios to a `Query` port.
+7. [Developer integration on a golden repo](findings/07-developer-integration-golden-repo.md)
+   — the integration layer: the real `opus` developer agent runs a TDD loop in a
+   buildable Kotlin/JUnit5 repo, then **we independently run `./gradlew test`** and
+   grade the objective outcome (`check_build.py`, `run_all.sh` Phase 1c, opt-in).
+   First proof that *generated code compiles and passes* — Kotlin over TS for
+   fidelity, framework-free core for speed.
 
 ## Conventions used across these notes
 

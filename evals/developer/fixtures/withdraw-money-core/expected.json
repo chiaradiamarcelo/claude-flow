@@ -1,0 +1,16 @@
+{
+  "fixture": "withdraw-money-core",
+  "description": "Integration test for the developer agent on the framework-free core. The fixture freezes both the specification AND the architect plan (so a failure isolates to the developer, not the architect). The plan stops at the use case: domain entity (+ equality test), Repository port, contract test, in-memory fake, fake contract test, use case (+ unit test) — plain Kotlin + JUnit5, no Spring/JPA/DB. The only honest grade is the objective build outcome: after the developer implements, `./gradlew test` (run independently by the harness) must compile and pass, with at least a couple of real tests executed (guarding a vacuous 0-test pass) and a WithdrawMoney use-case test present.",
+  "applicableAgents": ["developer"],
+  "feature": "withdraw-money",
+  "scenario": "SCENARIO-01",
+  "prompt": "Implement SCENARIO-01 for the feature withdraw-money in implementation mode. The specification is at docs/specifications/withdraw-money/specification.md and your plan is at docs/specifications/withdraw-money/SCENARIO-01.md. This is a single plain Kotlin + JUnit5 Gradle module (no Spring, no JPA, no DB, no HTTP) — put sources under src/main/kotlin and tests under src/test/kotlin using Kotlin packages. Implement every step in the plan with TDD and verify with ./gradlew test.",
+  "agents": {
+    "developer": {
+      "buildMustPass": true,
+      "minTests": 2,
+      "maxFailures": 0,
+      "mustHaveTestClasses": ["WithdrawMoney"]
+    }
+  }
+}
