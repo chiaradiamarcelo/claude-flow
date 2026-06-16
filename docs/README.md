@@ -39,6 +39,11 @@ the eval suite (`evals/run_all.sh`).
    grade the objective outcome (`check_build.py`, `run_all.sh` Phase 1c, opt-in).
    First proof that *generated code compiles and passes* — Kotlin over TS for
    fidelity, framework-free core for speed.
+8. [Acceptance layer: full pipeline + self-correcting fix-loop](findings/08-acceptance-layer-full-pipeline-fixloop.md)
+   — the top rung: `/intent-and-goal` → architect → developer → reviewers →
+   **Phase 5 fix-loop**, end to end from a one-line feature description. Caught a
+   real test-quality VIOLATION in the developer's output and **self-corrected it
+   in one fix round**. Gate = build-green + zero VIOLATIONs (advisory non-gating).
 
 ## Conventions used across these notes
 

@@ -174,17 +174,39 @@ if [ "$ONLY_AGENT" = "pipeline" ] && [ -d evals/pipeline/fixtures ]; then
     ( cd "$scratch" && claude -p "$dp" --agent developer "${PIPE_DEV_TOOLS[@]}" </dev/null >"$scratch/.developer.log" 2>&1 )
     echo "  [3/4] independent ./gradlew test ..."
     ( cd "$scratch" && ./gradlew test --console=plain >"$scratch/.gradle.log" 2>&1 ); ge=$?
-    echo "  [4/4] reviewers (consistency oracle) on the produced code ..."
-    mkdir -p "$scratch/.reviews"
+    # (Re)run the reviewers and (re)populate .reviews/. Reused each fix round.
     # Route by glob, mirroring the reviewer triggers: tests -> test-reviewer;
     # main -> arch-reviewer + refactor-advisor (no api/ui code in this slice).
-    for route in "test-reviewer:src/test" "arch-reviewer:src/main" "refactor-advisor:src/main"; do
-      r="${route%%:*}"; d="${route##*:}"
-      ( cd "$scratch" && claude -p "Review the Kotlin source file(s) under $d/ (read them directly with the Read tool). Return ONLY your machine-first JSON verdict." \
-          --agent "$r" "${PIPE_REV_TOOLS[@]}" </dev/null 2>/dev/null ) \
-        | python3 -c 'import sys,re;t=sys.stdin.read();m=re.search(r"\{.*\}",t,re.S);print(m.group(0) if m else "{}")' \
-        > "$scratch/.reviews/$r.json"
+    run_reviews() {
+      mkdir -p "$scratch/.reviews"; rm -f "$scratch"/.reviews/*.json
+      for route in "test-reviewer:src/test" "arch-reviewer:src/main" "refactor-advisor:src/main"; do
+        r="${route%%:*}"; rd="${route##*:}"
+        ( cd "$scratch" && claude -p "Review the Kotlin source file(s) under $rd/ (read them directly with the Read tool). Return ONLY your machine-first JSON verdict." \
+            --agent "$r" "${PIPE_REV_TOOLS[@]}" </dev/null 2>/dev/null ) \
+          | python3 -c 'import sys,re;t=sys.stdin.read();m=re.search(r"\{.*\}",t,re.S);print(m.group(0) if m else "{}")' \
+          > "$scratch/.reviews/$r.json"
+      done
+    }
+    echo "  [4/5] reviewers (consistency oracle) on the produced code ..."
+    run_reviews
+    # [5] Phase-5 fix loop: while must-fix VIOLATIONs remain, re-dispatch the
+    # developer in fix-mode with the findings, rebuild, re-review. Bounded by
+    # maxFixRounds — if it can't converge to 0 VIOLATIONs in K rounds, the final
+    # check_acceptance fails. Skipped when the fixture sets no fix prompt/rounds.
+    fp="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("developerFixPrompt",""))' "${fx}expected.json")"
+    K="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("agents",{}).get("pipeline",{}).get("maxFixRounds",0))' "${fx}expected.json")"
+    rounds=0
+    viol="$(python3 evals/_review_findings.py "$scratch/.reviews" --count)"
+    while [ "$viol" -gt 0 ] && [ "$rounds" -lt "$K" ] && [ -n "$fp" ]; do
+      rounds=$((rounds + 1))
+      echo "  [5/5] fix round $rounds/$K — developer fix-mode on $viol violation(s) ..."
+      findings="$(python3 evals/_review_findings.py "$scratch/.reviews" --findings)"
+      ( cd "$scratch" && claude -p "$fp"$'\n\n'"$findings" --agent developer "${PIPE_DEV_TOOLS[@]}" </dev/null >"$scratch/.developer-fix-$rounds.log" 2>&1 )
+      ( cd "$scratch" && ./gradlew test --console=plain >"$scratch/.gradle.log" 2>&1 ); ge=$?
+      run_reviews
+      viol="$(python3 evals/_review_findings.py "$scratch/.reviews" --count)"
     done
+    [ "$rounds" -gt 0 ] && echo "  fix rounds used: $rounds (remaining VIOLATIONs: $viol)"
     if python3 evals/check_acceptance.py "${fx}expected.json" --scratch-dir "$scratch" --build-exit "$ge"; then
       rm -rf "$scratch"
     else

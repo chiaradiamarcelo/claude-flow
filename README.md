@@ -224,7 +224,9 @@ Available templates:
 | [evals/check_routing.py](evals/check_routing.py) | Deterministic grader for the live `/run-reviewers` routing test |
 | [evals/check_plan.py](evals/check_plan.py) | Deterministic grader for the **architect** agent — grades the plan *artifact* it writes (plan exists, writes no code, step ordering, must-mention), not a stdout verdict |
 | [evals/check_build.py](evals/check_build.py) | Deterministic grader for the **developer** agent (integration layer) — parses JUnit XML after an independent `./gradlew test`: build green, tests actually ran, zero failures, required test classes present |
-| [evals/golden-repo/](evals/golden-repo/) | Buildable Kotlin/JUnit5 Gradle skeleton (framework-free core) the developer agent implements into during integration evals |
+| [evals/check_spec.py](evals/check_spec.py) | Deterministic grader for the **`/intent-and-goal`** command — grades the `specification.md` artifact it writes (exists, no code, template sections, ≥ N Gherkin scenarios) |
+| [evals/check_acceptance.py](evals/check_acceptance.py) | Deterministic grader for the **full pipeline** (acceptance) — build green + zero reviewer VIOLATIONs across the produced code (WARNING/SUGGESTION non-gating) |
+| [evals/golden-repo/](evals/golden-repo/) | Buildable Kotlin/JUnit5 Gradle skeleton (framework-free core) the developer agent implements into during integration + acceptance evals |
 | [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — measured discoveries: a grader bug that looked like model flakiness, `@`-include vs on-demand skill loading (~1.8× cost), the eval cost model, and how to write robust agent evals |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |

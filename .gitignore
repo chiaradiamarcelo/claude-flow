@@ -60,6 +60,8 @@ evals/PROGRESS.md
 evals/golden-repo/build/
 evals/golden-repo/.gradle/
 evals/golden-repo/**/build/
+# ...nor Python bytecode from the graders importing each other
+evals/**/__pycache__/
 
 # macOS junk — re-ignore everywhere (the broad !dir/** whitelists re-include it)
 **/.DS_Store
