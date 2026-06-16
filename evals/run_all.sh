@@ -18,13 +18,13 @@ AGENT_TOOLS=(--allowedTools Read Glob Grep)
 CMD_TOOLS=(--allowedTools "Bash(git *)" Grep Glob Read)
 fail=0
 do_agents=1; do_commands=1
-ONLY_AGENT=""
+ONLY_AGENT=""; ONLY_FIXTURE=""
 case "${1:-}" in
   --agents)   do_commands=0; ONLY_AGENT="${2:-}" ;;
   --commands) do_agents=0 ;;
-  --*)        echo "usage: run_all.sh [--agents|--commands] [agent-name]"; exit 2 ;;
+  --*)        echo "usage: run_all.sh [--agents|--commands] [agent-name] | <agent-name> [fixture-name]"; exit 2 ;;
   "")         ;;
-  *)          ONLY_AGENT="$1" ;;            # bare agent name → just that corpus
+  *)          ONLY_AGENT="$1"; ONLY_FIXTURE="${2:-}" ;;  # bare agent name (+ optional single fixture)
 esac
 # A specific reviewer filter means the command routing tests don't apply.
 [ -n "$ONLY_AGENT" ] && [ "$ONLY_AGENT" != "run-reviewers" ] && do_commands=0
@@ -95,6 +95,24 @@ if [ "$do_agents" = 1 ] && { [ -z "$ONLY_AGENT" ] || [ "$ONLY_AGENT" = "architec
   done
 fi
 
+if [ "$do_agents" = 1 ] && { [ -z "$ONLY_AGENT" ] || [ "$ONLY_AGENT" = "intent-and-goal" ]; } \
+   && [ -d evals/intent-and-goal/fixtures ]; then
+  echo ""; echo "== Phase 1e: command artifact evals (/intent-and-goal) =="
+  # /intent-and-goal is a COMMAND (not an agent) and interactive, so dispatch it
+  # by prompt (no --agent) with the fixture's non-interactive instruction, then
+  # grade the specification.md it writes with check_spec.py.
+  IAG_TOOLS=(--allowedTools Read Write Glob Grep Skill)
+  for fx in evals/intent-and-goal/fixtures/*/; do
+    [ -f "${fx}expected.json" ] || continue
+    scratch="$(mktemp -d)"
+    cp -R "${fx}input/." "$scratch/" 2>/dev/null
+    prompt="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("prompt",""))' "${fx}expected.json")"
+    ( cd "$scratch" && claude -p "$prompt" "${IAG_TOOLS[@]}" </dev/null >/dev/null 2>&1 )
+    python3 evals/check_spec.py "${fx}expected.json" --input-dir "${fx}input" --scratch-dir "$scratch" || fail=1
+    rm -rf "$scratch"
+  done
+fi
+
 # Phase 1c is the integration layer (developer → real build). It's EXPENSIVE
 # (opus agent + a full TDD loop + Gradle, minutes & ~$1-4) so it is strictly
 # opt-in: it runs ONLY for `run_all.sh developer`, never in the default suite or
@@ -104,6 +122,7 @@ if [ "$ONLY_AGENT" = "developer" ] && [ -d evals/developer/fixtures ]; then
   DEV_TOOLS=(--allowedTools Read Write Edit Glob Grep Bash Skill)
   for fx in evals/developer/fixtures/*/; do
     [ -f "${fx}expected.json" ] || continue
+    [ -n "$ONLY_FIXTURE" ] && [ "$(basename "$fx")" != "$ONLY_FIXTURE" ] && continue
     scratch="$(mktemp -d)"
     cp -R evals/golden-repo/. "$scratch/" 2>/dev/null   # pristine buildable skeleton
     rm -rf "$scratch/build" "$scratch/.gradle"
@@ -118,6 +137,59 @@ if [ "$ONLY_AGENT" = "developer" ] && [ -d evals/developer/fixtures ]; then
     else
       fail=1
       echo "    --- gradle tail ---"; tail -25 "$scratch/.gradle.log" 2>/dev/null | sed 's/^/    /'
+      echo "    (scratch kept for debugging: $scratch)"
+    fi
+  done
+fi
+
+# Phase 1d is the ACCEPTANCE layer (full pipeline: architect -> developer ->
+# reviewers, from a frozen single-scenario spec). Most expensive of all (sonnet
+# architect + opus developer + 3 sonnet reviewers + a real build, ~$2-6, many
+# minutes), so it is strictly opt-in: ONLY for `run_all.sh pipeline`.
+if [ "$ONLY_AGENT" = "pipeline" ] && [ -d evals/pipeline/fixtures ]; then
+  echo ""; echo "== Phase 1d: full-pipeline acceptance (architect -> developer -> reviewers) =="
+  PIPE_ARCH_TOOLS=(--allowedTools Read Write Edit Glob Grep Skill)
+  PIPE_DEV_TOOLS=(--allowedTools Read Write Edit Glob Grep Bash Skill)
+  PIPE_REV_TOOLS=(--allowedTools Read Glob Grep)
+  for fx in evals/pipeline/fixtures/*/; do
+    [ -f "${fx}expected.json" ] || continue
+    [ -n "$ONLY_FIXTURE" ] && [ "$(basename "$fx")" != "$ONLY_FIXTURE" ] && continue
+    scratch="$(mktemp -d)"
+    cp -R evals/golden-repo/. "$scratch/" 2>/dev/null
+    rm -rf "$scratch/build" "$scratch/.gradle"
+    cp -R "${fx}input/." "$scratch/" 2>/dev/null
+    ip="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("intentPrompt",""))' "${fx}expected.json")"
+    ap="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("architectPrompt",""))' "${fx}expected.json")"
+    dp="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("developerPrompt",""))' "${fx}expected.json")"
+    # [0] Optional full-e2e front: run /intent-and-goal non-interactively to GENERATE
+    # the spec (when the fixture supplies intentPrompt). Otherwise the spec is frozen
+    # in input/ and the chain starts at the architect.
+    if [ -n "$ip" ]; then
+      echo "  [0/4] /intent-and-goal generating the spec (non-interactive) ..."
+      ( cd "$scratch" && claude -p "$ip" --allowedTools Read Write Glob Grep Skill </dev/null >"$scratch/.intent.log" 2>&1 )
+    fi
+    echo "  [1/4] architect planning $(basename "$fx") ..."
+    ( cd "$scratch" && claude -p "$ap" --agent architect "${PIPE_ARCH_TOOLS[@]}" </dev/null >"$scratch/.architect.log" 2>&1 )
+    echo "  [2/4] developer implementing (opus, full TDD loop — minutes) ..."
+    ( cd "$scratch" && claude -p "$dp" --agent developer "${PIPE_DEV_TOOLS[@]}" </dev/null >"$scratch/.developer.log" 2>&1 )
+    echo "  [3/4] independent ./gradlew test ..."
+    ( cd "$scratch" && ./gradlew test --console=plain >"$scratch/.gradle.log" 2>&1 ); ge=$?
+    echo "  [4/4] reviewers (consistency oracle) on the produced code ..."
+    mkdir -p "$scratch/.reviews"
+    # Route by glob, mirroring the reviewer triggers: tests -> test-reviewer;
+    # main -> arch-reviewer + refactor-advisor (no api/ui code in this slice).
+    for route in "test-reviewer:src/test" "arch-reviewer:src/main" "refactor-advisor:src/main"; do
+      r="${route%%:*}"; d="${route##*:}"
+      ( cd "$scratch" && claude -p "Review the Kotlin source file(s) under $d/ (read them directly with the Read tool). Return ONLY your machine-first JSON verdict." \
+          --agent "$r" "${PIPE_REV_TOOLS[@]}" </dev/null 2>/dev/null ) \
+        | python3 -c 'import sys,re;t=sys.stdin.read();m=re.search(r"\{.*\}",t,re.S);print(m.group(0) if m else "{}")' \
+        > "$scratch/.reviews/$r.json"
+    done
+    if python3 evals/check_acceptance.py "${fx}expected.json" --scratch-dir "$scratch" --build-exit "$ge"; then
+      rm -rf "$scratch"
+    else
+      fail=1
+      echo "    --- gradle tail ---"; tail -20 "$scratch/.gradle.log" 2>/dev/null | sed 's/^/    /'
       echo "    (scratch kept for debugging: $scratch)"
     fi
   done
