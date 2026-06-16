@@ -1,0 +1,11 @@
+{
+  "fixture": "mechanism-in-name",
+  "description": "The test name embeds an internal mechanism (`the_pending_transfers_sql_query_throws`) — a table name and the query step — rather than the observable contract. The skill says to name the behavior, not the mechanism (e.g. `when_the_job_fails` / `propagates_the_error`). The reviewer must flag the mechanism leaking into the name.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["mechanism"]
+    }
+  }
+}

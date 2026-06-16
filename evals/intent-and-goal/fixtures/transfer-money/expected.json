@@ -1,0 +1,14 @@
+{
+  "fixture": "transfer-money",
+  "description": "Unit eval for the /intent-and-goal command (Phase 1 of the pipeline). The command is interactive, so the fixture runs it NON-INTERACTIVELY (the prompt tells it to assume + proceed instead of asking/waiting). We grade the SoT artifact it writes — the specification.md: it must exist, write no code, follow the template (Intent / Business Rules / Scenarios / BDD Acceptance Progress), and propose at least two well-formed Gherkin scenarios. This is the cheap regression net for the command, and the de-risking proof that non-interactive /intent-and-goal works headless (prerequisite for the full e2e pipeline).",
+  "applicableAgents": ["intent-and-goal"],
+  "prompt": "/intent-and-goal Transfer money from one account to another account. IMPORTANT: you are running non-interactively with no human available to answer — do NOT ask clarifying questions and do NOT wait for approval. Make reasonable assumptions, proceed through all three phases (intent refinement, scenario generation, SoT creation), and write the specification file to docs/specifications/<feature-slug>/specification.md. Then stop.",
+  "agents": {
+    "intent-and-goal": {
+      "specMustExist": true,
+      "writesNoCode": true,
+      "minScenarios": 2,
+      "mustMention": ["Intent", "Business Rules", "Scenario:", "Given", "When", "Then", "BDD Acceptance Progress"]
+    }
+  }
+}

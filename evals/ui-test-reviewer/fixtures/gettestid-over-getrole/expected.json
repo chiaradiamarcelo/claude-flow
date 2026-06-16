@@ -1,0 +1,11 @@
+{
+  "fixture": "gettestid-over-getrole",
+  "description": "A clean component test that queries with getByTestId for content that an accessible getByRole('alert') query would reach. getByTestId is the last-resort query; getByRole comes first. The reviewer must fail it and recommend the getByRole query.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["getByRole"]
+    }
+  }
+}

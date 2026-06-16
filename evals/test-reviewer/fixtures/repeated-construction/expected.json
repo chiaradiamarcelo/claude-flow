@@ -1,0 +1,11 @@
+{
+  "fixture": "repeated-construction",
+  "description": "The identical `ReceiptFormatter(Clock.fixed(...), Locale.US, \"USD\")` construction is repeated verbatim in three test methods. The skill says when the same constructor call appears in 3+ test methods it must be extracted into a shared fixture builder / helper. The reviewer must flag the repeated construction and suggest extracting a helper.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["helper"]
+    }
+  }
+}

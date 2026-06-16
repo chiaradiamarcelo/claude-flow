@@ -1,0 +1,11 @@
+{
+  "fixture": "two-behaviors-one-test",
+  "description": "The test name contains `and` and the body asserts two distinct behaviors (the returned id AND the persisted balance). The skill requires one behavior per test — if the name needs `and`, split it. The reviewer must flag this.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["split"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fixture": "should-prefixed-name",
+  "description": "A component test that is clean in every way (provider helper, getByRole, userEvent.setup, GWT blank lines, behavioral assertion) except its name leads with 'Should'. Test names use present-simple verbs and no leading 'Should'. The reviewer must fail it and flag the test name. (mustMention uses the root 'name' rather than 'naming' — the reviewer phrases this as 'Test name pattern' / 'rename to', which does not contain the substring 'naming'.)",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["name"]
+    }
+  }
+}

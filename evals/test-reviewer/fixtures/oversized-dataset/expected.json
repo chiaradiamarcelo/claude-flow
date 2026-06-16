@@ -1,0 +1,11 @@
+{
+  "fixture": "oversized-dataset",
+  "description": "The test seeds four unrelated `OTHER-*` accounts that do not affect the assertion (it queries only ACCOUNT_ID's balance). The skill requires the minimum fixture data needed to prove the behavior; oversized datasets are a violation. The reviewer must flag the unnecessary seeded records.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["minim"]
+    }
+  }
+}

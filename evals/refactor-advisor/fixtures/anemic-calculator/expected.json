@@ -1,0 +1,12 @@
+{
+  "fixture": "anemic-calculator",
+  "description": "A standalone LoanRiskCalculator whose only input is a Loan and whose output derives one of that loan's own fields (riskScore), while Loan exposes a mutable riskScore the caller can set to a contradicting value. This is the 'Anemic domain model to rich model' smell: the calculation belongs on the entity. The advisor must suggest moving the behaviour onto the Loan and name the score.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "severities": { "SUGGESTION": { "min": 1 } },
+      "mustMention": ["score"]
+    }
+  }
+}

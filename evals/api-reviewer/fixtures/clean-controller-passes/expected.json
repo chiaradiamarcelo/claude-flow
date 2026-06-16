@@ -1,0 +1,10 @@
+{
+  "fixture": "clean-controller-passes",
+  "description": "A PASS control: a thin, single-action controller with a RESTful plural-noun route, no business logic, delegation to a use case, a response DTO (no domain leak), 201 Created via ResponseEntity.created(...), and a Location header. There is nothing to flag. The reviewer must return PASS with no issues. If it over-triggers here, that is itself a finding about strictness.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "PASS"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fixture": "missing-location-on-201",
+  "description": "A create endpoint that correctly returns 201 Created and maps to a response DTO, but never sets a Location header pointing at the newly created account. This is a should-fix (WARNING-level) gap, not a hard rule break. The reviewer must fail it and mention the missing Location header.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["Location"]
+    }
+  }
+}

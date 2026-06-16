@@ -1,0 +1,11 @@
+{
+  "fixture": "fake-reset-method",
+  "description": "The fake is reused across tests and cleaned via a `reset()` call in setup. The skill requires a fresh fake instance created in the before-each hook — no `clear()`/`reset()` methods on fakes. The reviewer must flag the reset()-based clean-slate.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["reset"]
+    }
+  }
+}

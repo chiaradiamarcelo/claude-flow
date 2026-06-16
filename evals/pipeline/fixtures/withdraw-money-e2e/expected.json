@@ -1,0 +1,21 @@
+{
+  "fixture": "withdraw-money-e2e",
+  "description": "TRUE end-to-end: the WHOLE pipeline non-interactively, from a one-line feature description through every agent. Step [0] runs /intent-and-goal (non-interactive) to GENERATE the specification.md (no frozen spec); then the architect plans it, the developer implements it (TDD), and the reviewers judge the produced code. Constrained to a SINGLE Gherkin scenario and the framework-free core so it stays buildable in the golden repo and affordable. Acceptance = build green + zero reviewer VIOLATIONs. Caveat: non-interactive intent-and-goal auto-assumes the human clarification/approval gates — this is an e2e of the agent chain, not of the interactive dialogue.",
+  "applicableAgents": ["pipeline"],
+  "feature": "withdraw-money",
+  "scenario": "SCENARIO-01",
+  "intentPrompt": "/intent-and-goal Withdraw money from a bank account: an account owner withdraws an amount, reducing the balance; the amount must be positive and may not exceed the balance. IMPORTANT: run NON-INTERACTIVELY — do NOT ask clarifying questions or wait for approval; assume reasonable answers and proceed through all phases. Constrain the spec to EXACTLY ONE happy-path Gherkin scenario (successful withdrawal). Treat HTTP/REST delivery and persistence as OUT OF SCOPE (framework-free core only). Use the feature slug 'withdraw-money' and write the SoT to docs/specifications/withdraw-money/specification.md. Then stop.",
+  "architectPrompt": "Plan SCENARIO-01 for the feature withdraw-money. The specification is at docs/specifications/withdraw-money/specification.md. This is the framework-free core slice — HTTP/REST delivery and persistence are out of scope, so plan ONLY the domain entity, port, fake, contract test, and use case steps (no controller, no infrastructure adapter, no migration). Write the scenario plan file and nothing else.",
+  "developerPrompt": "Implement SCENARIO-01 for the feature withdraw-money in implementation mode. The specification is at docs/specifications/withdraw-money/specification.md and your plan is at docs/specifications/withdraw-money/SCENARIO-01.md. This is a single plain Kotlin + JUnit5 Gradle module (no Spring, no JPA, no DB, no HTTP) — put sources under src/main/kotlin and tests under src/test/kotlin using Kotlin packages. Implement every step in the plan with TDD and verify with ./gradlew test.",
+  "developerFixPrompt": "You are in FIX MODE for the feature withdraw-money, SCENARIO-01. The specification is at docs/specifications/withdraw-money/specification.md and the plan at docs/specifications/withdraw-money/SCENARIO-01.md. Address every finding in the Review Findings section below on files in your scope (src/main/kotlin, src/test/kotlin), keeping the build green. This is a plain Kotlin + JUnit5 module (no Spring/JPA/DB/HTTP). Verify with ./gradlew test. Do not modify plan or specification checkboxes.",
+  "agents": {
+    "pipeline": {
+      "buildMustPass": true,
+      "minTests": 2,
+      "maxFailures": 0,
+      "reviewersMustRun": ["test-reviewer", "arch-reviewer", "refactor-advisor"],
+      "maxViolations": 0,
+      "maxFixRounds": 2
+    }
+  }
+}

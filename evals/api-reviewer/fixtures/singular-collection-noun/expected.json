@@ -1,0 +1,11 @@
+{
+  "fixture": "singular-collection-noun",
+  "description": "A clean read controller (injects the read-side Query directly, maps to a response DTO) whose only flaw is a singular collection noun in the route (/account instead of /accounts). The reviewer must fail it and flag the singular collection noun.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["plural"]
+    }
+  }
+}

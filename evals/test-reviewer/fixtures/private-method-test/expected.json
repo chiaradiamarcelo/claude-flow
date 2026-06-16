@@ -1,0 +1,11 @@
+{
+  "fixture": "private-method-test",
+  "description": "The test reaches into a private method (`monthlyRate`) via reflection instead of testing behavior through the public interface. The skill's 'What NOT to test' forbids testing private methods directly. The reviewer must flag testing the private method.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["private"]
+    }
+  }
+}

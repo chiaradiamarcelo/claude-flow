@@ -1,0 +1,11 @@
+{
+  "fixture": "hardcoded-policy-constant",
+  "description": "A use case with the annual interest rate (0.035) hard-coded inline in domain logic. Business-policy constants like an interest rate should be configurable, not baked into the code. The advisor must flag the hard-coded policy constant and recommend making it configurable.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["configurable"]
+    }
+  }
+}

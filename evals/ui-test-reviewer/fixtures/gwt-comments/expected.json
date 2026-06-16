@@ -1,0 +1,11 @@
+{
+  "fixture": "gwt-comments",
+  "description": "A component test that uses correct queries and userEvent but structures its phases with // Given // When // Then comments instead of blank-line separation. GWT phases are separated by blank lines, never labelled with comments. The reviewer must fail it and flag the GWT comments.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["comment"]
+    }
+  }
+}

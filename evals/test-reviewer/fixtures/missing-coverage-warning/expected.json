@@ -1,0 +1,15 @@
+{
+  "fixture": "missing-coverage-warning",
+  "description": "A single happy-path test that is structurally perfect (GWT, snake_case, @BeforeEach, named constants) but covers only the happy path — no insufficient-funds / not-found scenarios. The reviewer must not error, and must warn about the missing coverage. (Incomplete coverage also draws softer ZOMBIES suggestions, so suggestions are not constrained — the headline is the warning.)",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": {
+        "VIOLATION": { "max": 0 },
+        "WARNING": { "min": 1 }
+      },
+      "mustMention": ["missing"]
+    }
+  }
+}

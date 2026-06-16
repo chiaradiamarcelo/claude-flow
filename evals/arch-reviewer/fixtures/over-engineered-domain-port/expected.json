@@ -1,0 +1,11 @@
+{
+  "fixture": "over-engineered-domain-port",
+  "description": "A domain port interface for a purely infrastructure concern — JSON schema validation before writing. A domain port should answer 'would a domain expert recognize this as a business need?'; JSON validity is plumbing. This wraps a single infra operation with one consumer and does not belong in the domain. The reviewer must fail it and flag the over-engineered / misplaced domain port.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["port"]
+    }
+  }
+}

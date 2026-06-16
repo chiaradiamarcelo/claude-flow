@@ -1,0 +1,12 @@
+{
+  "fixture": "usecase-in-domain-folder",
+  "description": "A use case class (TransferMoneyUseCase, orchestrating across aggregates) declared in the domain package (banking.domain.models.account) instead of the application layer. Use cases live in application/, not in domain. The reviewer must fail it and flag the misplaced file — it belongs in the application layer.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["application"]
+    }
+  }
+}

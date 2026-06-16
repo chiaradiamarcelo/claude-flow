@@ -1,0 +1,11 @@
+{
+  "fixture": "missing-invariant",
+  "description": "A Money value object with a public constructor and no validation: a negative amount or a blank/invalid currency code is freely constructible, so invalid states are representable. Invariants should be enforced in the constructor/factory. The advisor must flag the missing invariant.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["invariant"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fixture": "multiple-fake-classes",
+  "description": "Two separate fake classes (`ThrowingTransferRemote`, `TimingOutTransferRemote`) stand in for the same port to express different responses. The skill forbids multiple fake classes per port — unify into one configurable fake with a response variant / sequencing. The reviewer must flag the multiple fakes.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["fake"]
+    }
+  }
+}

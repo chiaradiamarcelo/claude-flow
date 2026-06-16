@@ -1,0 +1,11 @@
+{
+  "fixture": "missing-validation-matrix",
+  "description": "A create-endpoint controller slice test covers only the 201 happy path. The skill's API validation matrix requires explicit tests for malformed input / type errors / missing required fields / domain invariants (-> 400), not-found (-> 404), and runtime failures (-> 500) where applicable. The reviewer must flag the missing validation/error-path coverage.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["400"]
+    }
+  }
+}

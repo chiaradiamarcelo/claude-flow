@@ -1,0 +1,11 @@
+{
+  "fixture": "redundant-precondition",
+  "description": "The test asserts `found isNotNull()` and then asserts a property of the unwrapped value on the next line. The presence assertion is redundant — the next line fails anyway if the value is absent. The skill forbids redundant intermediate assertions. The reviewer must flag it.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["redundant"]
+    }
+  }
+}

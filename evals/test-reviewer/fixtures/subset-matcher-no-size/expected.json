@@ -1,0 +1,11 @@
+{
+  "fixture": "subset-matcher-no-size",
+  "description": "The assertion uses a subset matcher (`contains`) without a size/length check, so extra unexpected ids would slip through. The skill says subset matchers are NOT equality — pair with a size check or use exact-in-any-order. The reviewer must flag the subset-without-size assertion.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["subset"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fixture": "response-leaks-internal-field",
+  "description": "A response DTO that exposes the client-facing accountId/balanceCents (fine) alongside internal implementation details the client cannot act on: an internal DB row id, a password hash, and a storage shard key. Response DTOs should carry only what the client needs. The reviewer must fail it and flag the leaked internal fields.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["internal"]
+    }
+  }
+}

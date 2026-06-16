@@ -1,0 +1,11 @@
+{
+  "fixture": "infra-orchestration-as-usecase",
+  "description": "A class named *UseCase in application/ that contains no domain logic — it only fetches over HTTP, deserializes JSON, and warms a cache. Pure infrastructure orchestration belongs in infrastructure/, where it can freely use framework APIs, not in application/. The reviewer must fail it and flag it as infrastructure orchestration misplaced as a use case.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["infrastructure"]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "fixture": "clean-aggregate-passes",
+  "description": "A PASS control: a pure domain aggregate with no framework imports, identity-based equality, an intent-revealing private predicate, invariants enforced in the factory, and a get-less accessor. There is no structural violation. The reviewer must return PASS with no issues. Over-triggering here is itself a finding about strictness.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "PASS"
+    }
+  }
+}

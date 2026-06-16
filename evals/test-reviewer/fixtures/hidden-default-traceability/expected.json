@@ -1,0 +1,11 @@
+{
+  "fixture": "hidden-default-traceability",
+  "description": "The test asserts/queries by OWNER_ID, but the seed never makes OWNER_ID explicit — it's buried as a hard-coded default inside the `accountRow(...)` helper. The skill requires every value the When/Then references to be explicit in the Given; the value that matters to the assertion must be a required parameter of the test-data factory, not a hidden default. The reviewer must flag the broken Given→Then traceability / hidden default.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["default"]
+    }
+  }
+}

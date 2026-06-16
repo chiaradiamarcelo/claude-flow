@@ -1,0 +1,11 @@
+{
+  "fixture": "comment-as-missing-name",
+  "description": "A use case with a block comment ('account can only be closed when it is empty and not frozen') that names what the following boolean expression does. This is the 'Comment as a missing name' smell: extract the condition into an intent-revealing variable or predicate (e.g. isClosable()) so the comment becomes unnecessary. The advisor must flag the comment.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["comment"]
+    }
+  }
+}

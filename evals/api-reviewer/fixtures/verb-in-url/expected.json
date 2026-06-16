@@ -1,0 +1,12 @@
+{
+  "fixture": "verb-in-url",
+  "description": "A thin per-action controller that delegates cleanly and returns a response DTO, but the route embeds a verb (/depositMoney) — the HTTP POST method should be the verb and the path a resource (/deposits). The reviewer must fail it and flag the verb in the URL.",
+  "applicableAgents": ["api-reviewer"],
+  "agents": {
+    "api-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["URL"]
+    }
+  }
+}

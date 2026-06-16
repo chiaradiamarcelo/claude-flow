@@ -1,0 +1,11 @@
+{
+  "fixture": "fireevent-over-userevent",
+  "description": "A clean component test that drives interaction with fireEvent.click instead of userEvent. userEvent simulates real user interaction (focus, key events) and is preferred over fireEvent. The reviewer must fail it and recommend userEvent.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["userEvent"]
+    }
+  }
+}

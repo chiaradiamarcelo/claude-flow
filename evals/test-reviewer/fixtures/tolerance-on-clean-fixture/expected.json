@@ -1,0 +1,11 @@
+{
+  "fixture": "tolerance-on-clean-fixture",
+  "description": "A tolerance matcher (`isCloseTo(33.33, within(0.01))`) is used over a fixture the test author controls. The skill says tolerance matchers are for values production code legitimately makes fuzzy; for a chosen fixture the seed should be designed so the math resolves to an exact value asserted with equality. The reviewer must flag the tolerance assertion on a controlled fixture.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["exact"]
+    }
+  }
+}

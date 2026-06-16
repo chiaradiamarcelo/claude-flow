@@ -32,14 +32,50 @@ For each test file under review:
    - Repository integration contract
    - File size and grouping
    - Strategy and efficiency
-3. **Classify each finding** as VIOLATION (broken rule) or IMPROVEMENT (concrete refinement).
-4. **Note strengths** worth calling out.
+3. **Turn each finding into an `issue`** with the right `severity` (see below).
 
-## Output format
+## Output — machine-first JSON (your entire response)
 
-Report findings by test method:
+Your **entire output is a single JSON object** — no prose before or after, no
+markdown headings, no `<!-- -->` markers.
 
-### `<test method name>`
-- **STRENGTHS**: what is good.
-- **VIOLATIONS**: broken rules (reference the rule name from the skill).
-- **IMPROVEMENTS**: concrete refinements.
+```json
+{
+  "status": "FAIL",
+  "issues": [
+    { "severity": "VIOLATION", "file": "DepositMoneyTest.kt", "line": 8,
+      "message": "<rule name>: <what is wrong> in `<test method>`" }
+  ],
+  "summary": "<one sentence: the headline finding>"
+}
+```
+
+Field rules:
+
+- **`severity`** — classify each finding. The `testing` skill remains the source
+  of truth; these are representative triggers for each level:
+
+  `VIOLATION` — a **broken rule** (must fix):
+  - Forbidden logic in a test body (`if`/`for`/`while`/`switch`).
+  - camelCase or `Should`-prefixed test names (naming convention break).
+  - Missing Given-When-Then blank-line separation, or GWT comments.
+  - More than one behavior asserted in a single test.
+
+  `WARNING` — a **should-fix** problem that does not break a hard rule:
+  - Missing coverage (happy-path only; absent boundary / error cases).
+  - Non-minimal test data (seeding more than the assertion needs).
+  - Mock used where a fake is the convention (or multiple fakes per port).
+
+  `SUGGESTION` — a **concrete refinement** / nice-to-have:
+  - Magic numbers / repeated literals that should be named constants.
+  - Extractable shared fixture or helper for repeated setup.
+
+- **`status`** — derived from the issues:
+  - `FAIL` — one or more issues of **any** severity.
+  - `PASS` — no issues at all.
+- **`issues`** — one entry per finding. `message` names the rule from the
+  `testing` skill and the test method it occurs in. `file`/`line` locate it.
+- **`summary`** — a single sentence. Strengths, if worth noting, go here — not
+  as issues.
+
+Emit nothing but this JSON object.

@@ -1,0 +1,11 @@
+{
+  "fixture": "mapper-with-business-rule",
+  "description": "A response mapper that does more than translate data — it derives the customer tier (GOLD/SILVER/BRONZE) and an overdraft-allowed policy from the balance. Mappers must map data only; this business policy belongs in the domain. The advisor must flag the business rule in the mapper.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["mapper"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fixture": "raw-render-no-provider",
+  "description": "A component test whose name, queries and structure are clean, but it calls the raw render() from @testing-library/react instead of the centralized provider helper (renderWithProviders). Tests should render through the shared provider helper so context/theme/router wrapping is consistent. The reviewer must fail it and flag the missing provider helper.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["provider"]
+    }
+  }
+}

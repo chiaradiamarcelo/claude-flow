@@ -1,0 +1,12 @@
+{
+  "fixture": "dto-leak-in-domain",
+  "description": "A domain aggregate that imports an API-layer request DTO (banking.api.dto.OpenAccountRequest) and uses it in a factory. The domain must not depend on the delivery layer's DTOs — dependencies point inward. The reviewer must fail it and flag the DTO leaking into the domain.",
+  "applicableAgents": ["arch-reviewer"],
+  "agents": {
+    "arch-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["DTO"]
+    }
+  }
+}

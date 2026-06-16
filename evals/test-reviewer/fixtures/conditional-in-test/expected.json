@@ -1,0 +1,11 @@
+{
+  "fixture": "conditional-in-test",
+  "description": "The test body branches with `if`/`else` around the assertion. The skill forbids control flow (if/else/for/while/switch) in a test body. Otherwise the test is clean, so any VIOLATION the reviewer raises is the forbidden conditional.",
+  "applicableAgents": ["test-reviewer"],
+  "agents": {
+    "test-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } }
+    }
+  }
+}

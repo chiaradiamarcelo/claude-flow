@@ -1,0 +1,14 @@
+{
+  "fixture": "clean-code-only-suggestions",
+  "description": "A probe for the advisory-reviewer strictness question (the strict-gate / advisory-SUGGESTION decision). The input is a minimal, already-refactored use case that only orchestrates (load -> deposit -> save -> return), uses a Money value object instead of primitives, has get-less accessors and no comments. An improvement-oriented reviewer cannot return PASS even here — it reliably finds a defensible nice-to-have (e.g. accountId: String -> an AccountId value object). The meaningful, stable fact is the SEVERITY of what it finds: on genuinely clean code refactor-advisor surfaces only SUGGESTIONs, never a VIOLATION or WARNING (there is no must-fix). This fixture pins exactly that: FAIL with zero VIOLATION/WARNING and at least one SUGGESTION. It is the regression-net form of the finding that the strict 'any issue => FAIL' gate makes refactor-advisor a permanent FAIL.",
+  "applicableAgents": ["refactor-advisor"],
+  "agents": {
+    "refactor-advisor": {
+      "expectedStatus": "FAIL",
+      "severities": {
+        "VIOLATION": { "max": 0 },
+        "SUGGESTION": { "min": 1 }
+      }
+    }
+  }
+}

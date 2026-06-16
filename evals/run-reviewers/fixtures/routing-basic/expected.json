@@ -1,0 +1,8 @@
+{
+  "fixture": "routing-basic",
+  "command": "run-reviewers",
+  "description": "Changeset = a production class (src/main) + its test (src/test). The test-reviewer (src/test, *Test) and the src/main reviewers (arch, refactor) must fire; api-reviewer and ui-test-reviewer must not. Routing is path-only, so the files are created empty.",
+  "changed_files": ["src/main/Calculator.kt", "src/test/CalculatorTest.kt"],
+  "fires": ["arch-reviewer", "refactor-advisor", "test-reviewer"],
+  "does_not_fire": ["api-reviewer", "ui-test-reviewer"]
+}

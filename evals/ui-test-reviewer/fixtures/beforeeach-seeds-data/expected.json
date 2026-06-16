@@ -1,0 +1,11 @@
+{
+  "fixture": "beforeeach-seeds-data",
+  "description": "A component test whose beforeEach does the right thing (clearAllMocks) but also seeds test data (the `items` array). beforeEach should reset stateless dependencies and mocks only — never seed test data, which belongs visible in each test's Given. The reviewer must fail it and flag the beforeEach seeding test data.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["beforeEach"]
+    }
+  }
+}

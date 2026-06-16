@@ -1,0 +1,12 @@
+{
+  "fixture": "testid-and-fireevent",
+  "description": "A React component test that breaks several hard ui-testing rules: a 'ShouldSubmitTheForm' camelCase name with a leading 'Should', raw render() instead of the provider helper, getByTestId instead of getByRole, fireEvent instead of userEvent, and no blank-line GWT separation. The reviewer must fail it and flag the getByTestId usage.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "severities": { "VIOLATION": { "min": 1 } },
+      "mustMention": ["getByTestId"]
+    }
+  }
+}

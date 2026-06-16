@@ -1,0 +1,11 @@
+{
+  "fixture": "asserting-internal-state",
+  "description": "A component test that asserts on internal implementation detail — spying on the useAccordionState hook and asserting setOpen(true) was called — instead of asserting the observable result (the panel content becoming visible). Tests should assert behavior, not internal state. The reviewer must fail it and flag the internal-state assertion.",
+  "applicableAgents": ["ui-test-reviewer"],
+  "agents": {
+    "ui-test-reviewer": {
+      "expectedStatus": "FAIL",
+      "mustMention": ["internal"]
+    }
+  }
+}
