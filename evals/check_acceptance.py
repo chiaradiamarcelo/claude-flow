@@ -44,7 +44,8 @@ def _reviews(scratch_dir):
     for p in glob.glob(os.path.join(scratch_dir, ".reviews", "*.json")):
         name = os.path.basename(p)[:-5]
         try:
-            out[name] = json.load(open(p))
+            with open(p) as fh:
+                out[name] = json.load(fh)
         except Exception:
             out[name] = None
     return out

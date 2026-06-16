@@ -72,15 +72,37 @@ Agent (port)
 
 10 tests, ~3ms, $0.
 
-## Slice 2 (next, not yet built)
+## Slice 2a (built) — pipeline orchestration is now injectable + tested
 
-Lift one orchestration path out of bash into an injectable function and drive it
-with `FakeAgent`:
-- **fix-loop control flow** — script "2 violations then 0" → assert it loops once
-  and accepts; "always 2" → assert it stops at `maxFixRounds` and fails. (Today
-  this costs real opus rounds to exercise.)
-- eventually the **CLAUDE.md choreography** test (real orchestrator + fake
-  workers) — the untested gap above.
+The Phase 1d chain (optional intent → architect → developer → build → reviewers →
+**fix-loop**) was lifted out of `run_all.sh` bash into `evals/harness/pipeline.py`
+(`run_pipeline(agent, workspace, cfg, build)`), driven by the Agent port and an
+injected `build` callable. `evals/harness/run_pipeline.py` injects the real
+`ClaudeCliAgent` + `./gradlew`; **`run_all.sh` Phase 1d now calls it** — single
+source of truth, no bash/python duplicate. (This is the one place `run_all.sh`
+did change from slice 1, on purpose — slice 2 *is* the orchestration work.)
+
+`evals/tests/test_pipeline.py` drives that SAME `run_pipeline` with a `FakeAgent`
++ a fake builder and asserts the control flow, for $0:
+- clean first pass → **0** fix rounds;
+- FAIL→PASS → **exactly 1** round, and the fix dispatch carried the `## Review
+  Findings` block;
+- never-converging → **stops at `maxFixRounds`** and the grader rejects on the
+  surviving VIOLATIONs (catches infinite-loop / off-by-one);
+- full chain → architect dispatched **before** developer **before** reviewers.
+
+This tests **our orchestrator's** control flow (logic that otherwise costs real
+opus rounds). It is *not* the CLAUDE.md-choreography test.
+
+## Slice 2b (next, not built) — the CLAUDE.md choreography gap
+
+Run the **real orchestrator** (a session following CLAUDE.md) with **fake
+workers** (fake architect/developer/reviewer agent definitions returning canned
+artifacts), and assert the dance — ordering, fix-pass-on-FAIL, termination,
+no-skipping — *forcing* paths (e.g. a FAIL) that real agents won't produce on
+demand. Closes the gap that the bash/python orchestrator is *ours*, not the
+choreography CLAUDE.md actually drives. The Agent port + `pipeline.py` are its
+plumbing.
 
 ## Honest limits
 

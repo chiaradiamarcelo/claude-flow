@@ -23,7 +23,8 @@ def _issues(reviews_dir):
     out = []
     for p in sorted(glob.glob(os.path.join(reviews_dir, "*.json"))):
         try:
-            v = json.load(open(p))
+            with open(p) as fh:
+                v = json.load(fh)
         except Exception:
             continue
         if not v:
