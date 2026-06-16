@@ -227,6 +227,8 @@ Available templates:
 | [evals/check_spec.py](evals/check_spec.py) | Deterministic grader for the **`/intent-and-goal`** command — grades the `specification.md` artifact it writes (exists, no code, template sections, ≥ N Gherkin scenarios) |
 | [evals/check_acceptance.py](evals/check_acceptance.py) | Deterministic grader for the **full pipeline** (acceptance) — build green + zero reviewer VIOLATIONs across the produced code (WARNING/SUGGESTION non-gating) |
 | [evals/golden-repo/](evals/golden-repo/) | Buildable Kotlin/JUnit5 Gradle skeleton (framework-free core) the developer agent implements into during integration + acceptance evals |
+| [evals/harness/agent.py](evals/harness/agent.py) | The **Agent port** + adapters — `ClaudeCliAgent` (real `claude -p`) and `FakeAgent` (scripted replay) — the seam that lets orchestration run free + deterministic in harness self-tests |
+| [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — the Agent-port contract + the finding-01 routing-parser regression. Run via `evals/run_tests.sh` |
 | [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — measured discoveries: a grader bug that looked like model flakiness, `@`-include vs on-demand skill loading (~1.8× cost), the eval cost model, and how to write robust agent evals |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |

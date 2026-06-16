@@ -44,6 +44,12 @@ the eval suite (`evals/run_all.sh`).
    **Phase 5 fix-loop**, end to end from a one-line feature description. Caught a
    real test-quality VIOLATION in the developer's output and **self-corrected it
    in one fix round**. Gate = build-green + zero VIOLATIONs (advisory non-gating).
+9. [The Agent port + FakeAgent](findings/09-agent-port-and-fakeagent.md)
+   — testing the *harness*, not the model. The two-questions reframe (agent
+   quality needs the real model; orchestration glue is fakeable), why FakeAgent
+   is useless for reviewer fixtures but gold for the fix-loop / CLAUDE.md
+   choreography, and slice 1: the `Agent` port + `FakeAgent` + the first $0
+   self-tests (incl. the finding-01 parser regression).
 
 ## Conventions used across these notes
 
