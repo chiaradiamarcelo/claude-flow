@@ -94,15 +94,35 @@ did change from slice 1, on purpose — slice 2 *is* the orchestration work.)
 This tests **our orchestrator's** control flow (logic that otherwise costs real
 opus rounds). It is *not* the CLAUDE.md-choreography test.
 
-## Slice 2b (next, not built) — the CLAUDE.md choreography gap
+## Slice 2b (built and green) — the CLAUDE.md choreography test
 
-Run the **real orchestrator** (a session following CLAUDE.md) with **fake
-workers** (fake architect/developer/reviewer agent definitions returning canned
-artifacts), and assert the dance — ordering, fix-pass-on-FAIL, termination,
-no-skipping — *forcing* paths (e.g. a FAIL) that real agents won't produce on
-demand. Closes the gap that the bash/python orchestrator is *ours*, not the
-choreography CLAUDE.md actually drives. The Agent port + `pipeline.py` are its
-plumbing.
+Closes the gap that slices 1/2a test *our* orchestrator, not the choreography
+CLAUDE.md actually drives. A **real orchestrator** session runs the pipeline over
+**fake worker agent definitions** — `evals/orchestration/fixtures/
+withdraw-money-choreography/input/.claude/agents/` holds fake architect /
+developer / test-reviewer / arch-reviewer / refactor-advisor that **self-log**
+their invocation to `pipeline-calls.log` (a Bash `echo >>`) and return canned
+artifacts. Project-local `.claude/agents` override the globals, so a `claude -p`
+run in the scratch dir dispatches the fakes. The fake test-reviewer **forces a
+FAIL on its first call** (via a `grep -c` self-count), PASS after — so the fix
+pass is exercised *on demand* (real reviewers won't FAIL when you need them to).
+
+`evals/check_choreography.py` grades the call log as a tolerant **ordered
+subsequence** (extra interleaved reviewers are fine): plan → implement → review →
+fix → re-review, ending after a passing review (`endsAfterReview`), one architect
+(`maxArchitects`). `run_all.sh` **Phase 1f** (opt-in: `run_all.sh orchestration`)
+runs it; `evals/tests/test_check_choreography.py` covers the grader for $0.
+
+**Two layers of fake — don't conflate:** slice 1/2a's `FakeAgent` is a *python*
+test double for *our* orchestrator (free, deterministic). Slice 2b's fakes are
+*real agent definitions* the *real* orchestrator dispatches — this run is **paid
++ pass@k** (the orchestrator is a model), just cheap (fake haiku workers).
+
+**Result:** with a *minimal* prompt that leans on CLAUDE.md (not spelled-out
+steps), the orchestrator produced the full dance —
+`architect → developer:impl → test-reviewer (FAIL) → … → developer:fix →
+test-reviewer (PASS) → stop`. So CLAUDE.md's orchestration rules reliably drive
+the choreography headless. (pass@1; run k times to harden.)
 
 ## Honest limits
 

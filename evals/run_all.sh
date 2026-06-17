@@ -171,6 +171,33 @@ if [ "$ONLY_AGENT" = "pipeline" ] && [ -d evals/pipeline/fixtures ]; then
   done
 fi
 
+# Phase 1f is the CLAUDE.md CHOREOGRAPHY test: a REAL orchestrator session runs
+# the pipeline over FAKE worker agents (project-local .claude/agents overrides
+# that self-log + return canned artifacts). It tests the orchestration rules in
+# CLAUDE.md, not agent quality. Paid + pass@k (the orchestrator is a real model),
+# but cheap (fake haiku workers) and the fake test-reviewer FORCES a fix pass.
+# Strictly opt-in: ONLY for `run_all.sh orchestration`.
+if [ "$ONLY_AGENT" = "orchestration" ] && [ -d evals/orchestration/fixtures ]; then
+  echo "== Phase 1f: CLAUDE.md choreography (real orchestrator + fake workers) =="
+  ORCH_TOOLS=(--allowedTools Task Agent Read Write Edit Bash Glob Grep Skill)
+  for fx in evals/orchestration/fixtures/*/; do
+    [ -f "${fx}expected.json" ] || continue
+    [ -n "$ONLY_FIXTURE" ] && [ "$(basename "$fx")" != "$ONLY_FIXTURE" ] && continue
+    scratch="$(mktemp -d)"
+    cp -R "${fx}input/." "$scratch/" 2>/dev/null   # spec + fake .claude/agents overrides
+    op="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("orchestratorPrompt",""))' "${fx}expected.json")"
+    echo "  running orchestrator on $(basename "$fx") (real session, fake workers) ..."
+    ( cd "$scratch" && claude -p "$op" "${ORCH_TOOLS[@]}" </dev/null >"$scratch/.orchestrator.log" 2>&1 )
+    if python3 evals/check_choreography.py "${fx}expected.json" --scratch-dir "$scratch"; then
+      rm -rf "$scratch"
+    else
+      fail=1
+      echo "    call log: $(tr '\n' ' ' < "$scratch/pipeline-calls.log" 2>/dev/null)"
+      echo "    (scratch kept for debugging: $scratch)"
+    fi
+  done
+fi
+
 if [ "$do_commands" = 1 ]; then
   echo ""; echo "== Phase 2: command routing tests (claude -p --dry-run) =="
   for fxdir in evals/run-reviewers/fixtures/*/; do

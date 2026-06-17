@@ -47,9 +47,12 @@ the eval suite (`evals/run_all.sh`).
 9. [The Agent port + FakeAgent](findings/09-agent-port-and-fakeagent.md)
    — testing the *harness*, not the model. The two-questions reframe (agent
    quality needs the real model; orchestration glue is fakeable), why FakeAgent
-   is useless for reviewer fixtures but gold for the fix-loop / CLAUDE.md
-   choreography, and slice 1: the `Agent` port + `FakeAgent` + the first $0
-   self-tests (incl. the finding-01 parser regression).
+   is useless for reviewer fixtures but gold for orchestration. Slice 1: the
+   `Agent` port + `FakeAgent` + the finding-01 parser regression. Slice 2a: the
+   fix-loop lifted behind the port + $0 control-flow tests. Slice 2b: the
+   **CLAUDE.md choreography** test — real orchestrator + fake worker agent
+   definitions that self-log; a minimal prompt drove the full plan→implement→
+   review→fix→re-review→stop dance.
 
 ## Conventions used across these notes
 
