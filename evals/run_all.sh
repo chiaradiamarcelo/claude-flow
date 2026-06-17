@@ -1,52 +1,70 @@
 #!/usr/bin/env bash
 # evals/run_all.sh — run the pipeline's own test suite.
 #
-#   ./evals/run_all.sh             # all phases
-#   ./evals/run_all.sh --commands  # only command routing tests (cheap-ish)
-#   ./evals/run_all.sh --agents    # only agent fixture evals
-#   ./evals/run_all.sh api-reviewer            # only that reviewer's corpus
-#   ./evals/run_all.sh --agents api-reviewer   # same (explicit)
+#   ./evals/run_all.sh                  # default: structural + reviewers (cached) + architect + intent + routing
+#   ./evals/run_all.sh <corpus>         # just that corpus (api-reviewer, architect, developer, pipeline, orchestration, run-reviewers, ...)
+#   ./evals/run_all.sh <corpus> <fixt>  # one fixture in a non-reviewer corpus
+#   ./evals/run_all.sh --commands       # only the routing tests
+#   ./evals/run_all.sh --agents [name]  # only agent fixture evals
 #
-# Phase 0 (structural) is free. Phases 1 & 2 spend tokens via `claude -p`
-# (Phase 1 is fingerprint-cached; Phase 2 uses the cheap --dry-run path).
+# Reviewers run through the fingerprint-CACHED path (eval_grade) — unchanged
+# fixtures cost $0. Every other kind runs through the SINGLE engine
+# (run_fixture.py / ./evals/evals), which reads each fixture's test.json. The
+# heavy kinds (developer, pipeline, orchestration) are opt-in — they run only
+# when named. Phase 0 is free; the rest spend tokens via `claude -p`.
+#
+# For one fixture in the red/green TDD loop, prefer:  ./evals/evals --test <name>
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-# Least-privilege tool allowlists for the headless `claude -p` runs (read-only;
-# no Edit/Write). Reviewers need only Read/Glob/Grep; the command also runs git.
 AGENT_TOOLS=(--allowedTools Read Glob Grep)
-CMD_TOOLS=(--allowedTools "Bash(git *)" Grep Glob Read)
+REVIEWERS="api-reviewer arch-reviewer refactor-advisor test-reviewer ui-test-reviewer"
+OPTIN=" developer pipeline orchestration "   # heavy/paid — run only when named
 fail=0
 do_agents=1; do_commands=1
 ONLY_AGENT=""; ONLY_FIXTURE=""
 case "${1:-}" in
   --agents)   do_commands=0; ONLY_AGENT="${2:-}" ;;
   --commands) do_agents=0 ;;
-  --*)        echo "usage: run_all.sh [--agents|--commands] [agent-name] | <agent-name> [fixture-name]"; exit 2 ;;
+  --*)        echo "usage: run_all.sh [--agents|--commands] [corpus] | <corpus> [fixture]"; exit 2 ;;
   "")         ;;
-  *)          ONLY_AGENT="$1"; ONLY_FIXTURE="${2:-}" ;;  # bare agent name (+ optional single fixture)
+  *)          ONLY_AGENT="$1"; ONLY_FIXTURE="${2:-}" ;;
 esac
-# A specific reviewer filter means the command routing tests don't apply.
 [ -n "$ONLY_AGENT" ] && [ "$ONLY_AGENT" != "run-reviewers" ] && do_commands=0
+
+want() {  # want <corpus> — run it given ONLY_AGENT + the opt-in rule?
+  local c="$1"
+  if [ -n "$ONLY_AGENT" ]; then [ "$ONLY_AGENT" = "$c" ]; return; fi
+  case "$OPTIN" in *" $c "*) return 1 ;; esac   # opt-in kinds are skipped by default
+  return 0
+}
+
+engine_corpus() {  # run every fixture of a corpus through the single engine
+  local c="$1"
+  [ -d "evals/$c/fixtures" ] || return 0
+  echo ""; echo "== $c (engine: run_fixture.py) =="
+  for fx in evals/"$c"/fixtures/*/; do
+    [ -f "${fx}test.json" ] || continue
+    local name; name="$(basename "$fx")"
+    [ -n "$ONLY_FIXTURE" ] && [ "$name" != "$ONLY_FIXTURE" ] && continue
+    python3 evals/run_fixture.py --test "$name" --agent "$c" || fail=1
+  done
+}
 
 echo "== Phase 0: structural (free, no model) =="
 for d in evals/*/; do
   [ -d "${d}fixtures" ] || continue
-  # the agent-fixture schema check applies only to agent corpora
-  [ -f "agents/$(basename "$d")/Agent.md" ] || continue
+  [ -f "agents/$(basename "$d")/Agent.md" ] || continue   # only agent corpora have a schema check
   [ -n "$ONLY_AGENT" ] && [ "$(basename "$d")" != "$ONLY_AGENT" ] && continue
   python3 evals/eval_grade.py --evals-dir "$d" --check-corpus || fail=1
 done
 
 if [ "$do_agents" = 1 ]; then
-  echo ""; echo "== Phase 1: agent fixture evals (claude -p, cached) =="
-  for adir in evals/*/; do
-    [ -d "${adir}fixtures" ] || continue
-    agent="$(basename "$adir")"
-    [ -f "agents/$agent/Agent.md" ] || continue   # skip command-test corpora
-    [ "$agent" = "architect" ] && continue        # plan-producing agent: Phase 1b
-    [ "$agent" = "developer" ] && continue         # build-outcome agent: Phase 1c
+  echo ""; echo "== Phase 1: reviewer evals (claude -p, fingerprint-cached) =="
+  for agent in $REVIEWERS; do
+    [ -d "evals/$agent/fixtures" ] || continue
     [ -n "$ONLY_AGENT" ] && [ "$agent" != "$ONLY_AGENT" ] && continue
+    adir="evals/$agent/"
     vd="$(mktemp -d)"
     # Capture RUN pairs first. A `--plan | while read` pipe would let `claude -p`
     # (which reads stdin) swallow the remaining pairs — only the first dispatches.
@@ -74,160 +92,17 @@ PY
       || { fail=1; echo "--- verdicts ($agent) ---"; cat "$actuals"; echo; }
     rm -rf "$vd" "$actuals"
   done
-fi
 
-if [ "$do_agents" = 1 ] && { [ -z "$ONLY_AGENT" ] || [ "$ONLY_AGENT" = "architect" ]; } \
-   && [ -d evals/architect/fixtures ]; then
-  echo ""; echo "== Phase 1b: plan-producing agent evals (architect) =="
-  # The architect WRITES a plan file rather than emitting a JSON verdict, so it
-  # can't use the Phase 1 reviewer path. Dispatch it in a scratch copy of the
-  # fixture input/ (it reads specification.md, writes SCENARIO-XX.md), then grade
-  # the artifact with check_plan.py (no fingerprint cache — always dispatches).
-  ARCH_TOOLS=(--allowedTools Read Write Edit Glob Grep Skill)
-  for fx in evals/architect/fixtures/*/; do
-    [ -f "${fx}expected.json" ] || continue
-    scratch="$(mktemp -d)"
-    cp -R "${fx}input/." "$scratch/" 2>/dev/null
-    prompt="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("prompt",""))' "${fx}expected.json")"
-    ( cd "$scratch" && claude -p "$prompt" --agent architect "${ARCH_TOOLS[@]}" </dev/null >/dev/null 2>&1 )
-    python3 evals/check_plan.py "${fx}expected.json" --input-dir "${fx}input" --scratch-dir "$scratch" || fail=1
-    rm -rf "$scratch"
-  done
-fi
-
-if [ "$do_agents" = 1 ] && { [ -z "$ONLY_AGENT" ] || [ "$ONLY_AGENT" = "intent-and-goal" ]; } \
-   && [ -d evals/intent-and-goal/fixtures ]; then
-  echo ""; echo "== Phase 1e: command artifact evals (/intent-and-goal) =="
-  # /intent-and-goal is a COMMAND (not an agent) and interactive, so dispatch it
-  # by prompt (no --agent) with the fixture's non-interactive instruction, then
-  # grade the specification.md it writes with check_spec.py.
-  IAG_TOOLS=(--allowedTools Read Write Glob Grep Skill)
-  for fx in evals/intent-and-goal/fixtures/*/; do
-    [ -f "${fx}expected.json" ] || continue
-    scratch="$(mktemp -d)"
-    cp -R "${fx}input/." "$scratch/" 2>/dev/null
-    prompt="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("prompt",""))' "${fx}expected.json")"
-    ( cd "$scratch" && claude -p "$prompt" "${IAG_TOOLS[@]}" </dev/null >/dev/null 2>&1 )
-    python3 evals/check_spec.py "${fx}expected.json" --input-dir "${fx}input" --scratch-dir "$scratch" || fail=1
-    rm -rf "$scratch"
-  done
-fi
-
-# Phase 1c is the integration layer (developer → real build). It's EXPENSIVE
-# (opus agent + a full TDD loop + Gradle, minutes & ~$1-4) so it is strictly
-# opt-in: it runs ONLY for `run_all.sh developer`, never in the default suite or
-# a bare --agents run.
-if [ "$ONLY_AGENT" = "developer" ] && [ -d evals/developer/fixtures ]; then
-  echo ""; echo "== Phase 1c: developer integration evals (golden repo, ./gradlew test) =="
-  DEV_TOOLS=(--allowedTools Read Write Edit Glob Grep Bash Skill)
-  for fx in evals/developer/fixtures/*/; do
-    [ -f "${fx}expected.json" ] || continue
-    [ -n "$ONLY_FIXTURE" ] && [ "$(basename "$fx")" != "$ONLY_FIXTURE" ] && continue
-    scratch="$(mktemp -d)"
-    cp -R evals/golden-repo/. "$scratch/" 2>/dev/null   # pristine buildable skeleton
-    rm -rf "$scratch/build" "$scratch/.gradle"
-    cp -R "${fx}input/." "$scratch/" 2>/dev/null         # overlay frozen spec + plan
-    prompt="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("prompt",""))' "${fx}expected.json")"
-    echo "  dispatching developer on $(basename "$fx") — full TDD loop, may take minutes ..."
-    ( cd "$scratch" && claude -p "$prompt" --agent developer "${DEV_TOOLS[@]}" </dev/null >"$scratch/.agent.log" 2>&1 )
-    # Independent verdict: WE run the build, never trust the agent's self-report.
-    ( cd "$scratch" && ./gradlew test --console=plain >"$scratch/.gradle.log" 2>&1 ); ge=$?
-    if python3 evals/check_build.py "${fx}expected.json" --scratch-dir "$scratch" --build-exit "$ge"; then
-      rm -rf "$scratch"
-    else
-      fail=1
-      echo "    --- gradle tail ---"; tail -25 "$scratch/.gradle.log" 2>/dev/null | sed 's/^/    /'
-      echo "    (scratch kept for debugging: $scratch)"
-    fi
-  done
-fi
-
-# Phase 1d is the ACCEPTANCE layer (full pipeline: architect -> developer ->
-# reviewers, from a frozen single-scenario spec). Most expensive of all (sonnet
-# architect + opus developer + 3 sonnet reviewers + a real build, ~$2-6, many
-# minutes), so it is strictly opt-in: ONLY for `run_all.sh pipeline`.
-if [ "$ONLY_AGENT" = "pipeline" ] && [ -d evals/pipeline/fixtures ]; then
-  echo "== Phase 1d: full-pipeline acceptance (real command -> independent build + review) =="
-  # Drive the REAL production command exactly as a user would — `/run-pipeline`
-  # over a frozen spec, or `/intent-and-goal` which chains into it. Orchestration
-  # lives in the command files, NOT here. Afterwards the harness INDEPENDENTLY
-  # runs ./gradlew test + a fresh reviewer pass and grades (never trusting the
-  # agent's self-report). The cheap, fake-worker counterpart is Phase 1f.
-  PIPELINE_TOOLS=(--allowedTools Task Agent Read Write Edit Bash Glob Grep Skill)
-  for fx in evals/pipeline/fixtures/*/; do
-    [ -f "${fx}expected.json" ] || continue
-    [ -n "$ONLY_FIXTURE" ] && [ "$(basename "$fx")" != "$ONLY_FIXTURE" ] && continue
-    scratch="$(mktemp -d)"
-    cp -R evals/golden-repo/. "$scratch/" 2>/dev/null   # pristine buildable skeleton
-    rm -rf "$scratch/build" "$scratch/.gradle"
-    cp -R "${fx}input/." "$scratch/" 2>/dev/null         # overlay frozen spec, if the fixture has one
-    cmd="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("command",""))' "${fx}expected.json")"
-    echo "  running $(basename "$fx") via: $cmd (real workers) ..."
-    ( cd "$scratch" && claude -p "$cmd" "${PIPELINE_TOOLS[@]}" </dev/null >"$scratch/.pipeline.log" 2>&1 )
-    if python3 evals/verify_acceptance.py "${fx}expected.json" "$scratch"; then
-      rm -rf "$scratch"
-    else
-      fail=1
-      echo "    --- gradle tail ---"; tail -20 "$scratch/.gradle.log" 2>/dev/null | sed 's/^/    /'
-      echo "    (scratch kept for debugging: $scratch)"
-    fi
-  done
-fi
-
-# Phase 1f drives a REAL `claude -p` session running a real pipeline command over
-# FAKE worker agents (project-local .claude/agents overrides that self-log +
-# return canned artifacts). It tests the command's CHOREOGRAPHY, not agent
-# quality. Two fixture kinds, picked by which block the expected.json carries:
-#   - "orchestration" -> check_choreography (the call-log dance)
-#   - "refusal"       -> check_refusal      (precondition guard: writes nothing)
-# Paid + pass@k (the session is a real model) but cheap (fake haiku workers); the
-# fake test-reviewer FORCES a fix pass. Strictly opt-in: ONLY `run_all.sh orchestration`.
-if [ "$ONLY_AGENT" = "orchestration" ] && [ -d evals/orchestration/fixtures ]; then
-  echo "== Phase 1f: command choreography + guards (real session + fake workers) =="
-  ORCH_TOOLS=(--allowedTools Task Agent Read Write Edit Bash Glob Grep Skill)
-  for fx in evals/orchestration/fixtures/*/; do
-    [ -f "${fx}expected.json" ] || continue
-    [ -n "$ONLY_FIXTURE" ] && [ "$(basename "$fx")" != "$ONLY_FIXTURE" ] && continue
-    scratch="$(mktemp -d)"
-    cp -R "${fx}input/." "$scratch/" 2>/dev/null   # spec + fake .claude/agents overrides
-    op="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("orchestratorPrompt",""))' "${fx}expected.json")"
-    grader=check_choreography.py
-    python3 -c 'import json,sys; sys.exit(0 if "refusal" in json.load(open(sys.argv[1])) else 1)' "${fx}expected.json" && grader=check_refusal.py
-    echo "  running $(basename "$fx") (real session, fake workers) ..."
-    ( cd "$scratch" && claude -p "$op" "${ORCH_TOOLS[@]}" </dev/null >"$scratch/.orchestrator.log" 2>&1 )
-    if python3 "evals/$grader" "${fx}expected.json" --scratch-dir "$scratch"; then
-      rm -rf "$scratch"
-    else
-      fail=1
-      echo "    call log: $(tr '\n' ' ' < "$scratch/pipeline-calls.log" 2>/dev/null)"
-      echo "    (scratch kept for debugging: $scratch)"
-    fi
+  # Every non-reviewer kind runs through the single engine. architect + intent
+  # run by default; developer/pipeline/orchestration are opt-in (heavy/paid).
+  for c in architect intent-and-goal developer pipeline orchestration; do
+    want "$c" && engine_corpus "$c"
   done
 fi
 
 if [ "$do_commands" = 1 ]; then
-  echo ""; echo "== Phase 2: command routing tests (claude -p --dry-run) =="
-  for fxdir in evals/run-reviewers/fixtures/*/; do
-    [ -f "${fxdir}expected.json" ] || continue
-    scratch="$(mktemp -d)"
-    ( cd "$scratch" && git init -q )
-    # routing is path-only: create the changed files empty, leave them untracked
-    # (the command detects them via `git ls-files --others`).
-    python3 - "${fxdir}expected.json" "$scratch" <<'PY'
-import json, os, sys
-exp = json.load(open(sys.argv[1])); root = sys.argv[2]
-for f in exp["changed_files"]:
-    p = os.path.join(root, f)
-    os.makedirs(os.path.dirname(p), exist_ok=True)
-    open(p, "w").close()
-PY
-    out="$(mktemp)"
-    # </dev/null: don't let `claude -p` read the script's inherited stdin (same
-    # hygiene as Phase 1) — without it the headless run can misbehave.
-    ( cd "$scratch" && claude -p "/run-reviewers --dry-run" "${CMD_TOOLS[@]}" </dev/null 2>/dev/null ) > "$out"
-    python3 evals/check_routing.py "${fxdir}expected.json" "$out" || fail=1
-    rm -rf "$scratch" "$out"
-  done
+  echo ""; echo "== Phase 2: routing tests (engine) =="
+  engine_corpus run-reviewers
 fi
 
 echo ""

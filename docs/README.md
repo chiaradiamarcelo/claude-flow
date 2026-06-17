@@ -61,6 +61,15 @@ the eval suite (`evals/run_all.sh`).
     port + `FakeAgent` + Python orchestrator; tests now drive the **real
     command**. Won: no drift, real artifact under test. Lost: the $0 deterministic
     fix-loop test. Phase 1f, on the real command, drove the full dance.
+11. [Every fixture is a test.json (given/when/then) + one engine](findings/11-test-json-migration.md)
+    — the corpus was half-declarative (WHEN lived in `run_all.sh`'s bash phases).
+    Now every fixture is DATA: a `test.json` with `given`/`when`/`then`, `when.do`
+    a **closed enum** (no Cucumber glue), run by one engine (`./evals/evals`). 92
+    fixtures migrated. **Decision recorded (option A): preserve the fingerprint
+    cache** — repoint `eval_grade` at `test.json`, keep the cached reviewer path,
+    route other kinds through the engine, delete `/run-evals`; rejected dropping
+    the cache for a single path (would regress `$0` re-runs to ~$1.7). Full
+    one-path unification deferred.
 
 ## Conventions used across these notes
 

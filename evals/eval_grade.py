@@ -44,6 +44,18 @@ def _load(path):
         return json.load(f)
 
 
+def _manifest(fx):
+    return _load(fx / "test.json")
+
+
+def _agent_spec(fx):
+    """(agent, reviewer spec) from a reviewer fixture's test.json. The spec is
+    `then` minus the grader key — i.e. the old agents.<agent> block."""
+    m = _manifest(fx)
+    spec = {k: v for k, v in m.get("then", {}).items() if k != "grader"}
+    return m.get("when", {}).get("agent"), spec
+
+
 def _in_range(n, rng):
     if rng is None:
         return True
@@ -126,7 +138,7 @@ def _fixtures(evals_dir):
     fixtures_root = evals_dir / "fixtures"
     if not fixtures_root.is_dir():
         return []
-    return sorted(p for p in fixtures_root.iterdir() if (p / "expected.json").is_file())
+    return sorted(p for p in fixtures_root.iterdir() if (p / "test.json").is_file())
 
 
 # ---- Fingerprint cache: caching + per-fixture diff-scoping ------------------
@@ -162,7 +174,7 @@ def fingerprint(fixture_dir, agent, agents_dir, root):
     if input_dir.is_dir():
         for f in sorted(p for p in input_dir.rglob("*") if p.is_file()):
             parts.append((f"input:{f.relative_to(fixture_dir)}", _file_hash(f)))
-    parts.append(("expected", _file_hash(fixture_dir / "expected.json")))
+    parts.append(("manifest", _file_hash(fixture_dir / "test.json")))
     blob = "\n".join(f"{k}={v}" for k, v in parts)
     return hashlib.sha256(blob.encode()).hexdigest()
 
@@ -192,13 +204,12 @@ def plan(evals_dir, agents_dir, root, only):
     cache = _load_cache(evals_dir)
     rows = []
     for fx in _fixtures(evals_dir):
-        spec = _load(fx / "expected.json")
-        for agent in spec.get("agents", {}):
-            if only and agent not in only:
-                continue
-            pair = f"{fx.name}::{agent}"
-            fp = fingerprint(fx, agent, agents_dir, root)
-            rows.append(("CACHED" if _is_cached_pass(cache, pair, fp) else "RUN", pair))
+        agent, _ = _agent_spec(fx)
+        if not agent or (only and agent not in only):
+            continue
+        pair = f"{fx.name}::{agent}"
+        fp = fingerprint(fx, agent, agents_dir, root)
+        rows.append(("CACHED" if _is_cached_pass(cache, pair, fp) else "RUN", pair))
     return rows
 
 
@@ -243,20 +254,20 @@ def check_corpus(evals_dir):
     faults = []
     fixtures = _fixtures(evals_dir)
     if not fixtures:
-        faults.append(f"no fixtures with expected.json under {evals_dir}/fixtures")
+        faults.append(f"no fixtures with test.json under {evals_dir}/fixtures")
     for fx in fixtures:
         stem = fx.name
         try:
-            spec = _load(fx / "expected.json")
+            m = _manifest(fx)
         except (OSError, json.JSONDecodeError) as e:
-            faults.append(f"{stem}: invalid expected.json ({e})")
+            faults.append(f"{stem}: invalid test.json ({e})")
             continue
-        for key in ("fixture", "applicableAgents", "agents"):
-            if key not in spec:
-                faults.append(f"{stem}: expected.json missing key {key!r}")
+        for key in ("given", "when", "then"):
+            if key not in m:
+                faults.append(f"{stem}: test.json missing key {key!r}")
         input_dir = fx / "input"
-        if not input_dir.is_dir() or not any(input_dir.iterdir()):
-            faults.append(f"{stem}: missing or empty input/ directory")
+        if m.get("given", {}).get("files") and (not input_dir.is_dir() or not any(input_dir.iterdir())):
+            faults.append(f"{stem}: given.files set but input/ is missing or empty")
     return faults
 
 
@@ -268,22 +279,21 @@ def run_grading(evals_dir, actuals, only, agents_dir, root, cache):
     results = []
     for fx in _fixtures(evals_dir):
         stem = fx.name
-        spec = _load(fx / "expected.json")
-        for agent, aspec in spec.get("agents", {}).items():
-            if only and agent not in only:
-                continue
-            pair = f"{stem}::{agent}"
-            fp = fingerprint(fx, agent, agents_dir, root)
-            got = actuals.get(stem, {}).get("agents", {}).get(agent) if actuals else None
-            if got is not None:
-                fails = grade_agent(aspec, got)
-                results.append((pair, not fails, "; ".join(fails), fp, True))
-            elif _is_cached_pass(cache, pair, fp):
-                results.append((pair, True, "cached (fingerprint match)", fp, False))
-            else:
-                results.append((pair, False,
-                                "not run and no fresh cached pass — dispatch needed",
-                                fp, False))
+        agent, aspec = _agent_spec(fx)
+        if not agent or (only and agent not in only):
+            continue
+        pair = f"{stem}::{agent}"
+        fp = fingerprint(fx, agent, agents_dir, root)
+        got = actuals.get(stem, {}).get("agents", {}).get(agent) if actuals else None
+        if got is not None:
+            fails = grade_agent(aspec, got)
+            results.append((pair, not fails, "; ".join(fails), fp, True))
+        elif _is_cached_pass(cache, pair, fp):
+            results.append((pair, True, "cached (fingerprint match)", fp, False))
+        else:
+            results.append((pair, False,
+                            "not run and no fresh cached pass — dispatch needed",
+                            fp, False))
     return results
 
 
