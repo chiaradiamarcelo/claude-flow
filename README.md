@@ -218,21 +218,21 @@ Available templates:
 | [skills/testing/](skills/testing/SKILL.md) | Test structure, naming, fakes, and coverage conventions |
 | [skills/adr/](skills/adr/SKILL.md) | Architecture Decision Record creation |
 | **Evals — testing the pipeline** | |
-| [evals/README.md](evals/README.md) | Eval corpus + **testing strategy** for the pipeline's own agents — the confidence pyramid (unit fixtures → integration → acceptance), how non-determinism and drift are handled |
-| [commands/run-evals.md](commands/run-evals.md) | `/run-evals <agent>` — dispatch an agent against its fixtures and grade with the deterministic model-free grader |
-| [evals/run_all.sh](evals/run_all.sh) | One-command suite runner — structural + agent fixture evals + live command routing tests |
-| [evals/eval_grade.py](evals/eval_grade.py) | Deterministic, model-free grader for agent fixtures + fingerprint cache (caching + diff-scoping) |
-| [evals/check_routing.py](evals/check_routing.py) | Deterministic grader for the live `/run-reviewers` routing test |
+| [evals/README.md](evals/README.md) | Eval corpus + **testing strategy** — every fixture is a `test.json` (given/when/then) run by one engine; the confidence pyramid (unit → integration → acceptance/choreography), non-determinism and drift |
+| [evals/evals](evals/evals) → [run_fixture.py](evals/run_fixture.py) | **The eval engine.** `./evals/evals --test <fixture>` runs one fixture (the agent-TDD red/green loop); `--list` lists all. `when.do` (agent/command/build) → handler; `then.grader` → a pure grade_* function |
+| [evals/run_all.sh](evals/run_all.sh) | Suite runner — structural + reviewers (fingerprint-cached) + the other kinds via the engine; heavy kinds (developer/pipeline/orchestration) opt-in |
+| [evals/eval_grade.py](evals/eval_grade.py) | The reviewer `verdict` grader (`grade_agent`) + the fingerprint cache (caching + diff-scoping), keyed on `test.json` |
+| [evals/check_routing.py](evals/check_routing.py) | Deterministic grader for the `/run-reviewers` routing test |
 | [evals/check_plan.py](evals/check_plan.py) | Deterministic grader for the **architect** agent — grades the plan *artifact* it writes (plan exists, writes no code, step ordering, must-mention), not a stdout verdict |
 | [evals/check_build.py](evals/check_build.py) | Deterministic grader for the **developer** agent (integration layer) — parses JUnit XML after an independent `./gradlew test`: build green, tests actually ran, zero failures, required test classes present |
 | [evals/check_spec.py](evals/check_spec.py) | Deterministic grader for the **`/intent-and-goal`** command — grades the `specification.md` artifact it writes (exists, no code, template sections, ≥ N Gherkin scenarios) |
 | [evals/check_acceptance.py](evals/check_acceptance.py) | Deterministic grader for the **full pipeline** (acceptance) — build green + zero reviewer VIOLATIONs across the produced code (WARNING/SUGGESTION non-gating) |
 | [evals/verify_acceptance.py](evals/verify_acceptance.py) | The harness's **independent verifier** for acceptance — after the real `/run-pipeline` command runs, *it* runs `./gradlew test` + a fresh reviewer pass and grades (never trusts the command's self-report) |
 | [evals/golden-repo/](evals/golden-repo/) | Buildable Kotlin/JUnit5 Gradle skeleton (framework-free core) the developer agent implements into during integration + acceptance evals |
-| [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — finding-01 routing parser, choreography grader. Run via `evals/run_tests.sh` |
+| [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — routing parser (finding-01), choreography/refusal graders, and a runner wiring scan that asserts every fixture's `when.do`/`then.grader` is registered. Run via `evals/run_tests.sh` |
 | [evals/check_choreography.py](evals/check_choreography.py) | Grader for the **choreography** test — asserts the real `/run-pipeline` command's call log (real session + fake workers) follows plan→implement→review→fix→re-review as an ordered subsequence |
 | [evals/orchestration/](evals/orchestration/) | Choreography fixture — an approved spec + **fake worker agent definitions** that self-log, for testing the real `/run-pipeline` command's dance (opt-in: `run_all.sh orchestration`) |
-| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — measured discoveries: a grader bug that looked like model flakiness, `@`-include vs on-demand skill loading (~1.8× cost), the eval cost model, and how to write robust agent evals |
+| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 11 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), and the test.json migration + cache decision (11) |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Template files (e.g., `review-triggers.typescript.json` for project trigger overrides) |
