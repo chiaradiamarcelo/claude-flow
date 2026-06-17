@@ -200,7 +200,8 @@ Available templates:
 | [settings.json](settings.json) | Permissions, hooks, plugins, statusline config |
 | [statusline-command.sh](statusline-command.sh) | Context window usage bar for the statusline |
 | **Commands** | |
-| [commands/intent-and-goal.md](commands/intent-and-goal.md) | `/intent-and-goal` — feature intent refinement and scenario generation |
+| [commands/intent-and-goal.md](commands/intent-and-goal.md) | `/intent-and-goal` — entry point: intent refinement + scenario generation, then hands off to `/run-pipeline` |
+| [commands/run-pipeline.md](commands/run-pipeline.md) | `/run-pipeline <feature-slug>` — execution orchestrator: per-scenario architect→developer, reviewers, fix-loop (requires an approved spec) |
 | [commands/new-reviewer.md](commands/new-reviewer.md) | `/new-reviewer` — guided creation of reviewer agents |
 | [commands/run-reviewers.md](commands/run-reviewers.md) | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
 | **Agents — pipeline** | |
@@ -226,11 +227,11 @@ Available templates:
 | [evals/check_build.py](evals/check_build.py) | Deterministic grader for the **developer** agent (integration layer) — parses JUnit XML after an independent `./gradlew test`: build green, tests actually ran, zero failures, required test classes present |
 | [evals/check_spec.py](evals/check_spec.py) | Deterministic grader for the **`/intent-and-goal`** command — grades the `specification.md` artifact it writes (exists, no code, template sections, ≥ N Gherkin scenarios) |
 | [evals/check_acceptance.py](evals/check_acceptance.py) | Deterministic grader for the **full pipeline** (acceptance) — build green + zero reviewer VIOLATIONs across the produced code (WARNING/SUGGESTION non-gating) |
+| [evals/verify_acceptance.py](evals/verify_acceptance.py) | The harness's **independent verifier** for acceptance — after the real `/run-pipeline` command runs, *it* runs `./gradlew test` + a fresh reviewer pass and grades (never trusts the command's self-report) |
 | [evals/golden-repo/](evals/golden-repo/) | Buildable Kotlin/JUnit5 Gradle skeleton (framework-free core) the developer agent implements into during integration + acceptance evals |
-| [evals/harness/agent.py](evals/harness/agent.py) | The **Agent port** + adapters — `ClaudeCliAgent` (real `claude -p`) and `FakeAgent` (scripted replay) — the seam that lets orchestration run free + deterministic in harness self-tests |
-| [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — Agent-port contract, fix-loop control flow, finding-01 routing parser, choreography grader. Run via `evals/run_tests.sh` |
-| [evals/check_choreography.py](evals/check_choreography.py) | Grader for the **CLAUDE.md choreography** test — asserts the orchestrator's call log (real orchestrator + fake workers) follows plan→implement→review→fix→re-review as an ordered subsequence |
-| [evals/orchestration/](evals/orchestration/) | Choreography fixture — a spec + **fake worker agent definitions** that self-log, for testing the orchestration defined in CLAUDE.md (opt-in: `run_all.sh orchestration`) |
+| [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — finding-01 routing parser, choreography grader. Run via `evals/run_tests.sh` |
+| [evals/check_choreography.py](evals/check_choreography.py) | Grader for the **choreography** test — asserts the real `/run-pipeline` command's call log (real session + fake workers) follows plan→implement→review→fix→re-review as an ordered subsequence |
+| [evals/orchestration/](evals/orchestration/) | Choreography fixture — an approved spec + **fake worker agent definitions** that self-log, for testing the real `/run-pipeline` command's dance (opt-in: `run_all.sh orchestration`) |
 | [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — measured discoveries: a grader bug that looked like model flakiness, `@`-include vs on-demand skill loading (~1.8× cost), the eval cost model, and how to write robust agent evals |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |

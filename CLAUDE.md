@@ -21,26 +21,10 @@
      confirm deps are ready, read the one-line `.claude/warm-deps.status` (`ok` =
      ready), never `.claude/warm-deps.log`. Convention:
      `~/.claude/hooks/worktree-warming.md`.
-- **New features/use cases**: after Step 0, run `/intent-and-goal`.
-- **Scenarios first**: follow the `/intent-and-goal` flow to refine the intent, then propose Gherkin scenarios, and create a Source of Truth (SoT) specification file before any code is written.
-- **Sequential pipeline.**
-  After scenarios are defined, run them one at a time:
-
-  **For each scenario in order (top-to-bottom in `## BDD Acceptance Progress`):**
-  1. Run **`architect`** to plan it (produces `SCENARIO-XX.md`).
-  2. Run **`developer`** to implement it.
-  3. Move to the next unchecked scenario.
-
-  **After all scenarios are implemented:**
-  4. Run **`/run-reviewers`** (once, no arguments) on all changed files.
-  5. If **FAIL**: run **`developer`** in fix mode with the consolidated findings (all violations, warnings, suggestions in one pass).
-  6. Run **`/run-reviewers`** again. Fix any remaining findings the same way.
-
-  **Rules:**
-  - One scenario at a time. Never run multiple architects or developers in parallel.
-  - Never batch multiple scenarios in one architect or developer call.
-  - Never skip `/run-reviewers` after all scenarios are implemented.
-  - Auto-continue — do not ask for permission between steps.
+- **New features/use cases**: after Step 0, run
+  `/intent-and-goal <feature description>`. It scopes the feature and, once you
+  approve the scenarios, drives the rest of the pipeline to completion. Never
+  implement a feature any other way.
 
 ## Methodology: TDD (Red-Green-Refactor)
 

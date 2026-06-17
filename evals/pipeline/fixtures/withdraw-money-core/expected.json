@@ -1,11 +1,9 @@
 {
   "fixture": "withdraw-money-core",
-  "description": "Full-pipeline acceptance on a SINGLE Gherkin scenario. The architect plans SCENARIO-01 from the frozen spec (the plan is NOT frozen — its real output feeds the developer, which is what makes this acceptance, not integration); the developer implements it with TDD in the framework-free golden repo; then the relevant reviewers judge the produced code. Acceptance = the objective outcome the strategy doc calls the real signal: the build compiles and tests pass, AND the reviewers (the consistency oracle) find zero must-fix VIOLATIONs. WARNING/SUGGESTION are reported but non-gating (refactor-advisor always finds a suggestion). The spec scopes HTTP/persistence out so the chain stays on the framework-free core.",
+  "description": "Full-pipeline acceptance from a FROZEN single-scenario spec via the real `/run-pipeline` command. The command plans SCENARIO-01 (architect), implements it with TDD (developer) in the framework-free golden repo, runs the reviewers, and applies its own fix-loop. Orchestration is the command's, not the harness's. Acceptance = the objective signal: the build compiles and tests pass, AND an INDEPENDENT reviewer pass (run by the harness, not trusting the command) finds zero must-fix VIOLATIONs. WARNING/SUGGESTION are reported but non-gating (refactor-advisor always finds a suggestion). The spec scopes HTTP/persistence out so the chain stays on the framework-free core.",
   "applicableAgents": ["pipeline"],
   "feature": "withdraw-money",
-  "scenario": "SCENARIO-01",
-  "architectPrompt": "Plan SCENARIO-01 for the feature withdraw-money. The specification is at docs/specifications/withdraw-money/specification.md. This is the framework-free core slice — HTTP/REST delivery and persistence are explicitly out of scope, so plan ONLY the domain entity, port, fake, contract test, and use case steps (no controller, no infrastructure adapter, no migration). Write the scenario plan file and nothing else.",
-  "developerPrompt": "Implement SCENARIO-01 for the feature withdraw-money in implementation mode. The specification is at docs/specifications/withdraw-money/specification.md and your plan is at docs/specifications/withdraw-money/SCENARIO-01.md. This is a single plain Kotlin + JUnit5 Gradle module (no Spring, no JPA, no DB, no HTTP) — put sources under src/main/kotlin and tests under src/test/kotlin using Kotlin packages. Implement every step in the plan with TDD and verify with ./gradlew test.",
+  "command": "/run-pipeline withdraw-money",
   "agents": {
     "pipeline": {
       "buildMustPass": true,

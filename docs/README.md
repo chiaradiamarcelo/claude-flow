@@ -53,6 +53,14 @@ the eval suite (`evals/run_all.sh`).
    **CLAUDE.md choreography** test — real orchestrator + fake worker agent
    definitions that self-log; a minimal prompt drove the full plan→implement→
    review→fix→re-review→stop dance.
+10. [Orchestration belongs in a command, not a test-only Python harness](findings/10-orchestration-as-a-command.md)
+    — reverses finding 09's injectable Python orchestrator. `run_pipeline.py` was
+    artificial (no user invokes it) and duplicated CLAUDE.md's choreography.
+    Extracted the pipeline into a real **`/run-pipeline` command** (CLAUDE.md
+    shrinks to a thin pointer → `/intent-and-goal` → handoff); deleted the Agent
+    port + `FakeAgent` + Python orchestrator; tests now drive the **real
+    command**. Won: no drift, real artifact under test. Lost: the $0 deterministic
+    fix-loop test. Phase 1f, on the real command, drove the full dance.
 
 ## Conventions used across these notes
 

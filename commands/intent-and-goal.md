@@ -1,7 +1,7 @@
 ---
-description: Refine the intent and goal for a new feature, generate Gherkin scenarios with IDs, and create a Source of Truth (SoT) specification file.
+description: Entry point for feature work. Refine the intent and goal, generate Gherkin scenarios with IDs, create the Source of Truth (SoT) specification file, then hand off to /run-pipeline to implement it.
 argument-hint: <brief-description-of-feature>
-allowed-tools: Read, Write, Glob, Grep, Skill
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, Skill
 ---
 
 Refine the intent and goal for: **$ARGUMENTS**
@@ -62,6 +62,11 @@ docs/specifications/<feature-slug>/
 ```
 
 Only create `specification.md` in this phase. Scenario plan files are created by the architect agent.
+
+## Phase 4: Hand off to execution
+
+Once `specification.md` is written, immediately run `/run-pipeline <feature-slug>`.
+Do not implement anything yourself.
 
 ### Specification Template
 

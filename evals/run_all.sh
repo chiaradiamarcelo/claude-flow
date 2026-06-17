@@ -147,21 +147,24 @@ fi
 # architect + opus developer + 3 sonnet reviewers + a real build, ~$2-6, many
 # minutes), so it is strictly opt-in: ONLY for `run_all.sh pipeline`.
 if [ "$ONLY_AGENT" = "pipeline" ] && [ -d evals/pipeline/fixtures ]; then
-  echo "== Phase 1d: full-pipeline acceptance (architect -> developer -> reviewers) =="
-  # The orchestration (optional intent -> architect -> developer -> build ->
-  # reviewers -> fix-loop) lives in evals/harness/pipeline.py, driven by the
-  # Agent port. Here we set up the scratch workspace and hand off to the real
-  # entrypoint (ClaudeCliAgent + real ./gradlew). The SAME run_pipeline is driven
-  # by a FakeAgent in evals/tests/test_pipeline.py — single source of truth.
+  echo "== Phase 1d: full-pipeline acceptance (real command -> independent build + review) =="
+  # Drive the REAL production command exactly as a user would — `/run-pipeline`
+  # over a frozen spec, or `/intent-and-goal` which chains into it. Orchestration
+  # lives in the command files, NOT here. Afterwards the harness INDEPENDENTLY
+  # runs ./gradlew test + a fresh reviewer pass and grades (never trusting the
+  # agent's self-report). The cheap, fake-worker counterpart is Phase 1f.
+  PIPELINE_TOOLS=(--allowedTools Task Agent Read Write Edit Bash Glob Grep Skill)
   for fx in evals/pipeline/fixtures/*/; do
     [ -f "${fx}expected.json" ] || continue
     [ -n "$ONLY_FIXTURE" ] && [ "$(basename "$fx")" != "$ONLY_FIXTURE" ] && continue
     scratch="$(mktemp -d)"
     cp -R evals/golden-repo/. "$scratch/" 2>/dev/null   # pristine buildable skeleton
     rm -rf "$scratch/build" "$scratch/.gradle"
-    cp -R "${fx}input/." "$scratch/" 2>/dev/null         # overlay frozen spec (+ plan, if any)
-    echo "  orchestrating $(basename "$fx") (intent -> architect -> developer -> build -> reviewers -> fix-loop) ..."
-    if python3 evals/harness/run_pipeline.py "${fx}expected.json" "$scratch"; then
+    cp -R "${fx}input/." "$scratch/" 2>/dev/null         # overlay frozen spec, if the fixture has one
+    cmd="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("command",""))' "${fx}expected.json")"
+    echo "  running $(basename "$fx") via: $cmd (real workers) ..."
+    ( cd "$scratch" && claude -p "$cmd" "${PIPELINE_TOOLS[@]}" </dev/null >"$scratch/.pipeline.log" 2>&1 )
+    if python3 evals/verify_acceptance.py "${fx}expected.json" "$scratch"; then
       rm -rf "$scratch"
     else
       fail=1

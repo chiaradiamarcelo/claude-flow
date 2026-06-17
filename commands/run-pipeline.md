@@ -1,0 +1,26 @@
+---
+description: Execute the implementation pipeline for a feature that has an approved SoT specification — runs each scenario (architect → developer) one at a time, then reviewers, then a fix-loop.
+argument-hint: <feature-slug, e.g. withdraw-money>
+allowed-tools: Read, Glob, Grep, Edit, Bash, Agent, Skill
+---
+
+Run the implementation pipeline for: **$ARGUMENTS**
+
+Read `docs/specifications/<feature-slug>/specification.md`. If it doesn't exist
+(or no slug uniquely identifies one feature under `docs/specifications/`),
+**STOP** and report that no approved specification was found — write no code.
+
+**For each unchecked scenario in `## BDD Acceptance Progress` (top-to-bottom, one at a time):**
+1. Run **`architect`** to plan it (produces `SCENARIO-XX.md`).
+2. Run **`developer`** to implement it.
+3. Check its box.
+
+**After all scenarios are implemented:**
+4. Run **`/run-reviewers`** (no arguments).
+5. If **FAIL**: run **`developer`** in fix mode with the consolidated VIOLATION + WARNING findings.
+6. Run **`/run-reviewers`** again; repeat until PASS or 3 fix rounds.
+
+**Rules:**
+- One scenario at a time. Never run architects/developers in parallel or batched.
+- Never skip `/run-reviewers`.
+- Auto-continue — do not ask for permission between steps.
