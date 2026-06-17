@@ -17,13 +17,12 @@ Refine the intent and goal for: **$ARGUMENTS**
 
 Once the intent is confirmed, automatically:
 
-1. **Invoke the `clean-architecture` skill** to load folder structure and conventions.
-2. Read existing domain models in the domain source directory.
-3. Read existing use cases in the use case source directory.
-4. Propose Gherkin scenarios with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …).
-5. Ask clarifying questions if business rules are ambiguous.
-6. Iterate with the user — add, remove, or refine scenarios as needed.
-7. Wait for explicit user approval before proceeding to Phase 3.
+1. Read any existing domain models and use cases to reuse the project's
+   ubiquitous language and avoid duplicating behavior that already exists.
+2. Propose Gherkin scenarios with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …).
+3. Ask clarifying questions if business rules are ambiguous.
+4. Iterate with the user — add, remove, or refine scenarios as needed.
+5. Wait for explicit user approval before proceeding to Phase 3.
 
 ### Scenario format
 
