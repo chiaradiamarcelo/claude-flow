@@ -18,6 +18,28 @@ to the existing pure `grade_*` functions. 92 fixtures across 11 corpora migrated
 `expected.json` is gone. A `$0` wiring test asserts every `when.do`/`then.grader`
 in the real corpus is registered.
 
+## Dissent on record — declarative vs. tests-as-code
+
+The owner's view: Cucumber-style declarative tests tend to rot in the "glue"
+layer, and code-expressed tests are usually better. Recorded because it's the
+strongest argument against this whole design, and it sets the trip-wire for
+reversing it.
+
+Why declarative is chosen *now*, and why it isn't Cucumber: the rot comes from an
+**open-ended natural-language → regex-glue mapping** (every new sentence spawns
+more glue that drifts from the steps). Here `when.do` is a **closed enum of 3**
+(`agent`/`command`/`build`), each a small handler; assertions are a fixed
+vocabulary graded by one set of pure functions. Tests vary only in DATA over a
+fixed procedure — the textbook case for table-driven/data fixtures, not code.
+
+**The switch signal (explicit).** If `when.do` starts sprawling toward
+open-ended/free-text actions — i.e. fixtures need bespoke per-test setup that a
+small handler set can't express — that is the signal the tests-as-code instinct
+was right, and we move fixtures to code (the reserved escape hatch:
+`when.do: "script"` → a small `.py`). The `evals/tests/` **wiring scan** is the
+guardrail that makes this visible: it fails if any fixture names a `do`/`grader`
+that isn't registered, so the enum can't sprawl silently.
+
 ## Decision — preserve the fingerprint cache (option A)
 
 Migrating off `expected.json` broke the two consumers that read it: `run_all.sh`
