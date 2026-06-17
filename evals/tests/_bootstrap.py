@@ -1,5 +1,5 @@
-"""Put the evals/ dir on sys.path so tests can `import check_routing` and
-`from harness.agent import ...` regardless of where unittest is invoked from."""
+"""Put the evals/ dir on sys.path so tests can `import check_routing` (etc.)
+regardless of where unittest is invoked from."""
 import sys
 from pathlib import Path
 

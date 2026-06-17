@@ -174,14 +174,16 @@ if [ "$ONLY_AGENT" = "pipeline" ] && [ -d evals/pipeline/fixtures ]; then
   done
 fi
 
-# Phase 1f is the CLAUDE.md CHOREOGRAPHY test: a REAL orchestrator session runs
-# the pipeline over FAKE worker agents (project-local .claude/agents overrides
-# that self-log + return canned artifacts). It tests the orchestration rules in
-# CLAUDE.md, not agent quality. Paid + pass@k (the orchestrator is a real model),
-# but cheap (fake haiku workers) and the fake test-reviewer FORCES a fix pass.
-# Strictly opt-in: ONLY for `run_all.sh orchestration`.
+# Phase 1f drives a REAL `claude -p` session running a real pipeline command over
+# FAKE worker agents (project-local .claude/agents overrides that self-log +
+# return canned artifacts). It tests the command's CHOREOGRAPHY, not agent
+# quality. Two fixture kinds, picked by which block the expected.json carries:
+#   - "orchestration" -> check_choreography (the call-log dance)
+#   - "refusal"       -> check_refusal      (precondition guard: writes nothing)
+# Paid + pass@k (the session is a real model) but cheap (fake haiku workers); the
+# fake test-reviewer FORCES a fix pass. Strictly opt-in: ONLY `run_all.sh orchestration`.
 if [ "$ONLY_AGENT" = "orchestration" ] && [ -d evals/orchestration/fixtures ]; then
-  echo "== Phase 1f: CLAUDE.md choreography (real orchestrator + fake workers) =="
+  echo "== Phase 1f: command choreography + guards (real session + fake workers) =="
   ORCH_TOOLS=(--allowedTools Task Agent Read Write Edit Bash Glob Grep Skill)
   for fx in evals/orchestration/fixtures/*/; do
     [ -f "${fx}expected.json" ] || continue
@@ -189,9 +191,11 @@ if [ "$ONLY_AGENT" = "orchestration" ] && [ -d evals/orchestration/fixtures ]; t
     scratch="$(mktemp -d)"
     cp -R "${fx}input/." "$scratch/" 2>/dev/null   # spec + fake .claude/agents overrides
     op="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("orchestratorPrompt",""))' "${fx}expected.json")"
-    echo "  running orchestrator on $(basename "$fx") (real session, fake workers) ..."
+    grader=check_choreography.py
+    python3 -c 'import json,sys; sys.exit(0 if "refusal" in json.load(open(sys.argv[1])) else 1)' "${fx}expected.json" && grader=check_refusal.py
+    echo "  running $(basename "$fx") (real session, fake workers) ..."
     ( cd "$scratch" && claude -p "$op" "${ORCH_TOOLS[@]}" </dev/null >"$scratch/.orchestrator.log" 2>&1 )
-    if python3 evals/check_choreography.py "${fx}expected.json" --scratch-dir "$scratch"; then
+    if python3 "evals/$grader" "${fx}expected.json" --scratch-dir "$scratch"; then
       rm -rf "$scratch"
     else
       fail=1

@@ -1,0 +1,10 @@
+{
+  "fixture": "run-pipeline-no-spec",
+  "description": "Precondition guard. `/run-pipeline ghost-feature` runs in an EMPTY scratch (no docs/specifications/, no fake agents). The command must STOP at Step 0: write no code, report that no approved specification was found, and never dispatch a worker. Tests the new refuse-if-no-spec behavior the command-extraction introduced. Cheap: it should refuse before dispatching anything.",
+  "applicableAgents": ["orchestration"],
+  "orchestratorPrompt": "/run-pipeline ghost-feature\n\nWork directly in this directory; skip any worktree step. Run non-interactively: do not ask questions.",
+  "refusal": {
+    "mustNotWrite": ["src/main", "src/test"],
+    "mustMention": ["specification"]
+  }
+}
