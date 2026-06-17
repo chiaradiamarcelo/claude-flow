@@ -1,0 +1,17 @@
+{
+  "description": "A class named *UseCase in application/ that contains no domain logic \u2014 it only fetches over HTTP, deserializes JSON, and warms a cache. Pure infrastructure orchestration belongs in infrastructure/, where it can freely use framework APIs, not in application/. The reviewer must fail it and flag it as infrastructure orchestration misplaced as a use case.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "arch-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "infrastructure"
+    ]
+  }
+}

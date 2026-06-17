@@ -1,0 +1,17 @@
+{
+  "description": "A test that asserts the rendered chips with expect.arrayContaining([...]) but never pins the length. arrayContaining is a subset matcher \u2014 it passes even if extra (or wrong-count) chips render. It must be paired with a length assertion (or a sorted equality). The reviewer must fail it and flag the unpaired arrayContaining.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "ui-test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "arrayContaining"
+    ]
+  }
+}

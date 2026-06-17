@@ -1,0 +1,17 @@
+{
+  "description": "A single it(...) that verifies two distinct observable behaviors \u2014 that onSearch is called with the query AND that the input is cleared \u2014 as signalled by both the 'and' in its name and the two unrelated assertions. Each test should cover one behavior. The reviewer must fail it and flag the two behaviors in one test.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "ui-test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "behavior"
+    ]
+  }
+}

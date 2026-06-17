@@ -1,0 +1,22 @@
+{
+  "description": "A GET endpoint with a clean RESTful route that nonetheless mutates state \u2014 it creates and persists a new statement resource on read. GET must be safe and side-effect-free; a creating operation should be POST. The reviewer must fail it and flag the GET with side effects (wrong HTTP method).",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "api-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "severities": {
+      "VIOLATION": {
+        "min": 1
+      }
+    },
+    "mustMention": [
+      "GET"
+    ]
+  }
+}

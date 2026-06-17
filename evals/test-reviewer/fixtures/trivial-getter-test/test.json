@@ -1,0 +1,17 @@
+{
+  "description": "The test exercises a trivial getter with no logic (`account.id` returns the constructor argument). The skill's 'What NOT to test' lists trivial getters/setters with no logic. The reviewer must flag this as something not worth testing.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "getter"
+    ]
+  }
+}

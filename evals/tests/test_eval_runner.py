@@ -1,7 +1,7 @@
-"""Harness self-test for the fixture runner's manifest loading + resolution
-(pure, model-free, $0). The dispatch itself (claude -p) is integration, not here."""
+"""Harness self-test for the fixture runner's manifest loading, resolution, and
+handler/grader wiring (pure, model-free, $0). The dispatch itself (claude -p) is
+integration, not here."""
 import json
-import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,57 +10,44 @@ from . import _bootstrap  # noqa: F401
 import run_fixture as runner
 
 
-def _fixture(base, corpus, name, files):
+def _fixture(base, corpus, name, manifest):
     d = Path(base) / corpus / "fixtures" / name
     d.mkdir(parents=True)
-    for fname, content in files.items():
-        (d / fname).write_text(content)
+    (d / "test.json").write_text(json.dumps(manifest))
     return d
 
 
 class ManifestLoadingTest(unittest.TestCase):
-    def test_reads_test_json_triple(self):
+    def test_reads_given_when_then(self):
         with tempfile.TemporaryDirectory() as base:
-            d = _fixture(base, "api-reviewer", "biz-logic", {"test.json": json.dumps({
+            d = _fixture(base, "api-reviewer", "biz-logic", {
                 "given": {"files": "input/"},
                 "when": {"do": "agent", "agent": "api-reviewer"},
-                "then": {"grader": "verdict", "expectedStatus": "FAIL"},
-            })})
+                "then": {"grader": "verdict", "expectedStatus": "FAIL"}})
 
             m = runner.load_manifest(d)
 
             self.assertEqual(m["when"], {"do": "agent", "agent": "api-reviewer"})
             self.assertEqual(m["then"]["grader"], "verdict")
 
-    def test_legacy_expected_json_synthesizes_when_and_grader(self):
-        with tempfile.TemporaryDirectory() as base:
-            d = _fixture(base, "api-reviewer", "biz-logic", {"expected.json": json.dumps({
-                "description": "x",
-                "agents": {"api-reviewer": {"expectedStatus": "FAIL",
-                                            "severities": {"VIOLATION": {"min": 1}}}},
-            })})
 
-            m = runner.load_manifest(d)
+class WiringTest(unittest.TestCase):
+    def test_every_grader_named_in_a_fixture_is_registered(self):
+        graders = {runner.load_manifest(d)["then"]["grader"] for d in runner.all_fixtures()}
 
-            self.assertEqual(m["when"], {"do": "agent", "agent": "api-reviewer"})
-            self.assertEqual(m["then"]["grader"], "verdict")
-            self.assertEqual(m["then"]["expectedStatus"], "FAIL")
+        self.assertTrue(graders)  # the real corpus is non-empty
+        self.assertEqual(graders - set(runner.GRADERS), set())
 
-    def test_legacy_non_verdict_spec_marks_grader_unsupported(self):
-        with tempfile.TemporaryDirectory() as base:
-            d = _fixture(base, "pipeline", "wm-core", {"expected.json": json.dumps({
-                "agents": {"pipeline": {"buildMustPass": True}},
-            })})
+    def test_every_do_named_in_a_fixture_has_a_handler(self):
+        dos = {runner.load_manifest(d)["when"]["do"] for d in runner.all_fixtures()}
 
-            m = runner.load_manifest(d)
-
-            self.assertTrue(m["then"]["grader"].startswith("unsupported:"))
+        self.assertEqual(dos - set(runner.HANDLERS), set())
 
 
 class ResolutionTest(unittest.TestCase):
     def test_finds_unique_fixture(self):
         with tempfile.TemporaryDirectory() as base:
-            _fixture(base, "api-reviewer", "biz-logic", {"expected.json": "{}"})
+            _fixture(base, "api-reviewer", "biz-logic", {"when": {}, "then": {}})
 
             hits = runner.find_fixtures("biz-logic", base=Path(base))
 
@@ -68,8 +55,8 @@ class ResolutionTest(unittest.TestCase):
 
     def test_name_collision_returns_all_candidates(self):
         with tempfile.TemporaryDirectory() as base:
-            _fixture(base, "developer", "withdraw-money", {"expected.json": "{}"})
-            _fixture(base, "pipeline", "withdraw-money", {"expected.json": "{}"})
+            _fixture(base, "developer", "withdraw-money", {"when": {}, "then": {}})
+            _fixture(base, "pipeline", "withdraw-money", {"when": {}, "then": {}})
 
             hits = runner.find_fixtures("withdraw-money", base=Path(base))
 
@@ -77,8 +64,8 @@ class ResolutionTest(unittest.TestCase):
 
     def test_agent_qualifier_disambiguates(self):
         with tempfile.TemporaryDirectory() as base:
-            _fixture(base, "developer", "withdraw-money", {"expected.json": "{}"})
-            _fixture(base, "pipeline", "withdraw-money", {"expected.json": "{}"})
+            _fixture(base, "developer", "withdraw-money", {"when": {}, "then": {}})
+            _fixture(base, "pipeline", "withdraw-money", {"when": {}, "then": {}})
 
             hits = runner.find_fixtures("withdraw-money", agent="pipeline", base=Path(base))
 

@@ -38,6 +38,22 @@ def fired_set(output):
             if (tok := raw.strip()) and _NAME.match(tok)}
 
 
+def grade_routing(spec, output):
+    """Return a list of failure strings (empty = pass). spec carries fires /
+    doesNotFire. A None fired-set (no 'fires:' line) is a fault unless quarantined."""
+    fired = fired_set(output)
+    if fired is None:
+        return ["no 'fires:' line in command output"]
+    fails = []
+    for r in spec.get("fires", []):
+        if r not in fired:
+            fails.append(f"expected {r!r} to fire — it did not")
+    for r in spec.get("doesNotFire", []):
+        if r in fired:
+            fails.append(f"expected {r!r} NOT to fire — it did")
+    return fails
+
+
 def main(argv):
     expected = json.load(open(argv[0]))
     output = open(argv[1]).read()

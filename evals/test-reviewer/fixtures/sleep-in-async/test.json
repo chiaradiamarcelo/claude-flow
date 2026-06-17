@@ -1,0 +1,17 @@
+{
+  "description": "An async test uses `Thread.sleep(1000)` to wait for completion. The skill requires deterministic waiting/assertion for async tests \u2014 no sleeps. The reviewer must flag the sleep.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "sleep"
+    ]
+  }
+}

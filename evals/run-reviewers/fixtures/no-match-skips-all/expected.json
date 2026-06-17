@@ -1,8 +1,0 @@
-{
-  "fixture": "no-match-skips-all",
-  "command": "run-reviewers",
-  "description": "The negation case. Reviewer triggers are POSITIVE globs only — there is no `!`-negation syntax in a trigger list. The negation the router supports is 'no trigger matched', which skips the reviewer. This changeset is docs-only (a README + a markdown guide) and matches NO reviewer's triggers, so every reviewer is skipped and `fires` is empty. NOTE: this fixture appeared flaky for a while and was briefly quarantined — that was a red herring. The command reliably produced an empty `fires:` line all along; the bug was in the grader (check_routing.py), whose `fires:` regex used `\\s*` after the colon and so swallowed the newline on an EMPTY fires line, capturing the next (`skips:`) line as the fired set. Fixed by matching `[ \\t]*` instead. The universal-negative (empty fires) is the only case that exposed it.",
-  "changed_files": ["README.md", "docs/architecture-guide.md"],
-  "fires": [],
-  "does_not_fire": ["api-reviewer", "arch-reviewer", "refactor-advisor", "test-reviewer", "ui-test-reviewer"]
-}

@@ -1,0 +1,17 @@
+{
+  "description": "A failure-scenario test is named `throws_when_...`. The skill says to prefer `fails_when_<condition>` over `throws_when_<condition>` for failure scenarios. The reviewer must flag the naming and suggest `fails_when_`.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "fails"
+    ]
+  }
+}

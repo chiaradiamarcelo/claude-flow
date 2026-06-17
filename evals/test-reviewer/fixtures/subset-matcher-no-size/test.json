@@ -1,0 +1,17 @@
+{
+  "description": "The assertion uses a subset matcher (`contains`) without a size/length check, so extra unexpected ids would slip through. The skill says subset matchers are NOT equality \u2014 pair with a size check or use exact-in-any-order. The reviewer must flag the subset-without-size assertion.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "subset"
+    ]
+  }
+}

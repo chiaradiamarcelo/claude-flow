@@ -1,0 +1,17 @@
+{
+  "description": "A single method well over ~15 lines with two distinct phases \u2014 totaling the transactions, then rendering the statement text. This is the 'Compose method' opportunity: extract each phase into a named helper so the top-level method reads as a table of contents. The advisor must flag the long, multi-phase function.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "refactor-advisor"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "compose"
+    ]
+  }
+}

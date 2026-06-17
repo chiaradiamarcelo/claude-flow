@@ -1,0 +1,17 @@
+{
+  "description": "A structurally fine test, except the Given-When-Then sections are labelled with `// Given` / `// When` / `// Then` comments. The skill mandates GWT separated by blank lines WITHOUT comments. The reviewer must flag the comments.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "comment"
+    ]
+  }
+}

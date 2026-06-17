@@ -1,0 +1,17 @@
+{
+  "description": "Two separate fake classes (`ThrowingTransferRemote`, `TimingOutTransferRemote`) stand in for the same port to express different responses. The skill forbids multiple fake classes per port \u2014 unify into one configurable fake with a response variant / sequencing. The reviewer must flag the multiple fakes.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "fake"
+    ]
+  }
+}

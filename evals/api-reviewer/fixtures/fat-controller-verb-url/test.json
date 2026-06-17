@@ -1,0 +1,22 @@
+{
+  "description": "A controller that breaks several API-boundary rules at once: a verb in the URL (/createAccount), business logic in the handler (negative-amount check + fee computation), it talks to a repository instead of a use case, and it returns the domain Account entity directly. The reviewer must fail it and flag the verb-in-URL and/or domain-entity leak.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "api-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "severities": {
+      "VIOLATION": {
+        "min": 1
+      }
+    },
+    "mustMention": [
+      "URL"
+    ]
+  }
+}

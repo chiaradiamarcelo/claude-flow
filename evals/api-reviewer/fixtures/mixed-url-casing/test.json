@@ -1,0 +1,17 @@
+{
+  "description": "A clean read controller whose route mixes naming styles in a single path: a kebab-case segment (/savings-accounts) followed by a camelCase segment (/transactionHistory). The API should pick one casing and keep it consistent. The reviewer must fail it and flag the inconsistent path casing.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "api-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "case"
+    ]
+  }
+}

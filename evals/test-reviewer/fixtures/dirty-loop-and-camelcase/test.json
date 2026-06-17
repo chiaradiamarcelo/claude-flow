@@ -1,0 +1,22 @@
+{
+  "description": "A test that breaks hard rules: a for-loop in the test body (forbidden control flow), a camelCase method name, no blank-line GWT separation, and repeated magic literals. The reviewer must fail it and mention the loop.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "severities": {
+      "VIOLATION": {
+        "min": 1
+      }
+    },
+    "mustMention": [
+      "loop"
+    ]
+  }
+}

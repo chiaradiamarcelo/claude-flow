@@ -1,0 +1,23 @@
+{
+  "description": "TRUE end-to-end via the real entry command. No frozen spec: `/intent-and-goal` scopes the feature non-interactively (exactly one happy-path scenario), writes the SoT, then chains into `/run-pipeline` (architect \u2192 developer \u2192 reviewers \u2192 fix-loop) \u2014 exactly the chain CLAUDE.md defines, driven by the command files, not the harness. Constrained to a SINGLE scenario and the framework-free core so it stays buildable in the golden repo and affordable. Acceptance = build green + zero VIOLATIONs from an INDEPENDENT harness-run reviewer pass. Caveat: non-interactive scoping auto-assumes the human clarification/approval gate \u2014 this exercises the agent chain, not the interactive dialogue.",
+  "given": {
+    "workspace": "golden-repo",
+    "files": "input/"
+  },
+  "when": {
+    "do": "command",
+    "command": "/intent-and-goal Withdraw money from a bank account: an account owner withdraws an amount, reducing the balance; the amount must be positive and may not exceed the balance. IMPORTANT: run NON-INTERACTIVELY \u2014 do NOT ask clarifying questions or wait for approval; assume reasonable answers and proceed. Constrain the spec to EXACTLY ONE happy-path Gherkin scenario (successful withdrawal). Treat HTTP/REST delivery and persistence as OUT OF SCOPE (framework-free core only). Use the feature slug 'withdraw-money'."
+  },
+  "then": {
+    "grader": "acceptance",
+    "buildMustPass": true,
+    "minTests": 2,
+    "maxFailures": 0,
+    "reviewersMustRun": [
+      "test-reviewer",
+      "arch-reviewer",
+      "refactor-advisor"
+    ],
+    "maxViolations": 0
+  }
+}

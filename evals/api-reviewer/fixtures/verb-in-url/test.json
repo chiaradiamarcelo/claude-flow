@@ -1,0 +1,22 @@
+{
+  "description": "A thin per-action controller that delegates cleanly and returns a response DTO, but the route embeds a verb (/depositMoney) \u2014 the HTTP POST method should be the verb and the path a resource (/deposits). The reviewer must fail it and flag the verb in the URL.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "api-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "severities": {
+      "VIOLATION": {
+        "min": 1
+      }
+    },
+    "mustMention": [
+      "URL"
+    ]
+  }
+}

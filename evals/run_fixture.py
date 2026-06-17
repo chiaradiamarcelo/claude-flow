@@ -1,81 +1,51 @@
 #!/usr/bin/env python3
-"""Fixture-level eval runner — the agent-TDD primitive.
+"""Fixture-level eval runner — the single eval engine.
 
-  eval.py --test <fixture>        run ONE fixture, always (no cache); red/green + diff
-  eval.py --test <f> --agent X    disambiguate a name that exists in >1 corpus
-  eval.py --list                  list every fixture with its when/then
+Every fixture is DATA: a `test.json` manifest with given / when / then.
+  given : where inputs live + which workspace to set up (golden-repo, git-scratch, none)
+  when  : the action — a CLOSED enum  do: "agent" | "command" | "build"
+  then  : grader name + its tolerant spec
 
-A fixture is DATA: input/ (the GIVEN) + a manifest carrying the WHEN and THEN.
-The manifest is `test.json`:
+  ./evals/evals --test <fixture>        run one, always (no cache); red/green + diff
+  ./evals/evals --test <f> --agent X    disambiguate a name across corpora
+  ./evals/evals --list                  every fixture with its when/then
 
-  { "given": {"files": "input/"},
-    "when":  {"do": "agent", "agent": "api-reviewer"},
-    "then":  {"grader": "verdict", "expectedStatus": "FAIL",
-              "severities": {"VIOLATION": {"min": 1}}, "mustMention": ["logic"]} }
-
-Legacy flat `expected.json` is also read — the triple is synthesized
-(when = agent <corpus dir>, then = its agents.<agent> block) — so every existing
-fixture runs untouched.
-
-WHEN is a small CLOSED enum (one handler each), NOT free-text steps — there is no
-glue layer to rot (the thing that makes Cucumber an anti-pattern). If the enum
-starts sprawling, that's the signal to switch fixtures to code.
+WHEN is a closed enum (3 handlers), NOT free-text steps — there is no glue layer
+to rot (the Cucumber failure mode). A new kind = a new `do` handler + a `then`
+grader, both small. Graders are the existing pure grade_* functions, reused.
 """
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
 EVALS = Path(__file__).resolve().parent
 sys.path.insert(0, str(EVALS))
-import eval_grade  # noqa: E402  (reuse grade_agent + its tolerant checks)
+import eval_grade          # noqa: E402  grade_agent (verdict)
+import check_plan          # noqa: E402
+import check_build         # noqa: E402
+import check_spec          # noqa: E402
+import check_choreography  # noqa: E402
+import check_refusal       # noqa: E402
+import check_routing       # noqa: E402
+import verify_acceptance   # noqa: E402
 
-# Keys that mark a legacy spec as a reviewer verdict spec.
-_VERDICT_KEYS = {"expectedStatus", "severities", "issueCount", "mustMention"}
 _JSON = re.compile(r"\{.*\}", re.S)
-_REVIEW_PROMPT = ("Review the file(s) under {given}/ (read them directly with the "
+_REVIEW_PROMPT = ("Review the file(s) under {d}/ (read them directly with the "
                   "Read tool). Return ONLY your machine-first JSON verdict.")
-_REV_TOOLS = ["Read", "Glob", "Grep"]
+REVIEW_TOOLS = ["Read", "Glob", "Grep"]
+PLAN_TOOLS = ["Read", "Write", "Edit", "Glob", "Grep", "Skill"]
+DEV_TOOLS = ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Skill"]
+CMD_TOOLS = ["Task", "Agent", "Read", "Write", "Edit", "Bash", "Glob", "Grep", "Skill"]
 
 
-# ---- manifest loading (test.json, or legacy expected.json) ------------------
-def load_manifest(fixture_dir):
-    """Return {given, when, then, description} for a fixture, or None if neither
-    manifest exists. The corpus agent is the grandparent dir name."""
-    agent = fixture_dir.parent.parent.name  # evals/<agent>/fixtures/<name>
-
-    tj = fixture_dir / "test.json"
-    if tj.is_file():
-        m = json.loads(tj.read_text())
-        m.setdefault("given", {"files": "input/"})
-        return m
-
-    ej = fixture_dir / "expected.json"
-    if ej.is_file():
-        doc = json.loads(ej.read_text())
-        spec = (doc.get("agents") or {}).get(agent, {})
-        grader = "verdict" if _VERDICT_KEYS & set(spec) else f"unsupported:{agent}"
-        then = dict(spec)
-        then["grader"] = grader
-        return {"given": {"files": "input/"},
-                "when": {"do": "agent", "agent": agent},
-                "then": then,
-                "description": doc.get("description", "")}
-    return None
-
-
-# ---- WHEN handlers (the closed enum) ----------------------------------------
-def do_agent(fixture_dir, when, given_dir):
-    """Dispatch a reviewer in a FRESH process (finding 04: in-session caches a
-    stale agent def) and return its parsed JSON verdict (None if unparseable)."""
-    proc = subprocess.run(
-        ["claude", "-p", _REVIEW_PROMPT.format(given=given_dir),
-         "--agent", when["agent"], "--allowedTools", *_REV_TOOLS],
-        capture_output=True, text=True, stdin=subprocess.DEVNULL)
-    m = _JSON.search(proc.stdout or "")
+def _extract_json(text):
+    m = _JSON.search(text or "")
     if not m:
         return None
     try:
@@ -84,61 +54,135 @@ def do_agent(fixture_dir, when, given_dir):
         return None
 
 
-STEPS = {"agent": do_agent}
-GRADERS = {"verdict": eval_grade.grade_agent}
+def _claude(prompt, cwd, tools, agent=None):
+    cmd = ["claude", "-p", prompt] + (["--agent", agent] if agent else []) \
+        + ["--allowedTools", *tools]
+    return subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True,
+                          stdin=subprocess.DEVNULL)
 
 
-# ---- resolution -------------------------------------------------------------
+# ---------- GIVEN: workspace setup -------------------------------------------
+def setup_workspace(fixture_dir, given):
+    """Make a scratch dir per given.workspace and overlay given.files. (Verdict
+    reviewers don't call this — they read input/ in place.)"""
+    scratch = Path(tempfile.mkdtemp(prefix="eval-"))
+    ws = given.get("workspace")
+    if ws == "golden-repo":
+        shutil.copytree(EVALS / "golden-repo", scratch, dirs_exist_ok=True)
+        shutil.rmtree(scratch / "build", ignore_errors=True)
+        shutil.rmtree(scratch / ".gradle", ignore_errors=True)
+    elif ws == "git-scratch":
+        subprocess.run(["git", "init", "-q"], cwd=str(scratch))
+        for f in given.get("changedFiles", []):
+            p = scratch / f
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.touch()
+    files = given.get("files")
+    if files and (fixture_dir / files.rstrip("/")).is_dir():
+        shutil.copytree(fixture_dir / files.rstrip("/"), scratch, dirs_exist_ok=True)
+    return scratch
+
+
+# ---------- WHEN: the closed enum of handlers --------------------------------
+def do_agent(fixture_dir, when, scratch):
+    if "prompt" in when:  # artifact-producing agent (e.g. architect writes a plan)
+        _claude(when["prompt"], scratch, when.get("tools", PLAN_TOOLS), agent=when["agent"])
+        return {"scratch": scratch, "input_dir": fixture_dir / "input"}
+    given_dir = fixture_dir / "input"  # verdict reviewer: read in place
+    proc = _claude(_REVIEW_PROMPT.format(d=given_dir), fixture_dir,
+                   when.get("tools", REVIEW_TOOLS), agent=when["agent"])
+    return {"verdict": _extract_json(proc.stdout)}
+
+
+def do_command(fixture_dir, when, scratch):
+    proc = _claude(when["command"], scratch, when.get("tools", CMD_TOOLS))
+    (scratch / ".output.log").write_text((proc.stdout or "") + (proc.stderr or ""))
+    return {"scratch": scratch, "output": proc.stdout or ""}
+
+
+def do_build(fixture_dir, when, scratch):
+    _claude(when["prompt"], scratch, when.get("tools", DEV_TOOLS), agent=when["agent"])
+    return {"scratch": scratch, "build_exit": verify_acceptance.gradle_build(scratch)}
+
+
+HANDLERS = {"agent": do_agent, "command": do_command, "build": do_build}
+
+
+# ---------- THEN: grader registry (reuse the pure grade_* functions) ---------
+def _g_choreography(spec, ctx):
+    log = Path(ctx["scratch"]) / spec.get("logFile", "pipeline-calls.log")
+    lines = ([ln.strip() for ln in log.read_text().splitlines() if ln.strip()]
+             if log.is_file() else [])
+    return check_choreography.grade(spec, lines)
+
+
+GRADERS = {
+    "verdict":      lambda spec, ctx: eval_grade.grade_agent(spec, ctx.get("verdict")),
+    "plan":         lambda spec, ctx: check_plan.grade_plan(spec, ctx["input_dir"], ctx["scratch"]),
+    "build":        lambda spec, ctx: check_build.grade_build(spec, ctx["scratch"], ctx["build_exit"]),
+    "spec":         lambda spec, ctx: check_spec.grade_spec(spec, ctx["fixture_dir"] / "input", ctx["scratch"]),
+    "acceptance":   lambda spec, ctx: verify_acceptance.verify(spec, ctx["scratch"])[0],
+    "choreography": _g_choreography,
+    "refusal":      lambda spec, ctx: check_refusal.grade(spec, ctx["scratch"], ctx["output"]),
+    "routing":      lambda spec, ctx: check_routing.grade_routing(spec, ctx["output"]),
+}
+
+_NEEDS_SCRATCH = {"command", "build"}  # plus any agent-with-prompt (handled in run_one)
+
+
+# ---------- resolution -------------------------------------------------------
 def find_fixtures(name, agent=None, base=EVALS):
-    hits = []
-    for d in sorted(base.glob("*/fixtures/*")):
-        if not d.is_dir() or d.name != name:
-            continue
-        if agent and d.parent.parent.name != agent:
-            continue
-        if (d / "test.json").is_file() or (d / "expected.json").is_file():
-            hits.append(d)
-    return hits
+    return [d for d in sorted(base.glob("*/fixtures/*"))
+            if d.is_dir() and d.name == name and (d / "test.json").is_file()
+            and (agent is None or d.parent.parent.name == agent)]
 
 
 def all_fixtures(base=EVALS):
     return [d for d in sorted(base.glob("*/fixtures/*"))
-            if d.is_dir() and ((d / "test.json").is_file() or (d / "expected.json").is_file())]
+            if d.is_dir() and (d / "test.json").is_file()]
 
 
-# ---- run one fixture --------------------------------------------------------
+def load_manifest(fixture_dir):
+    return json.loads((fixture_dir / "test.json").read_text())
+
+
+# ---------- run one fixture --------------------------------------------------
 def run_one(fixture_dir):
     corpus = fixture_dir.parent.parent.name
     label = f"{corpus} / {fixture_dir.name}"
     m = load_manifest(fixture_dir)
     when, then = m["when"], m["then"]
 
-    handler = STEPS.get(when.get("do"))
-    if handler is None:
-        print(f"✗ {label}: unknown when.do={when.get('do')!r}")
-        return 1
+    handler = HANDLERS.get(when.get("do"))
     grader = GRADERS.get(then.get("grader"))
+    if handler is None:
+        print(f"✗ {label}: unknown when.do={when.get('do')!r}"); return 1
     if grader is None:
-        print(f"- SKIP  {label}: grader {then.get('grader')!r} not supported "
-              f"by --test yet (MVP covers the reviewer 'verdict' kind)")
-        return 0
+        print(f"✗ {label}: unknown then.grader={then.get('grader')!r}"); return 1
 
-    given_dir = fixture_dir / m.get("given", {}).get("files", "input/").rstrip("/")
+    needs_scratch = when["do"] in _NEEDS_SCRATCH or "prompt" in when
+    scratch = setup_workspace(fixture_dir, m.get("given", {})) if needs_scratch else None
+    spec = {k: v for k, v in then.items() if k != "grader"}
+
     t0 = time.perf_counter()
-    actual = handler(fixture_dir, when, given_dir)
+    ctx = handler(fixture_dir, when, scratch)
+    ctx["fixture_dir"] = fixture_dir
+    fails = grader(spec, ctx)
     dt = time.perf_counter() - t0
 
-    spec = {k: v for k, v in then.items() if k != "grader"}
-    fails = grader(spec, actual)
-
     if fails:
-        print(f"✗ RED   {label}   ({when.get('do')} {when.get('agent', '')}, {dt:.1f}s)")
+        print(f"✗ RED   {label}   ({when['do']} {when.get('agent', '')}, {dt:.1f}s)".replace("  ", " "))
         print(f"  then:  grader={then.get('grader')}")
         for f in fails:
             print(f"    · {f}")
-        print(f"  actual: {json.dumps(actual) if actual is not None else '(no parseable JSON)'}")
+        if "verdict" in ctx:
+            print(f"  actual: {json.dumps(ctx['verdict']) if ctx['verdict'] is not None else '(no parseable JSON)'}")
+        if scratch:
+            print(f"  scratch kept: {scratch}")
         return 1
 
+    if scratch:
+        shutil.rmtree(scratch, ignore_errors=True)
     print(f"✓ GREEN {label}   ({dt:.1f}s)")
     return 0
 
@@ -154,21 +198,20 @@ def main(argv):
         for d in all_fixtures():
             m = load_manifest(d)
             w, t = m["when"], m["then"]
-            print(f"{d.parent.parent.name:18} {d.name:42} "
-                  f"when={w.get('do')}:{w.get('agent', '')}  then={t.get('grader')}")
+            line = (f"{d.parent.parent.name:18} {d.name:42} "
+                    f"when={w.get('do')}:{w.get('agent', '')}".rstrip())
+            print(f"{line}  then={t.get('grader')}")
         return 0
 
     if not args.test:
         ap.error("need --test <fixture> or --list")
-
     hits = find_fixtures(args.test, args.agent)
     if not hits:
         where = f" under agent {args.agent!r}" if args.agent else ""
-        print(f"no fixture named {args.test!r}{where}")
-        return 2
+        print(f"no fixture named {args.test!r}{where}"); return 2
     if len(hits) > 1:
-        corpora = ", ".join(h.parent.parent.name for h in hits)
-        print(f"ambiguous {args.test!r} — found in: {corpora}. Pass --agent <name>.")
+        print(f"ambiguous {args.test!r} — in: "
+              + ", ".join(h.parent.parent.name for h in hits) + ". Pass --agent.")
         return 2
     return run_one(hits[0])
 

@@ -1,0 +1,17 @@
+{
+  "description": "Two tests in the same suite use different assertion styles \u2014 JUnit `assertEquals(...)` in one and AssertJ `assertThat(...).isEqualTo(...)` in the other. The skill says to flag mixed assertion styles when a single style can keep tests consistent. The reviewer must flag the inconsistency.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "mixed"
+    ]
+  }
+}

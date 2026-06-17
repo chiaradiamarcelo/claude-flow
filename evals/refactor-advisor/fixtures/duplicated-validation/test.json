@@ -1,0 +1,17 @@
+{
+  "description": "A use case that repeats the same positive-amount and per-transaction-limit checks twice in one method, and that validation also belongs as an invariant on the Account aggregate rather than scattered in orchestration. The advisor must flag the duplicated validation.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "refactor-advisor"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "duplicat"
+    ]
+  }
+}

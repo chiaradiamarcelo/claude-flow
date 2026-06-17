@@ -1,0 +1,17 @@
+{
+  "description": "The test asserts on internal storage (`localStore.readRawJson()` equals the raw remote JSON) instead of the observable outcome through the public interface. The skill says to assert on observable outcomes, not internal state. The reviewer must flag the internal-state assertion.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "internal"
+    ]
+  }
+}

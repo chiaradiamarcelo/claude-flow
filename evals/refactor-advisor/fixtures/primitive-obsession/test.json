@@ -1,0 +1,17 @@
+{
+  "description": "A use case whose signature threads raw primitives for rich business concepts \u2014 email address, phone number, country code, money amount, currency \u2014 as String/Long. These are value objects waiting to be extracted (validation and behavior should live on them). The advisor must flag the primitive obsession.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "refactor-advisor"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "primitive"
+    ]
+  }
+}

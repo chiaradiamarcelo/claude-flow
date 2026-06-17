@@ -1,0 +1,26 @@
+{
+  "description": "Changeset = a controller (matches api-reviewer's **/controller/** and **/api/** triggers) plus a response DTO (**/dto/**), both under src/main. api-reviewer must fire on the api/dto/controller paths, and the src/main reviewers (arch, refactor) fire too because the files also live under src/main. The test reviewers must not fire. Routing is path-only, so the files are created empty.",
+  "given": {
+    "workspace": "git-scratch",
+    "changedFiles": [
+      "src/main/api/AccountController.kt",
+      "src/main/api/dto/AccountResponse.kt"
+    ]
+  },
+  "when": {
+    "do": "command",
+    "command": "/run-reviewers --dry-run"
+  },
+  "then": {
+    "grader": "routing",
+    "fires": [
+      "api-reviewer",
+      "arch-reviewer",
+      "refactor-advisor"
+    ],
+    "doesNotFire": [
+      "test-reviewer",
+      "ui-test-reviewer"
+    ]
+  }
+}

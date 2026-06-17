@@ -1,0 +1,22 @@
+{
+  "description": "A domain aggregate root that imports JPA + Spring annotations (@Entity, @Id, @Version). This breaks the dependency rule / domain purity: the domain layer must not depend on frameworks. The reviewer must fail it and mention the domain.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "arch-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "severities": {
+      "VIOLATION": {
+        "min": 1
+      }
+    },
+    "mustMention": [
+      "domain"
+    ]
+  }
+}

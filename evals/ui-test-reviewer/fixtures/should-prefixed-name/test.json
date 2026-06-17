@@ -1,0 +1,17 @@
+{
+  "description": "A component test that is clean in every way (provider helper, getByRole, userEvent.setup, GWT blank lines, behavioral assertion) except its name leads with 'Should'. Test names use present-simple verbs and no leading 'Should'. The reviewer must fail it and flag the test name. (mustMention uses the root 'name' rather than 'naming' \u2014 the reviewer phrases this as 'Test name pattern' / 'rename to', which does not contain the substring 'naming'.)",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "ui-test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "name"
+    ]
+  }
+}

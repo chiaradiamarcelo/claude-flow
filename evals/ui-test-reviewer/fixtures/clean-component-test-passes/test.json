@@ -1,0 +1,14 @@
+{
+  "description": "A PASS control: a component test with a present-simple behavioral name, the provider helper, blank-line GWT separation, accessible getByRole/getByLabelText queries, userEvent, minimal in-test data, and an assertion on observable behavior (the input type becoming text). There is nothing to flag. The reviewer must return PASS with no issues; over-triggering here is itself a finding.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "ui-test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "PASS"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "description": "A use case declared as an interface. The conventions are explicit: do not use interfaces for use cases \u2014 use the concrete class directly (a use case is one business action, not a swappable port). The reviewer must fail it and flag the use case interface.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "arch-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "interface"
+    ]
+  }
+}

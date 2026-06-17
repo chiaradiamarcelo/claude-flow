@@ -56,22 +56,26 @@ def review(ws, reviewer, d) -> dict:
         return {}
 
 
-def main(argv):
-    expected_path, scratch = argv[0], argv[1]
-    cfg = json.load(open(expected_path))
-    spec = cfg.get("agents", {}).get("pipeline", {})
-    stem = cfg.get("fixture", os.path.basename(os.path.dirname(expected_path)))
-
+def verify(spec, scratch):
+    """Independent verification: WE build + review the produced code (never trust
+    the command), then grade. Returns (fails, notes, reviews)."""
     build_exit = gradle_build(scratch)
-
     rdir = Path(scratch) / ".reviews"
     rdir.mkdir(parents=True, exist_ok=True)
     for old in rdir.glob("*.json"):
         old.unlink()
     for reviewer, d in ROUTES:
         (rdir / f"{reviewer}.json").write_text(json.dumps(review(scratch, reviewer, d)))
+    return check_acceptance.grade(spec, scratch, build_exit)
 
-    fails, notes, reviews = check_acceptance.grade(spec, scratch, build_exit)
+
+def main(argv):
+    expected_path, scratch = argv[0], argv[1]
+    cfg = json.load(open(expected_path))
+    spec = cfg.get("agents", {}).get("pipeline", {})
+    stem = cfg.get("fixture", os.path.basename(os.path.dirname(expected_path)))
+
+    fails, notes, reviews = verify(spec, scratch)
 
     summary = []
     for name, v in sorted(reviews.items()):

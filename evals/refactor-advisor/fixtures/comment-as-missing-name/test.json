@@ -1,0 +1,17 @@
+{
+  "description": "A use case with a block comment ('account can only be closed when it is empty and not frozen') that names what the following boolean expression does. This is the 'Comment as a missing name' smell: extract the condition into an intent-revealing variable or predicate (e.g. isClosable()) so the comment becomes unnecessary. The advisor must flag the comment.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "refactor-advisor"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "comment"
+    ]
+  }
+}

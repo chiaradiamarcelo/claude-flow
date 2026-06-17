@@ -1,0 +1,26 @@
+{
+  "description": "Changeset = a production class (src/main) + its test (src/test). The test-reviewer (src/test, *Test) and the src/main reviewers (arch, refactor) must fire; api-reviewer and ui-test-reviewer must not. Routing is path-only, so the files are created empty.",
+  "given": {
+    "workspace": "git-scratch",
+    "changedFiles": [
+      "src/main/Calculator.kt",
+      "src/test/CalculatorTest.kt"
+    ]
+  },
+  "when": {
+    "do": "command",
+    "command": "/run-reviewers --dry-run"
+  },
+  "then": {
+    "grader": "routing",
+    "fires": [
+      "arch-reviewer",
+      "refactor-advisor",
+      "test-reviewer"
+    ],
+    "doesNotFire": [
+      "api-reviewer",
+      "ui-test-reviewer"
+    ]
+  }
+}

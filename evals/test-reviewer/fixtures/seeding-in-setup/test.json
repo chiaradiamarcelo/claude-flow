@@ -1,0 +1,17 @@
+{
+  "description": "The before-each setup hook seeds test data (`accounts.save(...)`). The skill forbids seeding in setup \u2014 data setup must live inside each test method. The reviewer must flag the seeding in setup.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "seed"
+    ]
+  }
+}

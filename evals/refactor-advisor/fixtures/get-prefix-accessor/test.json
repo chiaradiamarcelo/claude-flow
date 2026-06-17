@@ -1,0 +1,17 @@
+{
+  "description": "A domain entity whose accessors use the Java-style get prefix (getId(), getBalanceCents()). The convention is get-less accessors \u2014 accountId() / balance(). The advisor must flag the get-prefixed accessors.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "refactor-advisor"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "prefix"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "description": "The test name contains `and` and the body asserts two distinct behaviors (the returned id AND the persisted balance). The skill requires one behavior per test \u2014 if the name needs `and`, split it. The reviewer must flag this.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "split"
+    ]
+  }
+}
