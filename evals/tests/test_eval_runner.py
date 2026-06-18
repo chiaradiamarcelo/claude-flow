@@ -44,6 +44,25 @@ class WiringTest(unittest.TestCase):
         self.assertEqual(dos - set(runner.HANDLERS), set())
 
 
+class WorkspaceSetupTest(unittest.TestCase):
+    def test_copies_any_skeleton_under_evals_and_strips_build(self):
+        with tempfile.TemporaryDirectory() as base:
+            skeleton = Path(base) / "golden-repo-spring"
+            (skeleton / "src").mkdir(parents=True)
+            (skeleton / "src" / "marker.kt").write_text("// skeleton")
+            (skeleton / "build").mkdir()
+            (skeleton / "build" / "stale.class").write_text("stale")
+            original = runner.EVALS
+            runner.EVALS = Path(base)
+            try:
+                scratch = runner.setup_workspace(Path(base), {"workspace": "golden-repo-spring"})
+            finally:
+                runner.EVALS = original
+
+            self.assertTrue((scratch / "src" / "marker.kt").is_file())
+            self.assertFalse((scratch / "build").exists())
+
+
 class ResolutionTest(unittest.TestCase):
     def test_finds_unique_fixture(self):
         with tempfile.TemporaryDirectory() as base:
