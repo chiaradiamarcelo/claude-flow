@@ -13,15 +13,12 @@ WARNING / SUGGESTION findings are reported but non-gating: an advisory reviewer
 meaningful "no drift, no must-fix defect" floor. (See the strict-gate discussion
 — this grader deliberately does not require an all-clean PASS.)
 
-Inputs
-------
-  check_acceptance.py <expected.json> --scratch-dir <run dir> --build-exit <code>
-
+`grade(spec, scratch_dir, build_exit)` is the pure entrypoint the engine calls.
 Build results come from the JUnit XML the harness's independent `./gradlew test`
 produced; reviewer verdicts from `<scratch>/.reviews/<reviewer>.json` (each a
 machine-first verdict the harness captured).
 
-Checks (under agents.pipeline)
+Checks (spec keys)
 ------
   buildMustPass     : bool   — ./gradlew test exited 0
   minTests          : int    — >= N tests actually ran
@@ -29,7 +26,6 @@ Checks (under agents.pipeline)
   reviewersMustRun  : [str]   — each named reviewer produced a parseable verdict
   maxViolations     : int    — <= N reviewer VIOLATIONs total (default 0)
 """
-import argparse
 import glob
 import json
 import os
@@ -90,42 +86,3 @@ def grade(spec, scratch_dir, build_exit):
         fails.append(f"maxViolations: reviewers found {total_viol} VIOLATION(s) (allowed {maxv})")
 
     return fails, notes, reviews
-
-
-def main(argv):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("expected")
-    ap.add_argument("--scratch-dir", required=True)
-    ap.add_argument("--build-exit", type=int, required=True)
-    args = ap.parse_args(argv)
-
-    doc = json.load(open(args.expected))
-    spec = doc.get("agents", {}).get("pipeline", {})
-    stem = doc.get("fixture", os.path.basename(os.path.dirname(args.expected)))
-
-    fails, notes, reviews = grade(spec, args.scratch_dir, args.build_exit)
-
-    summary = []
-    for name, v in sorted(reviews.items()):
-        if not v:
-            summary.append(f"{name}=?")
-            continue
-        c = {}
-        for i in (v.get("issues") or []):
-            c[i.get("severity")] = c.get(i.get("severity"), 0) + 1
-        summary.append(f"{name}={v.get('status')}"
-                       f"({c.get('VIOLATION',0)}V/{c.get('WARNING',0)}W/{c.get('SUGGESTION',0)}S)")
-
-    tag = "FAIL " if fails else "PASS "
-    print(f"- {tag} {stem}::pipeline")
-    for f in fails:
-        print(f"    · {f}")
-    for n in notes:
-        print(f"    · {n}")
-    if summary:
-        print(f"    reviewers: {' '.join(summary)}")
-    return 1 if fails else 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))

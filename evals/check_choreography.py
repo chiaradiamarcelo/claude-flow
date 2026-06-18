@@ -7,23 +7,17 @@ agent quality. Tolerant, like the reviewer graders: assert the key events appear
 in the right ORDER (an ordered subsequence — extra entries, e.g. other reviewers
 interleaved, are fine), not an exact transcript.
 
-Inputs: check_choreography.py <expected.json> --scratch-dir <run dir>
-Reads <scratch>/<logFile>.
+`grade(spec, log_lines)` is the pure entrypoint the engine calls (it reads
+<scratch>/<logFile> and passes the stripped non-empty lines).
 
-Checks (under "orchestration" in expected.json):
+Checks (spec keys):
   logFile             : the call-log filename the fakes append to
   expectedSubsequence : [str] — must appear in this order in the log
   endsAfterReview     : bool — the last log entry is a reviewer, not a developer
                         (i.e. it stopped after a passing review, no dangling fix)
   maxArchitects       : int  — architect dispatched at most N times (one scenario,
                         not re-planned in a loop)
-
-Exit 0 = pass, 1 = fail.
 """
-import argparse
-import json
-import os
-import sys
 
 
 def _is_subsequence(needles, haystack):
@@ -60,34 +54,3 @@ def grade(spec, log_lines):
             fails.append(f"maxArchitects: architect dispatched {n} times (allowed {max_arch})")
 
     return fails
-
-
-def main(argv):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("expected")
-    ap.add_argument("--scratch-dir", required=True)
-    args = ap.parse_args(argv)
-
-    doc = json.load(open(args.expected))
-    spec = doc.get("orchestration", {})
-    stem = doc.get("fixture", os.path.basename(os.path.dirname(args.expected)))
-
-    log_path = os.path.join(args.scratch_dir, spec.get("logFile", "pipeline-calls.log"))
-    try:
-        with open(log_path) as fh:
-            log_lines = [ln.strip() for ln in fh if ln.strip()]
-    except OSError:
-        log_lines = []
-
-    fails = grade(spec, log_lines)
-    if fails:
-        print(f"- FAIL  {stem}::orchestration")
-        for f in fails:
-            print(f"    · {f}")
-        return 1
-    print(f"- PASS  {stem}::orchestration  (log: {' -> '.join(log_lines)})")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))

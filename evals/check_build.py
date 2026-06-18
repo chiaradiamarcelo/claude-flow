@@ -7,15 +7,12 @@ pass? So this grader does not look at prose or the agent's self-report — it
 inspects the **JUnit XML** that `./gradlew test` produced in the scratch repo and
 the build's exit code.
 
-Inputs
-------
-  check_build.py <expected.json> --scratch-dir <run dir> --build-exit <code>
+`grade_build(spec, scratch_dir, build_exit)` is the pure entrypoint the engine
+calls. `build_exit` is the exit code of the independent `./gradlew test` the
+harness ran *after* the developer finished (never trust the agent's own run).
+Test reports are read from `<scratch>/build/test-results/test/*.xml`.
 
-`--build-exit` is the exit code of the independent `./gradlew test` the harness
-ran *after* the developer finished (never trust the agent's own run). Test
-reports are read from `<scratch>/build/test-results/test/*.xml`.
-
-Checks (declared per fixture under agents.developer)
+Checks (spec keys)
 ------
   buildMustPass      : bool   — ./gradlew test exited 0
   minTests           : int    — at least N tests actually ran (executed, not skipped)
@@ -25,14 +22,9 @@ Checks (declared per fixture under agents.developer)
 A vacuous pass (build green, 0 tests) is caught by minTests + the explicit
 "no test results" fault when the XML dir is empty/missing (a compile failure
 produces no reports).
-
-Exit codes: 0 pass · 1 a check failed / structural fault.
 """
-import argparse
 import glob
-import json
 import os
-import sys
 import xml.etree.ElementTree as ET
 
 
@@ -93,28 +85,3 @@ def grade_build(spec, scratch_dir, build_exit):
                          f"(saw: {sorted(classnames) or 'none'})")
 
     return fails
-
-
-def main(argv):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("expected", type=str)
-    ap.add_argument("--scratch-dir", required=True)
-    ap.add_argument("--build-exit", type=int, required=True)
-    args = ap.parse_args(argv)
-
-    doc = json.load(open(args.expected))
-    spec = doc.get("agents", {}).get("developer", {})
-    stem = doc.get("fixture", os.path.basename(os.path.dirname(args.expected)))
-
-    fails = grade_build(spec, args.scratch_dir, args.build_exit)
-    if fails:
-        print(f"- FAIL  {stem}::developer")
-        for f in fails:
-            print(f"    · {f}")
-        return 1
-    print(f"- PASS  {stem}::developer")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))

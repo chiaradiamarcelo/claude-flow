@@ -8,17 +8,13 @@ inspects the **artifact the architect produced** and asserts coarse,
 non-determinism-tolerant facts about it — the same philosophy as the reviewer
 graders, applied to a markdown plan.
 
-Inputs
-------
-  check_plan.py <expected.json> --input-dir <fixture input/> --scratch-dir <run dir>
+`grade_plan(spec, input_dir, scratch_dir)` is the pure entrypoint the engine
+calls. `input_dir` is the frozen fixture input (what the architect read);
+`scratch_dir` is a copy of it *after* the architect ran. New files =
+scratch − input. This is how `writesNoCode` is checked: the architect must add
+only the plan `.md`, never source files.
 
-`--input-dir` is the frozen fixture input (what the architect read); `--scratch-dir`
-is a copy of it *after* the architect ran. New files = scratch − input. This is
-how `writesNoCode` is checked: the architect must add only the plan `.md`, never
-source files.
-
-Checks (all optional, declared per fixture in expected.json under
-agents.architect)
+Checks (spec keys, all optional)
 ------
   planMustExist : bool   — a new SCENARIO-*.md plan file was created
   writesNoCode  : bool   — no new source file (code extension) was created
@@ -26,13 +22,8 @@ agents.architect)
   mustMention   : [str]   — each substring (case-insensitive) appears in the plan
   mustNotMention: [str]   — none of these substrings appear in the plan
   orderedBefore : [[a,b]] — first line matching regex `a` precedes first matching `b`
-
-Exit codes: 0 all pass · 1 a check failed / structural fault.
 """
-import argparse
-import json
 import re
-import sys
 from pathlib import Path
 
 CODE_EXTS = {".kt", ".kts", ".java", ".ts", ".tsx", ".js", ".jsx", ".py",
@@ -102,28 +93,3 @@ def grade_plan(spec, input_dir, scratch_dir):
             fails.append(f"orderedBefore: {a!r} (line {ia}) does not precede {b!r} (line {ib})")
 
     return fails
-
-
-def main(argv):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("expected", type=Path)
-    ap.add_argument("--input-dir", type=Path, required=True)
-    ap.add_argument("--scratch-dir", type=Path, required=True)
-    args = ap.parse_args(argv)
-
-    spec_doc = json.loads(args.expected.read_text())
-    aspec = spec_doc.get("agents", {}).get("architect", {})
-    stem = spec_doc.get("fixture", args.expected.parent.name)
-
-    fails = grade_plan(aspec, args.input_dir, args.scratch_dir)
-    if fails:
-        print(f"- FAIL  {stem}::architect")
-        for f in fails:
-            print(f"    · {f}")
-        return 1
-    print(f"- PASS  {stem}::architect")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))

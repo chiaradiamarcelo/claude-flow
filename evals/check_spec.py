@@ -8,22 +8,17 @@ fixture prompt tells it to assume + proceed). This grades the artifact it
 writes: the `specification.md`, the same "grade the artifact, not stdout"
 approach as `check_plan.py` (the architect).
 
-Inputs
-------
-  check_spec.py <expected.json> --input-dir <fixture input/> --scratch-dir <run dir>
+`grade_spec(spec, input_dir, scratch_dir)` is the pure entrypoint the engine calls
+(new files = scratch − input, the same artifact-diff as check_plan).
 
-Checks (under agents["intent-and-goal"])
+Checks (spec keys)
 ------
   specMustExist : bool   — a new specification.md was created under specifications/
   writesNoCode  : bool   — no source file (code extension) was created
   minScenarios  : int    — the spec has >= N Gherkin `Scenario:` blocks
   mustMention   : [str]   — each substring (case-insensitive) appears in the spec
   mustNotMention: [str]   — none of these appear
-
-Exit codes: 0 pass · 1 a check failed.
 """
-import argparse
-import json
 import os
 import re
 import sys
@@ -68,28 +63,3 @@ def grade_spec(spec, input_dir, scratch_dir):
             fails.append(f"mustNotMention: spec mentions {needle!r} but should not")
 
     return fails
-
-
-def main(argv):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("expected")
-    ap.add_argument("--input-dir", required=True)
-    ap.add_argument("--scratch-dir", required=True)
-    args = ap.parse_args(argv)
-
-    doc = json.load(open(args.expected))
-    spec = doc.get("agents", {}).get("intent-and-goal", {})
-    stem = doc.get("fixture", os.path.basename(os.path.dirname(args.expected)))
-
-    fails = grade_spec(spec, args.input_dir, args.scratch_dir)
-    if fails:
-        print(f"- FAIL  {stem}::intent-and-goal")
-        for f in fails:
-            print(f"    · {f}")
-        return 1
-    print(f"- PASS  {stem}::intent-and-goal")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
