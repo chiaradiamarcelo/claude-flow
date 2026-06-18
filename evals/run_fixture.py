@@ -67,16 +67,17 @@ def setup_workspace(fixture_dir, given):
     reviewers don't call this — they read input/ in place.)"""
     scratch = Path(tempfile.mkdtemp(prefix="eval-"))
     ws = given.get("workspace")
-    if ws == "golden-repo":
-        shutil.copytree(EVALS / "golden-repo", scratch, dirs_exist_ok=True)
-        shutil.rmtree(scratch / "build", ignore_errors=True)
-        shutil.rmtree(scratch / ".gradle", ignore_errors=True)
-    elif ws == "git-scratch":
+    if ws == "git-scratch":
         subprocess.run(["git", "init", "-q"], cwd=str(scratch))
         for f in given.get("changedFiles", []):
             p = scratch / f
             p.parent.mkdir(parents=True, exist_ok=True)
             p.touch()
+    elif ws and (EVALS / ws).is_dir():  # any buildable skeleton (golden-repo, golden-repo-spring, ...)
+        shutil.copytree(EVALS / ws, scratch, dirs_exist_ok=True)
+        shutil.rmtree(scratch / "build", ignore_errors=True)
+        shutil.rmtree(scratch / ".gradle", ignore_errors=True)
+        shutil.rmtree(scratch / ".kotlin", ignore_errors=True)
     files = given.get("files")
     if files and (fixture_dir / files.rstrip("/")).is_dir():
         shutil.copytree(fixture_dir / files.rstrip("/"), scratch, dirs_exist_ok=True)

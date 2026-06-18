@@ -1,0 +1,23 @@
+{
+  "description": "Integration test for the developer agent on a FULL vertical slice: domain → write-side port → contract → fake → use case → JPA adapter → REST controller, on Spring Boot 4 + Spring Data JPA + H2 (in-memory). The fixture freezes both the specification AND the architect plan (so a failure isolates to the developer, not the architect). The workspace is the golden-repo-spring skeleton (Spring/JPA/H2 already wired, context-load smoke test passing). The only honest grade is the objective build outcome: after the developer implements, `./gradlew test` (run independently by the harness) must compile and pass with no failures, at least 6 real tests must run (guarding a vacuous pass), and there must be test classes for the controller (HTTP layer), the JPA adapter (persistence layer, proving the adapter is contract-equivalent to the fake), and the WithdrawMoney use case (application layer) — i.e. the slice is exercised end to end, not just the framework-free core.",
+  "given": {
+    "workspace": "golden-repo-spring",
+    "files": "input/"
+  },
+  "when": {
+    "do": "build",
+    "agent": "developer",
+    "prompt": "Implement SCENARIO-01 for the feature withdraw-money in implementation mode. The specification is at docs/specifications/withdraw-money/specification.md and your plan is at docs/specifications/withdraw-money/SCENARIO-01.md. This is a Spring Boot + Spring Data JPA + H2 Gradle module (the skeleton is already wired — see build.gradle.kts and the existing @SpringBootApplication). Put sources under src/main/kotlin and tests under src/test/kotlin using the Clean Architecture package layout described in the plan (base package com.example.bank). Implement every step in the plan with TDD and verify with ./gradlew test."
+  },
+  "then": {
+    "grader": "build",
+    "buildMustPass": true,
+    "minTests": 6,
+    "maxFailures": 0,
+    "mustHaveTestClasses": [
+      "Controller",
+      "JpaAdapter",
+      "WithdrawMoneyUseCase"
+    ]
+  }
+}
