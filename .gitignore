@@ -5,10 +5,13 @@
 !.gitignore
 !CLAUDE.md
 !RTK.md
-!refactor-catalog.md
 !settings.json
 !statusline-command.sh
 !README.md
+
+# Knowledge (refactor catalog + other reference material, loaded on demand)
+!knowledge/
+!knowledge/**
 
 # Hooks
 !hooks/
