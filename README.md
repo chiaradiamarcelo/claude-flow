@@ -23,7 +23,11 @@ Requires `rtk >= 0.23.0` and `jq`.
 
 ## How the flow works
 
-The pipeline takes a feature from intent to reviewed, tested code — with human involvement only at the front (defining intent and approving scenarios). After that, agents run autonomously.
+The pipeline takes a feature from intent to reviewed, tested code — with human involvement only at the front (defining intent and approving scenarios). After that it runs autonomously, **one scenario at a time**.
+
+### Step 0: Fresh worktree (mandatory)
+
+Every feature starts in a clean, isolated worktree branched off the current default branch — never on the shared checkout's branch. The `EnterWorktree` tool creates it (with `worktree.baseRef: fresh` it fetches and branches off `origin/<default-branch>`), and a `PostToolUse` hook warms dependencies. All pipeline artifacts live inside this one worktree. (Skipped if the session is already in a worktree.)
 
 ### Phase 1: Intent and scenarios (human-driven)
 
@@ -33,45 +37,34 @@ Start any new feature or use case with:
 /intent-and-goal <brief description of feature>
 ```
 
-This command walks through three phases interactively:
+This command is interactive:
 
 1. **Intent refinement** — clarifying questions to define the primary goal, secondary goals, and constraints.
-2. **Scenario generation** — proposes Gherkin scenarios (happy path, empty state, edge cases, errors) with unique IDs (`SCENARIO-01`, `SCENARIO-02`, ...). Iterate until satisfied.
-3. **Specification creation** — on approval, creates a folder at `docs/specifications/<feature-slug>/` with a `specification.md` containing the intent, business rules, scenarios, and a progress checklist. Scenario plan files are created later by the architect.
+2. **Scenario generation** — first reads existing domain models and use cases to reuse the project's ubiquitous language, then proposes Gherkin scenarios (happy path, empty state, edge cases, errors) with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …). Iterate until you approve.
+3. **Specification creation** — on approval, writes the Source-of-Truth `docs/specifications/<feature-slug>/specification.md` (intent, business rules, scenarios, and a `## BDD Acceptance Progress` checklist). Scenario plan files are written later, by the architect.
 
-### Phase 2: Planning (parallel)
+Then it **hands off automatically**: once `specification.md` is written it runs `/run-pipeline <feature-slug>`. You don't trigger the rest by hand.
 
-All scenarios are planned before any code is written:
+### Phase 2: Execution — `/run-pipeline` (sequential)
 
-```
-proceed
-```
+`/run-pipeline <feature-slug>` is the execution orchestrator. It first reads the approved `specification.md`; **if no approved spec exists it STOPs and writes no code**. (It knows nothing about how the spec was produced — its only precondition is "an approved spec exists," so it works equally well when run by hand.)
 
-This runs one `architect` agent per scenario, all in parallel. Each architect invokes the `clean-architecture` skill, reads `specification.md` and existing code, then creates a scenario plan file (`SCENARIO-XX.md`) in the same folder. It writes no code — only a plan of files and classes to create/modify, following inside-out Clean Architecture order (domain → ports → fakes → use case → infrastructure → API).
+Then, for each unchecked scenario in `## BDD Acceptance Progress`, **top-to-bottom, one at a time** (never parallel or batched):
+
+1. **`architect`** plans the scenario → writes `SCENARIO-XX.md`: a checklist of files/classes in inside-out Clean Architecture order (domain → ports → fakes → use case → infrastructure → API). It writes no code. (Planning rules: test behavior through the use case, every port adapter has a contract test, entities with identity include equality.)
+2. **`developer`** implements that plan with strict TDD — failing test (red) → minimal code (green) → refactor — checking off each step.
+3. The scenario's box gets checked, then the next scenario begins.
 
 ```
 docs/specifications/deposit-money/
-  specification.md          # Intent, rules, scenarios, progress checklist
-  SCENARIO-01.md            # Architect's plan with checkboxes
-  SCENARIO-02.md            # Created when that scenario is planned
+  specification.md          # SoT: intent, rules, scenarios, progress checklist
+  SCENARIO-01.md            # Architect's plan (checkboxes), written per scenario
+  SCENARIO-02.md
 ```
 
-Planning rules: test behavior through the use case (not domain entities directly), every port adapter must have a contract test, domain entities with identity include equality.
+### Phase 3: Review
 
-### Phase 3: Implementation (parallel)
-
-All scenarios are implemented in parallel — one `developer` agent per scenario, each in its own worktree for isolation.
-
-Each developer reads `specification.md` for context and the scenario plan file for the checklist, then executes step by step:
-
-- Writes a failing test first (red)
-- Writes the minimal code to pass (green)
-- Refactors while keeping tests green
-- Marks each step done in the scenario plan file
-
-### Phase 4: Review
-
-After all scenarios are implemented, `/run-reviewers` runs once on all changed files. It runs in the main conversation (not as a sub-agent, so it can spawn reviewer agents). With no arguments (pipeline mode), it:
+After **all** scenarios are implemented, `/run-pipeline` runs `/run-reviewers` once over all changed files. `/run-reviewers` runs in the main conversation (not as a sub-agent, so it can spawn reviewer agents). With no arguments (pipeline mode), it:
 
 1. Gets changed files via `git diff --name-only`. Falls back to `git ls-files` if no diff is available.
 2. Discovers reviewer agents by grepping for `type: reviewer` in agent frontmatter (global + project).
@@ -89,17 +82,19 @@ Built-in reviewers (defined in agent frontmatter):
 | `refactor-advisor` | `**/src/main/**` | Primitive obsession, misplaced logic, intent-revealing methods, naming, mapper cleanliness |
 | `api-reviewer` | `**/api/**`, `**/controller/**`, `**/dto/**` | HTTP conventions, thin controllers, REST URLs, response modeling |
 
-### Phase 5: Fix pass
+### Phase 4: Fix loop (bounded)
 
-- **FAIL** → developers are spawned in fix mode (one per scenario with findings, in parallel). All findings (violations, warnings, suggestions) addressed in one pass. Then `/run-reviewers` runs again.
+The verdict gates on **VIOLATIONs** (an advisory reviewer always emits a SUGGESTION, so gating on those would never pass):
+
+- **FAIL** (one or more VIOLATIONs) → the `developer` runs in fix mode with the consolidated VIOLATION + WARNING findings, then `/run-reviewers` runs again. Repeat until **PASS or 3 fix rounds**.
 - **PASS** → done.
 
 ```
-Phase 1:  /intent-and-goal → scenarios approved
-Phase 2:  architect × N  (parallel)
-Phase 3:  developer × N  (parallel, worktree isolation)
-Phase 4:  /run-reviewers  (once, all changed files)
-Phase 5:  developer fix × N if FAIL → /run-reviewers again
+Step 0:   EnterWorktree         (fresh branch off origin/<default>)
+Phase 1:  /intent-and-goal      → scenarios approved → writes specification.md
+Phase 2:  /run-pipeline         architect → developer, per scenario, ONE AT A TIME
+Phase 3:  /run-reviewers        (once, all changed files; relevant reviewers in parallel)
+Phase 4:  developer fix → /run-reviewers again, until PASS or 3 rounds
 ```
 
 ## Ad-hoc reviews
@@ -142,7 +137,7 @@ It creates the agent file at the chosen location with `type: reviewer` and `trig
 
 ### Reviewer discovery
 
-The /run-reviewers and `/run-reviewers` discover reviewers by grepping for `type: reviewer` in agent files (both `~/.claude/agents/` and `<project>/.claude/agents/`). Each reviewer declares its triggers in its own frontmatter:
+`/run-reviewers` discovers reviewers by grepping for `type: reviewer` in agent files (both `~/.claude/agents/` and `<project>/.claude/agents/`). Each reviewer declares its triggers in its own frontmatter:
 
 ```yaml
 ---
@@ -175,7 +170,7 @@ For projects using different file conventions (e.g., TypeScript) where you want 
 }
 ```
 
-The /run-reviewers reads this file and replaces frontmatter triggers for matching reviewer names. Reviewers without an entry keep their defaults.
+`/run-reviewers` reads this file and replaces frontmatter triggers for matching reviewer names. Reviewers without an entry keep their defaults.
 
 To set up overrides, copy the template:
 
@@ -229,10 +224,11 @@ Available templates:
 | [evals/check_acceptance.py](evals/check_acceptance.py) | Deterministic grader for the **full pipeline** (acceptance) — build green + zero reviewer VIOLATIONs across the produced code (WARNING/SUGGESTION non-gating) |
 | [evals/verify_acceptance.py](evals/verify_acceptance.py) | The harness's **independent verifier** for acceptance — after the real `/run-pipeline` command runs, *it* runs `./gradlew test` + a fresh reviewer pass and grades (never trusts the command's self-report) |
 | [evals/golden-repo/](evals/golden-repo/) | Buildable Kotlin/JUnit5 Gradle skeleton (framework-free core) the developer agent implements into during integration + acceptance evals |
-| [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — routing parser (finding-01), choreography/refusal graders, and a runner wiring scan that asserts every fixture's `when.do`/`then.grader` is registered. Run via `evals/run_tests.sh` |
+| [evals/golden-repo-spring/](evals/golden-repo-spring/) | Buildable Spring Boot + Spring Data JPA + H2 skeleton (full vertical slice: HTTP + persistence) for the `withdraw-money-spring` developer fixture — builds green on JDK 25 (finding 12) |
+| [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — routing parser (finding-01), choreography/refusal graders, workspace setup, and a runner wiring scan that asserts every fixture's `when.do`/`then.grader` is registered. Run via `evals/run_tests.sh` |
 | [evals/check_choreography.py](evals/check_choreography.py) | Grader for the **choreography** test — asserts the real `/run-pipeline` command's call log (real session + fake workers) follows plan→implement→review→fix→re-review as an ordered subsequence |
 | [evals/orchestration/](evals/orchestration/) | Choreography fixture — an approved spec + **fake worker agent definitions** that self-log, for testing the real `/run-pipeline` command's dance (opt-in: `run_all.sh orchestration`) |
-| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 11 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), and the test.json migration + cache decision (11) |
+| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 12 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), and the v2 Spring/JPA vertical-slice integration (12) |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Template files (e.g., `review-triggers.typescript.json` for project trigger overrides) |
