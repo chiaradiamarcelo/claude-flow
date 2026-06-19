@@ -196,7 +196,7 @@ Available templates:
 | **Config** | |
 | [CLAUDE.md](CLAUDE.md) | Global instructions — workflow rules, TDD methodology, test design rules |
 | [RTK.md](RTK.md) | RTK usage reference (referenced by CLAUDE.md) |
-| [refactor-catalog.md](refactor-catalog.md) | Language-agnostic catalog of code smells and refactorings |
+| [knowledge/refactor-catalog/](knowledge/refactor-catalog/index.md) | Language-agnostic catalog of code smells and refactorings (index + one file per pattern, loaded on demand by `refactor-advisor`) |
 | [settings.json](settings.json) | Permissions, hooks, plugins, statusline config |
 | [statusline-command.sh](statusline-command.sh) | Context window usage bar for the statusline |
 | **Commands** | |

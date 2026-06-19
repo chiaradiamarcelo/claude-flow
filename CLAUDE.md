@@ -64,7 +64,8 @@ When writing or modifying tests, invoke the `testing` skill for full conventions
 
 ## Code quality conventions
 
-The `refactor-advisor` agent enforces patterns from `~/.claude/refactor-catalog.md` —
+The `refactor-advisor` agent enforces patterns from the catalog at
+`~/.claude/knowledge/refactor-catalog/` (start at `index.md`) —
 *Comment as a missing name*, *Compose method*, *Feature envy → Move method*, and others.
 
 
