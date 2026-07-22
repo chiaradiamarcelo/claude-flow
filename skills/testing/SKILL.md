@@ -232,7 +232,7 @@ This layered approach ensures the system is thoroughly tested while keeping the 
 - **Mandatory fakes for external dependencies**: You MUST use hand-written fakes for infrastructure ports (repositories, external APIs) to ensure deterministic and fast tests.
 - **No Use Case Interfaces**: Use Cases should be concrete classes. Using an interface for a Use Case is a violation.
 - **Mocking Use Cases in API tests**: Using a mocking library to mock the Use Case in an API controller (slice / narrow integration) test is acceptable and standard.
-- **Fakes must satisfy the contract**: Fakes MUST behave like real implementations for the tested contract and pass the same contract tests.
+- **Every implementation satisfies the contract**: the fake and the real adapter are equals — each independently passes the same contract suite, which specifies the behavior the consumer depends on. The fake isn't "made to mirror the real"; both conform to the contract.
 - Fakes must implement the same port interface as production adapters.
 - **Every test starts from a clean slate — always in the before-each hook, never in the after-each / after-all hooks.**
   - **Fakes**: create fresh instances in setup. No `clear()`/`reset()` methods.
@@ -335,12 +335,40 @@ When designing 4xx tests, distinguish source of failure:
 
 - Every domain port should have a contract test.
 - Fake and real adapter implementations must satisfy the same contract.
+- **Pin the full projection with one full-object assertion.** A read repository/query's contract is "given this input, return *this* object" — the returned shape and values ARE its behavior. So the contract suite must include **exactly one** test (just one — not every case; see the slice/full split below) that seeds a fully-populated row (every column a distinctive non-default value) and asserts the **entire** returned object with deep equality (`isEqualTo(wholeObject)` / `toEqual({...})`), run against both the fake and the real adapter. Without it, a query that later drops a column from its projection, maps it from the wrong source column, or returns null instead of the real value stays green on key-only assertions while production data is silently wrong — and the fake can drift to a half-fictional shape the real adapter never returns. This is the projection's mutation guard (flip any field → red) and the only thing that keeps the fake honest across the whole shape.
+- **Keep the slice/full split.** Behavior tests (filtering, lookup, ordering, edge cases) assert only the field(s) they are about (e.g. `map { it.id }`); ONE dedicated test pins the full object. Don't make every test a full-object assertion — adding a legitimate column would redden them all for no behavioral reason. The rule is "one full-object test per read port," not "every test asserts everything."
+- Write the full-object test's expected value as an explicit literal; don't derive it from the seed, or you just re-implement the production mapping inside the test.
+
+```kotlin
+// The ONE full-object test — pins the whole projection. Both the fake and the
+// real adapter run it via the shared contract.
+@Test
+fun returns_every_stored_field_for_an_id() {
+    seed(listOf(row(USER_ID, email = "a@b.co", plan = "pro", active = true, seats = 5))) // every column set
+
+    val found = repository.findById(USER_ID)
+
+    assertThat(found).isEqualTo(User(USER_ID, "a@b.co", "pro", active = true, seats = 5))
+}
+
+// Every other test asserts only the slice it is about — never the whole object.
+@Test
+fun excludes_inactive_accounts() {
+    seed(listOf(row(USER_ID, active = true), row(OTHER_ID, active = false)))
+
+    val found = repository.activeAccounts()
+
+    assertThat(found.map { it.id }).containsExactly(USER_ID)
+}
+```
 
 ## Public API & Logical Extraction
 
 **Default**: the use case test is the primary entry point for verifying behavior. Test domain logic — including validation, invariants, and edge cases — through the use case, not through isolated domain entity tests. Domain entity tests are the **exception**, not the norm.
 
 Do not widen visibility only for tests.
+
+**Do not add production API surface that only tests consume.** A return value, parameter, or method that exists solely so a test can assert on it — while production ignores it — is test-induced design damage. Drop it and assert the observable outcome instead: read the state back through the public interface. Example: a repository `update`/`markRefreshed` the caller invokes fire-and-forget should return nothing, not an affected-row count that exists only for `assert(count == 1)`; assert the row's new state via a read method (`findById(...)`). The count is an implementation artifact; the persisted state is the behavior.
 
 **Exception**: when a domain class (e.g. a value object or calculator) has enough variants that testing all combinations through the use case would require excessive boilerplate, extract it into a focused class and test that class directly. This must be justified by combinatorial complexity, not convenience.
 

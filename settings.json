@@ -1,13 +1,11 @@
 {
-  "worktree": {
-    "baseRef": "fresh"
-  },
   "permissions": {
     "allow": [
       "Bash(pnpm ts-mocha:*)",
       "Bash(./gradlew connectedAndroidTest*)"
     ]
   },
+  "model": "opus[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -34,6 +32,9 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "statusLine": {
     "type": "command",
     "command": "bash $HOME/.claude/statusline-command.sh"
@@ -43,7 +44,8 @@
     "kotlin-lsp@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true
   },
+  "effortLevel": "medium",
   "theme": "light",
-  "voiceEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true
 }
