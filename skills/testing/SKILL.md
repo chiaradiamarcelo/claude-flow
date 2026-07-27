@@ -183,8 +183,25 @@ References: James Grenning, ["TDD Guided by Zombies"](https://blog.wingman-sw.co
 Discovery gives you candidate behaviours; this step turns them into an **ordered** sequence where each row earns its place by forcing one minimal change in the production code. Think this way whenever you write tests — solo, or when producing a reviewable test-list plan (the `test-designer` agent renders this as a table). Three lenses, kept separate on purpose:
 
 - **Name — FLFI (Final Label, First Implementation).** The label states the *complete business rule, including its condition, from the first write* — and is never renamed as the code grows. Name a test after the rule it pins from the caller's POV, not after the implementation step it happens to force. `adds_100_to_winnings_when_registered_on_birthday`, not `adds_100_to_winnings` patched later. The name tracks the **rule**, never the **mechanism**.
-- **TPP (Transformation Priority Premise) — the ordering spine.** The code transformation this row forces, with its priority — `nil → constant`, `constant → variable`, `unconditional → conditional`, etc. Order the list simplest-transformation-first: a row that forces a simpler transformation is a smaller, more fundamental test, and this ordering makes production code grow by minimal steps. This is what turns *coverage thinking* into *forcing-function thinking*.
+- **TPP (Transformation Priority Premise) — the ordering spine.** The code transformation this row forces. Order the list simplest-transformation-first: a row that forces a simpler transformation is a smaller, more fundamental test, and this ordering makes production code grow by minimal steps. This is what turns *coverage thinking* into *forcing-function thinking*. Don't invent transformation names or guess priorities — tag each driving row with one from the canonical list below, cited by name.
 - **Contradiction.** What the code **as it stands after the previous rows** wrongly assumes, that this row proves false. This is the mutation question from discovery, made concrete and relative to the evolving code — the generative driver *and* the minimality guard: the row exists to break one current assumption, so **only the data needed to create that contradiction is justifiable**. If you can't name what the code-so-far believes that this row falsifies, the row is vacuous — drop it.
+
+**The canonical TPP transformations** (Robert C. Martin), simplest first — higher on the list = simpler = preferred:
+
+1. `{} → nil` — no code → code returning nil / nothing
+2. `nil → constant`
+3. `constant → constant+` — a constant becomes a more complex constant
+4. `constant → scalar` — a constant becomes a variable or argument
+5. `statement → statements` — add more unconditional code
+6. `unconditional → conditional` — split the execution path (introduce an `if`)
+7. `scalar → array`
+8. `array → container`
+9. `statement → recursion`
+10. `conditional → loop` — an `if` becomes a `while` / iteration
+11. `expression → function` — replace an expression with a call / algorithm
+12. `variable → assignment` — change a variable's value
+
+It's a heuristic, not a law: when a row could be made green by more than one change, prefer the higher-priority (simpler) transformation, and order rows so early ones force high-priority transformations and later ones force lower. Cite the transformation by name (a priority number, if used, is its position above). Rows that don't drive a transformation chain — contract and equality rows — are `n/a`.
 
 **Per-row procedure** — for each candidate behaviour, in order:
 1. Write the FLFI name (full rule + condition).

@@ -38,8 +38,8 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 
 1. Read `docs/specifications/<feature-slug>/specification.md` for context (intent, business rules, scenario text). **Do not modify it.**
 2. Read `docs/specifications/<feature-slug>/<scenario-id>.md`. It has two parts:
-   - `## Structure & Contracts` (from the architect) — the skeleton: which artifacts exist, where they live, what they conform to. Reference material, not a checklist.
-   - `## Ordered Test List (FLFI · TPP · Contradiction)` (from the test-designer) — your **execution order**. The `Status` column is the single progress tracker.
+   - `## Structure & Contracts` — the skeleton: which artifacts exist, where they live, what they conform to. Reference material, not a checklist.
+   - `## Ordered Test List (FLFI · TPP · Contradiction)` — your **execution order**. The `Status` column is the single progress tracker.
 3. Honor any `> Note to architect:` line as authoritative — it flags a structural gap the rows are designed against (a missing read method, an absent field, an unmapped status). Adjust the structure accordingly as you implement; do not treat it as a blocker.
 4. Walk the table top-to-bottom. For each `☐` row, run one TDD cycle:
    - Write the failing test named by the row's FLFI label, seeded to create its Contradiction (RED).
