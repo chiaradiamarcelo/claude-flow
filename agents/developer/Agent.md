@@ -37,14 +37,18 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 ## Implementation mode
 
 1. Read `docs/specifications/<feature-slug>/specification.md` for context (intent, business rules, scenario text). **Do not modify it.**
-2. Read `docs/specifications/<feature-slug>/<scenario-id>.md` for your checklist.
-3. For each unchecked step in the plan, run one TDD cycle:
-   - Write the failing test (RED).
-   - Write production code to make it green (GREEN).
-   - Refactor if useful; tests must stay green (REFACTOR).
-   - Mark the step `- [x]` in the scenario plan file.
-4. When all steps are checked, run the full test suite for the affected module and confirm green.
-5. Mark the scenario as `- [x]` in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`.
+2. Read `docs/specifications/<feature-slug>/<scenario-id>.md`. It has two parts:
+   - `## Structure & Contracts` (from the architect) — the skeleton: which artifacts exist, where they live, what they conform to. Reference material, not a checklist.
+   - `## Ordered Test List (FLFI · TPP · Contradiction)` (from the test-designer) — your **execution order**. The `Status` column is the single progress tracker.
+3. Honor any `> Note to architect:` line as authoritative — it flags a structural gap the rows are designed against (a missing read method, an absent field, an unmapped status). Adjust the structure accordingly as you implement; do not treat it as a blocker.
+4. Walk the table top-to-bottom. For each `☐` row, run one TDD cycle:
+   - Write the failing test named by the row's FLFI label, seeded to create its Contradiction (RED).
+   - Write the smallest production code that forces the row's TPP transformation and makes it green (GREEN).
+   - Refactor if useful; every row so far stays green (REFACTOR).
+   - Flip the row's Status `☐ → ✅` in the table.
+   - If a row turns out already-green or genuinely redundant when you reach it, mark it `✅ early-green, kept — <why>` rather than forcing a false red — or drop it only if truly vacuous. Never silently skip it.
+5. When every row is `✅`, run the full test suite for the affected module and confirm green.
+6. Mark the scenario as `- [x]` in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`.
 
 ## Fix mode
 
@@ -55,7 +59,7 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 
 ## Notes
 
-- The plan lists artifacts in the order the architect recommends. TDD still dictates micro-order: if you are about to create a class that has a corresponding test in the plan, write the test first. If the plan is malformed on this point, fix the order as you go.
+- The ordered test list **is** your micro-order — each row is one red-green cycle, and the row sequence is the design (simplest transformation first). Follow it top-to-bottom; don't create a class ahead of the row that forces it into existence.
 - RED may mean "compile-fails" while dependencies are being introduced, not just "runnable but failing." Both count as red.
 - If a step cannot go green after reasonable effort, stop and report the failure. Do not bypass tests or mark incomplete work as done.
 - Project-wide code rules (no interfaces for use cases, no framework in domain, constructor injection, etc.) live in the `clean-architecture` skill — do not duplicate them here.

@@ -51,14 +51,15 @@ Then it **hands off automatically**: once `specification.md` is written it runs 
 
 Then, for each unchecked scenario in `## BDD Acceptance Progress`, **top-to-bottom, one at a time** (never parallel or batched):
 
-1. **`architect`** plans the scenario → writes `SCENARIO-XX.md`: a checklist of files/classes in inside-out Clean Architecture order (domain → ports → fakes → use case → infrastructure → API). It writes no code. (Planning rules: test behavior through the use case, every port adapter has a contract test, entities with identity include equality.)
-2. **`developer`** implements that plan with strict TDD — failing test (red) → minimal code (green) → refactor — checking off each step.
-3. The scenario's box gets checked, then the next scenario begins.
+1. **`architect`** plans the scenario's **structure** → writes `SCENARIO-XX.md` with a `## Structure & Contracts` section: which layers/ports/adapters/controllers exist, where they live, the CQRS side, contract-test obligations, and the API surface (URL, method, status mapping). It enumerates no tests and writes no code.
+2. **`test-designer`** (the "prophet") appends a `## Ordered Test List (FLFI · TPP · Contradiction)` section: the ordered, justified sequence of tests that will drive the implementation — each row named by its business rule (FLFI), tagged with the transformation it forces (TPP), and the assumption it contradicts. Flags any structural gap with a `> Note to architect:` line. Writes no code.
+3. **`developer`** executes the ordered test list with strict TDD — failing test (red) → minimal code (green) → refactor — flipping each row's `Status ☐ → ✅` and honoring any notes.
+4. The scenario's box gets checked, then the next scenario begins.
 
 ```
 docs/specifications/deposit-money/
   specification.md          # SoT: intent, rules, scenarios, progress checklist
-  SCENARIO-01.md            # Architect's plan (checkboxes), written per scenario
+  SCENARIO-01.md            # architect's Structure & Contracts + test-designer's Ordered Test List
   SCENARIO-02.md
 ```
 
@@ -92,7 +93,7 @@ The verdict gates on **VIOLATIONs** (an advisory reviewer always emits a SUGGEST
 ```
 Step 0:   EnterWorktree         (fresh branch off origin/<default>)
 Phase 1:  /intent-and-goal      → scenarios approved → writes specification.md
-Phase 2:  /run-pipeline         architect → developer, per scenario, ONE AT A TIME
+Phase 2:  /run-pipeline         architect → test-designer → developer, per scenario, ONE AT A TIME
 Phase 3:  /run-reviewers        (once, all changed files; relevant reviewers in parallel)
 Phase 4:  developer fix → /run-reviewers again, until PASS or 3 rounds
 ```
