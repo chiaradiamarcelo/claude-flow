@@ -35,7 +35,9 @@ SEP_RE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
 SECTION_RE = re.compile(r"^##\s+Ordered Test List", re.I | re.M)
 
 # test-method name shapes across stacks
-FUN_RE = re.compile(r"\bfun\s+([a-zA-Z_][\w]*)\s*\(")            # Kotlin
+# Kotlin/Scala/Groovy: only snake_case funs are test methods (our naming rule);
+# camelCase helpers like `fun repository()` / `fun anAccount()` are excluded.
+FUN_RE = re.compile(r"\bfun\s+([a-z][a-z0-9]*_[\w]*)\s*\(")
 JVOID_RE = re.compile(r"\b(?:void|public|private|protected)\s+([a-z_][\w]*)\s*\(")  # Java-ish
 IT_RE = re.compile(r"""\b(?:it|test)\s*\(\s*['"`]([^'"`]+)['"`]""")  # JS/TS
 PYDEF_RE = re.compile(r"\bdef\s+(test_[\w]*)\s*\(")             # pytest
@@ -61,7 +63,10 @@ def _row_names(scratch):
             continue
         section, header = text[m.start():], None
         for ln in section.splitlines():
-            if SEP_RE.match(ln) or not TABLE_ROW_RE.match(ln):
+            if SEP_RE.match(ln):
+                continue
+            if not TABLE_ROW_RE.match(ln):
+                header = None  # a new `###` table below re-reads its own header row
                 continue
             cells = [c.strip() for c in TABLE_ROW_RE.match(ln).group(1).split("|")]
             if header is None:

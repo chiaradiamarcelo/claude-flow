@@ -17,6 +17,15 @@ PLAN = """# SCENARIO-01
 | 2 | fails_when_the_amount_exceeds_the_balance | unconditional → conditional | no guard yet | ✅ |
 """
 
+# A multi-table plan — the second table's header must NOT be captured as a row
+# (regression for a real grader bug: header 'Test Name (FLFI)' read as a test).
+MULTI_TABLE_PLAN = PLAN + """
+### Contract — BankAccountRepositoryContractTest
+| # | Test Name (FLFI) | TPP | Contradiction | Status |
+|---|------------------|-----|---------------|--------|
+| 3 | returns_the_saved_account_for_its_id | n/a | store returns nothing | ✅ |
+"""
+
 # Kotlin test whose methods exactly match the two rows.
 MATCHING = """package x
 class WithdrawMoneyUseCaseTest {
@@ -79,6 +88,26 @@ class WithdrawMoneyUseCaseTest {
 
     def test_norm_bridges_snake_case_and_it_string(self):
         self.assertEqual(_norm("returns_x_when_y"), _norm("returns x when y"))
+
+    def test_camelcase_helpers_are_not_treated_as_tests(self):
+        withhelpers = MATCHING.replace(
+            "}",
+            "    private fun anAccount() {}\n    fun repository() {}\n}",
+            1,
+        )
+        # helpers have no row, but must NOT trip everyTestHasRow (they aren't tests)
+        self.assertEqual(self._grade({"everyTestHasRow": True}, src=withhelpers), [])
+
+    def test_multi_table_headers_are_not_captured_as_rows(self):
+        src = MATCHING.replace(
+            "}",
+            "    @Test fun returns_the_saved_account_for_its_id() {}\n}",
+            1,
+        )
+        # 3 real rows across 2 tables; the 2nd table's header must not leak in
+        fails = self._grade({"everyRowHasTest": True, "minRows": 3},
+                            plan=MULTI_TABLE_PLAN, src=src)
+        self.assertEqual(fails, [])
 
 
 if __name__ == "__main__":

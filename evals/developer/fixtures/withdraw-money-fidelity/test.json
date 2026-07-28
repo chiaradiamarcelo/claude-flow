@@ -1,0 +1,18 @@
+{
+  "description": "Integration test for the developer's plan↔code FIDELITY rule. Freezes the withdraw-money-core spec + a two-section plan (Structure & Contracts + a 5-row Ordered Test List). The developer runs with a real toolchain (golden-repo) and implements the rows red-green. Graded not on build outcome but on correspondence: every Ordered-List row maps to a test method (everyRowHasTest) and every test method maps to a row (everyTestHasRow) — a TDD-forced supporting test with no appended row is drift and fails. This pins the behaviour that leaked in the first real slice.",
+  "given": {
+    "workspace": "golden-repo",
+    "files": "input/"
+  },
+  "when": {
+    "do": "build",
+    "agent": "developer",
+    "prompt": "Implement SCENARIO-01 for the feature withdraw-money in implementation mode. The specification is at docs/specifications/withdraw-money/specification.md and your plan is at docs/specifications/withdraw-money/SCENARIO-01.md. This is a single plain Kotlin + JUnit5 Gradle module (no Spring, no JPA, no DB, no HTTP) — put sources under src/main/kotlin and tests under src/test/kotlin. Execute the Ordered Test List row by row with TDD, name each test method by the row's FLFI label, keep the Status column current, and follow the plan↔code fidelity rule (any test you write that is not a planned row must be appended to the table as a row). Verify with ./gradlew test."
+  },
+  "then": {
+    "grader": "fidelity",
+    "minRows": 5,
+    "everyRowHasTest": true,
+    "everyTestHasRow": true
+  }
+}
