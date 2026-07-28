@@ -1,0 +1,20 @@
+{
+  "description": "A with-port scenario that exercises the test-designer's distinctive behaviours the no-port fixture cannot. (1) With-port: the ReferralLedger has a contract test, so the plan must produce contract-level rows (minContractRows>=1). (2) Under-specified structure: the ledger is append-ONLY, but the award rules ('at most once per referred user', 'referred user is new') require reading state the port/finder don't expose — a good prophet must flag this with a `> Note to architect:` line rather than silently absorb it (noteToArchitect). (3) Orthogonal mechanism: LEDGER_FLUSH_BATCH is a persistence-only concern that must be addressed (mustMention 'batch') and not entangled into the award-rule rows. Plus the usual: rows exist, every row has a Contradiction, every TPP cell is canonical or n/a.",
+  "given": { "files": "input/" },
+  "when": {
+    "do": "agent",
+    "agent": "test-designer",
+    "prompt": "Design the ordered test list for SCENARIO-01 of the feature referral-bonus. The specification is at docs/specifications/referral-bonus/specification.md and the scenario plan (with its Structure & Contracts section already written) is at docs/specifications/referral-bonus/SCENARIO-01.md. Append your `## Ordered Test List` section to that plan file and nothing else."
+  },
+  "then": {
+    "grader": "testplan",
+    "testPlanMustExist": true,
+    "writesNoCode": true,
+    "minRows": 6,
+    "everyRowHasContradiction": true,
+    "tppFromCatalog": true,
+    "minContractRows": 1,
+    "noteToArchitect": true,
+    "mustMention": ["batch"]
+  }
+}
