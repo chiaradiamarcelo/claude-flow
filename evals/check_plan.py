@@ -18,7 +18,8 @@ Checks (spec keys, all optional)
 ------
   planMustExist : bool   — a new SCENARIO-*.md plan file was created
   writesNoCode  : bool   — no new source file (code extension) was created
-  minSteps      : int    — plan has >= N checklist steps (`- [ ]` / `- [x]`)
+  minSteps      : int    — plan has >= N markdown list items (`- ...`, incl. `- [ ]`
+                           checkboxes and declarative `- **Structure**` bullets)
   mustMention   : [str]   — each substring (case-insensitive) appears in the plan
   mustNotMention: [str]   — none of these substrings appear in the plan
   orderedBefore : [[a,b]] — first line matching regex `a` precedes first matching `b`
@@ -28,7 +29,9 @@ from pathlib import Path
 
 CODE_EXTS = {".kt", ".kts", ".java", ".ts", ".tsx", ".js", ".jsx", ".py",
              ".go", ".rs", ".rb", ".cs", ".swift", ".scala", ".groovy"}
-STEP_RE = re.compile(r"^\s*-\s*\[[ xX]\]")
+# A plan "step" is any markdown list item: a `- [ ]` checkbox OR a declarative
+# `- **Write side:** ...` structure bullet. The architect now writes the latter.
+STEP_RE = re.compile(r"^\s*-\s+\S")
 
 
 def _rel_files(root):

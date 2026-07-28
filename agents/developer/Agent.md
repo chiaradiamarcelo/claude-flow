@@ -47,6 +47,7 @@ Additionally, invoke conditionally based on what the scenario plan touches:
    - Refactor if useful; every row so far stays green (REFACTOR).
    - Flip the row's Status `☐ → ✅` in the table.
    - If a row turns out already-green or genuinely redundant when you reach it, mark it `✅ early-green, kept — <why>` rather than forcing a false red — or drop it only if truly vacuous. Never silently skip it.
+   - **Plan↔code fidelity.** If TDD forces you to write a test that is *not* a planned row — a supporting behaviour a row depends on (a constructor guard, a value-object query, a mapper) — you MUST append it to the appropriate table as a new row (FLFI name · TPP · Contradiction · `✅ — unplanned, added during impl`). When the scenario is done, the Ordered Test List must be a **complete inventory**: every test method that exists maps to a row, and every row maps to a test method. Never leave a test with no row.
 5. When every row is `✅`, run the full test suite for the affected module and confirm green.
 6. Mark the scenario as `- [x]` in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`.
 

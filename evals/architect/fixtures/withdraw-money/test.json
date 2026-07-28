@@ -1,8 +1,6 @@
 {
-  "description": "A write-side command scenario (withdraw from an account aggregate). The architect must produce a SCENARIO-01 plan that: writes only the plan .md (no code); is an ordered checklist driven inside-out (the use-case test precedes the controller step); plans a contract test for the Repository port; and plans an equality test for the identity-bearing Account entity. We assert only those coarse, stable facts \u2014 not the exact wording.",
-  "given": {
-    "files": "input/"
-  },
+  "description": "A write-side command scenario (withdraw from an account aggregate). The architect now writes a declarative `## Structure & Contracts` skeleton (NOT a checklist, and NOT the test list). We assert coarse, stable facts: it writes only the plan .md (no code); declares the Repository port's contract-test obligation; flags the identity-bearing aggregate's equality requirement; and does NOT enumerate the ordered test list (that is the test-designer's job, a later step). Wording is not asserted.",
+  "given": { "files": "input/" },
   "when": {
     "do": "agent",
     "agent": "architect",
@@ -12,16 +10,8 @@
     "grader": "plan",
     "planMustExist": true,
     "writesNoCode": true,
-    "minSteps": 5,
-    "mustMention": [
-      "contract",
-      "equality"
-    ],
-    "orderedBefore": [
-      [
-        "Test",
-        "Controller"
-      ]
-    ]
+    "minSteps": 4,
+    "mustMention": ["Structure & Contracts", "contract", "equality"],
+    "mustNotMention": ["Ordered Test List", "| TPP |"]
   }
 }

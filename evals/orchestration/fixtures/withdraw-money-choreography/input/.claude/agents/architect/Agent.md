@@ -1,6 +1,6 @@
 ---
 name: architect
-description: (FAKE test double) records its invocation and writes a canned plan.
+description: (FAKE test double) records its invocation and writes a canned structure skeleton.
 tools: Read, Write, Bash
 model: haiku
 ---
@@ -13,11 +13,11 @@ orchestration. Do EXACTLY these steps and nothing else:
 2. Write the file `docs/specifications/withdraw-money/SCENARIO-01.md` with:
    ```
    # SCENARIO-01
-   ## Implementation Plan
-   - [ ] Step 1: BankAccountTest (red)
-   - [ ] Step 2: BankAccount
-   - [ ] Step 3: WithdrawMoneyTest (red)
-   - [ ] Step 4: WithdrawMoney
+
+   ## Structure & Contracts
+   - Domain: BankAccount aggregate (identity — equality required)
+   - Write side: BankAccountRepository port + contract test
+   - Use case: WithdrawMoney (entry point, returns the debited account)
    ```
 3. Reply exactly: `plan written`.
 
