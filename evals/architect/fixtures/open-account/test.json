@@ -1,8 +1,6 @@
 {
-  "description": "A write-side create scenario that introduces a new HTTP endpoint. Beyond the write-side basics (use-case test before controller, Repository contract test, identity equality test, no code written), the architect must reflect the api-conventions skill in the controller step: a create returns 201 Created with a Location header. We assert those facts coarsely. (If 'Location' is absent, that is a genuine finding about the architect not applying the 201+Location rule \u2014 not necessarily a bad assertion.)",
-  "given": {
-    "files": "input/"
-  },
+  "description": "A write-side create scenario that introduces a new HTTP endpoint. Beyond the write-side basics (Repository contract-test obligation, identity equality flagged, no code written, declarative structure not a checklist), the architect must reflect the api-conventions skill in the API-surface bullet: a create returns 201 with a Location header. It must NOT emit the ordered test list. We assert those facts coarsely. (If 'Location' is absent, that is a genuine finding about the architect not applying the 201+Location rule.)",
+  "given": { "files": "input/" },
   "when": {
     "do": "agent",
     "agent": "architect",
@@ -12,18 +10,8 @@
     "grader": "plan",
     "planMustExist": true,
     "writesNoCode": true,
-    "minSteps": 5,
-    "mustMention": [
-      "contract",
-      "equality",
-      "201",
-      "Location"
-    ],
-    "orderedBefore": [
-      [
-        "Test",
-        "Controller"
-      ]
-    ]
+    "minSteps": 4,
+    "mustMention": ["Structure & Contracts", "contract", "equality", "201", "Location"],
+    "mustNotMention": ["Ordered Test List", "| TPP |"]
   }
 }

@@ -14,8 +14,13 @@
     "writesNoCode": true,
     "minSteps": 4,
     "mustMention": [
+      "Structure & Contracts",
       "Query",
       "contract"
+    ],
+    "mustNotMention": [
+      "Ordered Test List",
+      "| TPP |"
     ]
   }
 }

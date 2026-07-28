@@ -143,9 +143,9 @@ fun returns_one_user_id_for_each_user_with_at_least_one_non_deleted_domain() {
 }
 ```
 
-## Designing the test list (ZOMBIES + mutation check)
+## Discovering candidate behaviours (ZOMBIES + mutation check)
 
-Before writing tests for a behavior, walk the **ZOMBIES** categories explicitly. Don't invent "interesting" cases — invent *systematic* ones. The categories are designed to force progressively more complex production code, and the early ones are usually the strongest discriminators for catching inversions, off-by-ones, and missing filters.
+This is the *discovery* step — it feeds the ordered list in the next section; it is not itself the design. Walk the **ZOMBIES** categories explicitly to surface candidates. Don't invent "interesting" cases — invent *systematic* ones. ZOMBIES answers **"did I miss a case?"** — most often a forgotten empty/Zero input or an Exception path. The *ordering* and per-row justification come next, under FLFI · TPP · Contradiction; TPP is the spine, ZOMBIES is the completeness net (they answer different questions — keep both).
 
 - **Z**ero — empty / null / no-result input
 - **O**ne — exactly one item (catches inversions and missing filters)
@@ -177,6 +177,42 @@ assertThat(query.count()).isEqualTo(2)
 ```
 
 References: James Grenning, ["TDD Guided by Zombies"](https://blog.wingman-sw.com/tdd-guided-by-zombies).
+
+## Ordering & justifying the list (FLFI · TPP · Contradiction)
+
+Discovery gives you candidate behaviours; this step turns them into an **ordered** sequence where each row earns its place by forcing one minimal change in the production code. Think this way whenever you write tests — solo, or when producing a reviewable test-list plan (the `test-designer` agent renders this as a table). Three lenses, kept separate on purpose:
+
+- **Name — FLFI (Final Label, First Implementation).** The label states the *complete business rule, including its condition, from the first write* — and is never renamed as the code grows. Name a test after the rule it pins from the caller's POV, not after the implementation step it happens to force. `adds_100_to_winnings_when_registered_on_birthday`, not `adds_100_to_winnings` patched later. The name tracks the **rule**, never the **mechanism**.
+- **TPP (Transformation Priority Premise) — the ordering spine.** The code transformation this row forces. Order the list simplest-transformation-first: a row that forces a simpler transformation is a smaller, more fundamental test, and this ordering makes production code grow by minimal steps. This is what turns *coverage thinking* into *forcing-function thinking*. Don't invent transformation names or guess priorities — tag each driving row with one from the canonical list below, cited by name.
+- **Contradiction.** What the code **as it stands after the previous rows** wrongly assumes, that this row proves false. This is the mutation question from discovery, made concrete and relative to the evolving code — the generative driver *and* the minimality guard: the row exists to break one current assumption, so **only the data needed to create that contradiction is justifiable**. If you can't name what the code-so-far believes that this row falsifies, the row is vacuous — drop it.
+
+**The canonical TPP transformations** (Robert C. Martin), simplest first — higher on the list = simpler = preferred:
+
+1. `{} → nil` — no code → code returning nil / nothing
+2. `nil → constant`
+3. `constant → constant+` — a constant becomes a more complex constant
+4. `constant → scalar` — a constant becomes a variable or argument
+5. `statement → statements` — add more unconditional code
+6. `unconditional → conditional` — split the execution path (introduce an `if`)
+7. `scalar → array`
+8. `array → container`
+9. `statement → recursion`
+10. `conditional → loop` — an `if` becomes a `while` / iteration
+11. `expression → function` — replace an expression with a call / algorithm
+12. `variable → assignment` — change a variable's value
+
+It's a heuristic, not a law: when a row could be made green by more than one change, prefer the higher-priority (simpler) transformation, and order rows so early ones force high-priority transformations and later ones force lower. Cite the transformation by name (a priority number, if used, is its position above). Rows that don't drive a transformation chain — contract and equality rows — are `n/a`.
+
+**Per-row procedure** — for each candidate behaviour, in order:
+1. Write the FLFI name (full rule + condition).
+2. Name the contradiction: what does the code-so-far assume that this row falsifies?
+3. Derive the **smallest seed** that creates that contradiction. Delete every row/field/value that doesn't change *which* contradiction is caught. Minimality is **relative to the contradiction**, not an absolute "few rows" (see *Asymmetric data* above — the seed must diverge from what a mutant would produce).
+4. Tag the TPP transformation it forces; keep the list ordered simplest-first.
+5. **Redundancy gate:** does an earlier row already fail under this row's contradiction? If yes, **drop it** — don't keep it "for documentation." A vacuous row is removed, not annotated.
+
+**Isolate mechanisms.** If a behaviour doesn't depend on a mechanism (chunking, batching, caching, pagination), set that mechanism's knob to its trivial value and keep its data out of the row — then give the mechanism its **own** explicit row with the knob made visible. Never contort a behaviour test into also exercising chunking; that entanglement is the classic over-seeding smell.
+
+**TPP is `n/a` for rows that don't drive a transformation chain** — contract tests (a *set* of consumer-facing port guarantees) and equality / `equals` rows. For these, FLFI + Contradiction carry the weight; don't manufacture a transformation tag to fill the column.
 
 ## Assertions
 

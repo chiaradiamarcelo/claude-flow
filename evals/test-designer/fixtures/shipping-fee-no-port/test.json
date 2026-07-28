@@ -1,0 +1,18 @@
+{
+  "description": "A pure-calculation scenario with a boundary (free-shipping at exactly 50.00) and an orthogonal surcharge, and crucially NO persistence port. The test-designer must append an Ordered Test List that: writes no code; has several rows; gives every row a Contradiction; tags every driving row with a canonical TPP transformation (or n/a); and produces ZERO contract-level rows (there is no port to contract — a good prophet must not manufacture a contract table to fill the template). We assert those coarse facts, not wording.",
+  "given": { "files": "input/" },
+  "when": {
+    "do": "agent",
+    "agent": "test-designer",
+    "prompt": "Design the ordered test list for SCENARIO-01 of the feature shipping-fee. The specification is at docs/specifications/shipping-fee/specification.md and the scenario plan (with its Structure & Contracts section already written) is at docs/specifications/shipping-fee/SCENARIO-01.md. Append your `## Ordered Test List` section to that plan file and nothing else."
+  },
+  "then": {
+    "grader": "testplan",
+    "testPlanMustExist": true,
+    "writesNoCode": true,
+    "minRows": 5,
+    "everyRowHasContradiction": true,
+    "tppFromCatalog": true,
+    "maxContractRows": 0
+  }
+}

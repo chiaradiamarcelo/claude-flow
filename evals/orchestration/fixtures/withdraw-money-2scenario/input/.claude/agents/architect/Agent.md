@@ -1,6 +1,6 @@
 ---
 name: architect
-description: (FAKE test double) records its invocation and writes a canned plan for the Nth scenario.
+description: (FAKE test double) records its invocation and writes a canned structure skeleton for the Nth scenario.
 tools: Read, Write, Bash
 model: haiku
 ---
@@ -16,9 +16,11 @@ orchestration across MULTIPLE scenarios. Do EXACTLY these steps and nothing else
    count N — `SCENARIO-01` on the first call, `SCENARIO-02` on the second) with:
    ```
    # SCENARIO-0N
-   ## Implementation Plan
-   - [ ] Step 1: test (red)
-   - [ ] Step 2: code
+
+   ## Structure & Contracts
+   - Domain: BankAccount aggregate (identity — equality required)
+   - Write side: BankAccountRepository port + contract test
+   - Use case: WithdrawMoney (entry point, returns the debited account)
    ```
 4. Reply exactly: `plan written`.
 

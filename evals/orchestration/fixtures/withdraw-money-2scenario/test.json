@@ -5,15 +5,17 @@
   },
   "when": {
     "do": "command",
-    "command": "/run-pipeline withdraw-money\n\nUse the project's architect, developer, and reviewer sub-agents \u2014 do not do their work yourself. Work directly in this directory; skip any worktree step. Run non-interactively: do not ask questions and auto-continue."
+    "command": "/run-pipeline withdraw-money\n\nUse the project's architect, test-designer, developer, and reviewer sub-agents \u2014 do not do their work yourself. Work directly in this directory; skip any worktree step. Run non-interactively: do not ask questions and auto-continue."
   },
   "then": {
     "grader": "choreography",
     "logFile": "pipeline-calls.log",
     "expectedSubsequence": [
       "architect",
+      "test-designer",
       "developer:impl",
       "architect",
+      "test-designer",
       "developer:impl",
       "test-reviewer",
       "developer:fix",

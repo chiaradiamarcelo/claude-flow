@@ -95,7 +95,7 @@ PY
 
   # Every non-reviewer kind runs through the single engine. architect + intent
   # run by default; developer/pipeline/orchestration are opt-in (heavy/paid).
-  for c in architect intent-and-goal developer pipeline orchestration; do
+  for c in architect test-designer intent-and-goal developer pipeline orchestration; do
     want "$c" && engine_corpus "$c"
   done
 fi
