@@ -29,6 +29,7 @@ sys.path.insert(0, str(EVALS))
 import eval_grade          # noqa: E402  grade_agent (verdict)
 import check_plan          # noqa: E402
 import check_testplan      # noqa: E402
+import check_fidelity      # noqa: E402
 import check_build         # noqa: E402
 import check_spec          # noqa: E402
 import check_choreography  # noqa: E402
@@ -122,6 +123,7 @@ GRADERS = {
     "verdict":      lambda spec, ctx: eval_grade.grade_agent(spec, ctx.get("verdict")),
     "plan":         lambda spec, ctx: check_plan.grade_plan(spec, ctx["input_dir"], ctx["scratch"]),
     "testplan":     lambda spec, ctx: check_testplan.grade_testplan(spec, ctx["input_dir"], ctx["scratch"]),
+    "fidelity":     lambda spec, ctx: check_fidelity.grade_fidelity(spec, ctx["scratch"]),
     "build":        lambda spec, ctx: check_build.grade_build(spec, ctx["scratch"], ctx["build_exit"]),
     "spec":         lambda spec, ctx: check_spec.grade_spec(spec, ctx["fixture_dir"] / "input", ctx["scratch"]),
     "acceptance":   lambda spec, ctx: verify_acceptance.verify(spec, ctx["scratch"])[0],

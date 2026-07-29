@@ -1,0 +1,14 @@
+{
+  "description": "Regression fixture for the mechanism-entanglement lesson (the core motivation for the ordered-test-list work). The test is NAMED for a filtering behaviour ('returns only active users') but its seed is shaped to span the fetch BATCH_SIZE (150 rows across two batches), entangling the batching mechanism with the active-filter behaviour. The minimal seed for the named rule is ~2 active + 1 inactive; batching, if it matters, deserves its own explicit test with the knob made visible. The test-reviewer must flag the over-seeding / mechanism entanglement (minimal fixture data). We assert FAIL coarsely.",
+  "given": { "files": "input/" },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "severities": { "VIOLATION": { "min": 1 } },
+    "mustMention": ["seed"]
+  }
+}

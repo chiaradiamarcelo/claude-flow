@@ -23,6 +23,8 @@ Checks (spec keys, all optional)
                                 (used when the input structure is under-specified)
   maxContractRows     : int   — at most N rows under a `### Contract` table
                                 (0 asserts NO contract level — e.g. no-port scenarios)
+  minContractRows     : int   — at least N rows under a `### Contract` table
+                                (>=1 asserts the port's behaviour got contract rows)
   mustMention         : [str] — each substring appears in the Ordered Test List
   mustNotMention      : [str] — none of these appear in the Ordered Test List
 """
@@ -132,12 +134,15 @@ def grade_testplan(spec, input_dir, scratch_dir):
                              f"TPP tag {cells[ti]!r} (expected a canonical transformation or n/a)")
                 break
 
+    contract_n = sum(1 for level, _, _ in rows if re.search(r"contract", level or "", re.I))
     max_contract = spec.get("maxContractRows")
-    if max_contract is not None:
-        n = sum(1 for level, _, _ in rows if re.search(r"contract", level or "", re.I))
-        if n > max_contract:
-            fails.append(f"maxContractRows: {n} contract-level rows, expected <= {max_contract} "
-                         f"(this scenario has no persistence port)")
+    if max_contract is not None and contract_n > max_contract:
+        fails.append(f"maxContractRows: {contract_n} contract-level rows, expected <= {max_contract} "
+                     f"(this scenario has no persistence port)")
+    min_contract = spec.get("minContractRows")
+    if min_contract is not None and contract_n < min_contract:
+        fails.append(f"minContractRows: {contract_n} contract-level rows, expected >= {min_contract} "
+                     f"(the port's behaviour must get contract rows)")
 
     if spec.get("noteToArchitect") and "note to architect" not in section.lower():
         fails.append("noteToArchitect: expected a `> Note to architect:` line, none found")
