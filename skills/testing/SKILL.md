@@ -85,15 +85,70 @@ class CalculateOccupancyTest {
 - **Name the behavior, not the mechanism.** A test name should communicate something useful to whoever reads it — the observable outcome or condition from the caller's point of view — not the internal implementation that happens to produce it. The reader rarely cares *how* the work is done.
   - **Exception: when the mechanism IS a behavior you care about, name it.** A cache is an implementation detail from the outside — but if caching is a guarantee you must uphold (e.g. `does_not_refetch_on_second_call`), then it's behavior worth naming and testing. The test is whether the mechanism is a contract the reader relies on, or just incidental plumbing.
   - **Example (incidental → drop it):** `when_aggregation_fails` / `fails_when_the_cached_urls_query_throws` — the aggregation step and the table name are internal mechanics that tell the reader nothing about the contract. The contract is simply that a failing run is reported as a failure: `when_the_job_fails` / `propagates_the_error`.
+- **Avoid implementation details.** Use domain/concept language, not visual or widget details.
+  - Bad: `shows_filled_red_heart_when_item_is_favourite` — "heart" is an icon shape; changing the icon breaks the test name.
+  - Good: `shows_active_favourite_icon_when_item_is_favourite` — "favourite" is a stable concept.
+  - Similarly avoid: specific icon names, widget types (`checkbox`, `radio button`), colours, framework class names.
 
 ## Logic in Tests (Forbidden)
 
 **Never use `if`, `else`, `for`, `while`, `switch`, `forEach`, or similar control flow in a test body.**
 Tests must remain declarative and linear. If branching appears necessary, split scenarios or redesign setup.
 
+### Exception: exhaustive enum/variant mapping
+
+When multiple tests would differ **only** by the enum value and its expected output (each testing one type maps to one label), collapse them into a single exhaustive-iteration test. Iterating an enum's `entries` / `values()` isn't branching — it's proof the mapping covers every variant. Adding a new variant should force the test to fail until the mapping is updated.
+
+Use a dictionary of `{ variant → expected }` and iterate the enum's own variant list — not a subset. Include a per-variant message in the assertion so a failure identifies the offending variant.
+
+```kotlin
+private val expectedTypeLabels = mapOf(
+    FestivalType.Kirchwei to R.string.type_kirchwei,
+    FestivalType.Kerwa    to R.string.type_kerwa,
+    // ...one row per variant...
+)
+
+@Test
+fun `maps every festival type to its label resource`() {
+    FestivalType.entries.forEach { type ->
+        assertEquals(
+            expectedTypeLabels.getValue(type),
+            formatter.typeLabelResId(aFestival(type = type)),
+            "Unexpected label for $type",
+        )
+    }
+}
+```
+
+The `getValue(type)` throws if the map is missing a variant; iterating `entries` catches variants added after the test was written. Together they make coverage total and mechanical.
+
 ## One behavior per test
 
 Each test verifies one behavior. If a test name needs "and", split it. A test name should describe a single observable behavior; multiple assertion calls (e.g., `assertThat(...)`, `expect(...)`) that each prove a different behavior — not different facets of the same outcome — is the same smell.
+
+### Orthogonal behaviors: test dimensions independently
+
+When two behaviors are truly **independent** (e.g., marker scale depends only on selection, marker tint depends only on favourite status), test each dimension in isolation — not every combination. A `4×4` combination matrix multiplies tests without adding coverage; two focused tests prove the same rules.
+
+To prove a dimension is genuinely irrelevant to a behavior, you can vary the irrelevant axis *within one test* via reactive state and assert the outcome doesn't change. That's not two behaviors — it's proof that the rule holds universally along the irrelevant axis.
+
+```kotlin
+@Test
+fun `selected marker is enlarged regardless of favourite status`() {
+    var favouriteIds by mutableStateOf(emptySet<String>())
+    composeTestRule.setContent {
+        mapInteractions.Content(selectedFestival = festival1, favouriteIds = favouriteIds, ...)
+    }
+    composeTestRule.waitForIdle()
+    assertEquals(SELECTED_SCALE, mapInteractions.markerScaleByFestivalId[festival1.id])  // non-favourite
+
+    favouriteIds = setOf(festival1.id)
+    composeTestRule.waitForIdle()
+    assertEquals(SELECTED_SCALE, mapInteractions.markerScaleByFestivalId[festival1.id])  // favourite: still enlarged
+}
+```
+
+One behavior (`selected → enlarged`), universally quantified over the irrelevant dimension (favourite status). The "and" rule still applies.
 
 - **Watch the seed shape, not just the assertions.** A test can name one rule but exercise two if the seed is shaped for both. Example: a test named "returns distinct user IDs" with three rows for user A and one for user B exercises both *deduplication* (rule 1: multiple rows per user collapse to one) and *multi-user enumeration* (rule 2: each distinct user appears) — the single `hasSize(2)` / `toHaveLength(2)` assertion is doing work for both rules. Split: one test seeds two rows for one user (proves dedup, expects a single-element list); the other seeds one row for each of two users (proves enumeration, expects both IDs). Detection heuristic: if removing one *type* of seed variation (the duplicate row, or the second user) still proves the rule the name claims, the removed variation was testing a different rule — split.
 
@@ -224,6 +279,22 @@ It's a heuristic, not a law: when a row could be made green by more than one cha
 - Avoid magic numbers; use named constants/fixtures where meaning matters.
 - **No redundant intermediate assertions**: do not assert a precondition that is already tested implicitly by the next assertion. For example, asserting an Optional/Maybe is present before accessing its value is redundant if the next line asserts a property of the unwrapped value — the test will fail anyway if the value is absent.
 - **Subset matchers are NOT equality.** Matchers like `arrayContaining([...])` / `objectContaining({...})` in Jest, `hasItems(...)` in Hamcrest, `Mockito.argThat`, etc. pass when the asserted items are *included* in the actual value — extras slip through. To assert "exactly these items in any order" on a collection, pair the subset matcher with a length/size check, or sort both sides and use deep equality.
+- **Sealed-hierarchy assertion helpers**: when a test helper asserts a value is a specific variant of a sealed hierarchy (Kotlin sealed class, TypeScript discriminated union, Rust enum, Java sealed class) and returns the typed result, use exhaustive dispatch — never a truthy check plus an unsafe cast. Exhaustive dispatch gives compiler-enforced coverage; when the hierarchy gains a new variant, the helper fails at compile time instead of throwing at runtime.
+
+```kotlin
+// Good — exhaustive `when` gives compile-time coverage
+private fun assertSuccess(state: UiState): UiState.Success = when (state) {
+    is UiState.Success -> state
+    is UiState.Loading -> throw AssertionError("Expected Success but was Loading")
+    is UiState.Error   -> throw AssertionError("Expected Success but was Error(${state.reason})")
+}
+
+// Bad — unsafe downcast; a new variant would compile fine but crash at runtime
+private fun assertSuccess(state: UiState): UiState.Success {
+    assertTrue(state is UiState.Success)
+    return state as UiState.Success
+}
+```
 
 ## Test data minimality
 
@@ -239,6 +310,33 @@ It's a heuristic, not a law: when a row could be made green by more than one cha
 - The helper absorbs incidental parameters (like test fakes) so tests only specify what matters for their scenario.
 - When a new parameter is added to a shared constructor, update the helper — never patch individual call sites.
 - **Prepare the seam before changing signatures.** When you are about to add a parameter to a constructor, method, or data class that is already called in multiple places (especially tests), scan the call sites first. If 3+ sites use identical construction, extract the helper *before* changing the signature — not after. One edit in the helper, not shotgun surgery across dozens of files. "Make the change easy (this might be hard), then make the easy change." — Kent Beck
+
+### Fixture builders — enforcement
+
+Once a builder exists for a domain/DTO type, direct construction of that type in tests is a **violation**, not a style preference. The same applies to specifying fields that don't matter to the behavior:
+
+- **Flag as a violation**: any direct construction of a domain type in tests (`Festival(...)`, `Order(...)`) when a builder exists. Tests must call the builder (`aFestival(...)`, `anOrder(...)`) and rely on its defaults.
+- **Flag as a violation**: any test that passes a field to the builder when that field is not read by the behavior under test. Only fields essential to the assertion should be specified.
+- **Flag as a warning** and recommend creating a builder when a domain/DTO type is directly constructed across multiple test files.
+
+```kotlin
+// Bad — direct construction; every irrelevant field couples the test to the domain shape.
+val festival = Festival(
+    id = "today-active", name = "Today Active Festival",
+    town = "Testtown", landkreis = "Testkreis",
+    dates = DateRange(LocalDate.of(2025, 8, 10), LocalDate.of(2025, 8, 20)),
+    location = Location(49.45, 11.07),
+    description = "", sourceUrls = emptyList(),
+)
+
+// Good — only the fields the behavior actually needs.
+val festival = aFestival(dates = DateRange(today, today.plusDays(10)))
+```
+
+Rules the builder must satisfy:
+- Provides a default value for **every** field, so callers can omit anything irrelevant.
+- Lives with the tests it serves (e.g., a `Fixtures.kt` in the test source set).
+- Is the single point of maintenance when the underlying type gains a field.
 
 ## Test data visibility
 
@@ -358,6 +456,9 @@ When designing 4xx tests, distinguish source of failure:
 
 - Test files exceeding ~300-400 lines covering unrelated features should be split by feature.
 - Keep tests at public API boundaries.
+- **Name slices `<Component><Feature>Test`** (or the stack's equivalent) so the file names describe what each slice covers — e.g., `FestivalMapLocationTest.kt`, `FestivalMapFilterTest.kt`, `FestivalMapPermissionsTest.kt`. A folder full of `FestivalMapTest1`, `FestivalMapTest2` conveys nothing; a folder of `<Component><Feature>Test` files reads as a table of contents.
+- **Slices still target the public API.** Splitting a file is a *grouping* decision, not a mandate to test private functions or internal collaborators. Each slice still exercises the component through its main entry point (Screen, ViewModel, controller, use case) — the split just narrows the *set of behaviors* each file covers, not the *depth* at which they're tested.
+- **Shared setup**: when multiple slices need the same setup, extract it to a helper function or a base class — but **prioritize readability over DRY in tests**. A tiny duplication in setup that keeps each test self-contained is worth more than a clever base class that saves five lines but forces the reader to jump around to understand what any single test does. In tests, WET (write everything twice) is often cheaper than DRY.
 
 ## Repository integration tests (real DB, contract-style)
 
@@ -407,6 +508,10 @@ Do not widen visibility only for tests.
 **Do not add production API surface that only tests consume.** A return value, parameter, or method that exists solely so a test can assert on it — while production ignores it — is test-induced design damage. Drop it and assert the observable outcome instead: read the state back through the public interface. Example: a repository `update`/`markRefreshed` the caller invokes fire-and-forget should return nothing, not an affected-row count that exists only for `assert(count == 1)`; assert the row's new state via a read method (`findById(...)`). The count is an implementation artifact; the persisted state is the behavior.
 
 **Exception**: when a domain class (e.g. a value object or calculator) has enough variants that testing all combinations through the use case would require excessive boilerplate, extract it into a focused class and test that class directly. This must be justified by combinatorial complexity, not convenience.
+
+**When you extract, extract with a public surface — not by widening visibility.** If a piece of logic warrants its own tests, it warrants its own public API in its own context. Do **not** make an existing internal helper `internal`/`package-private` just to reach it from tests. Move it into a new class/module whose public API is the thing you want to test.
+
+**Tests of the extracted class stay behavior-oriented.** Even though the extraction was structural, the tests of the extracted class must describe behavior from the perspective of its direct client — not implementation steps. `computes_the_score_when_all_criteria_pass` is a behavior; `iterates_over_criteria_list_in_order` is an implementation detail. If you can only describe what the extracted class does by narrating its steps, it wasn't ready to be extracted.
 
 **Equality**: domain entities with identity must always have equality tested in a dedicated test (e.g., `BankAccountTest`). This is an exception to the "test through the use case" rule — other assertions across the test suite (e.g., `assertThat(repo.findById(id)).isEqualTo(expectedEntity)`) silently depend on equality working correctly. Always test: same identity = equal, different identity = not equal.
 

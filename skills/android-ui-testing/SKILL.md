@@ -351,3 +351,43 @@ composeTestRule.onNodeWithText("Festival 20").assertIsDisplayed()
 - Use `noOpActions()` factory for tests that don't care about callbacks
 - Use `waitForIdle()` after state changes
 - Use `waitUntil(timeoutMillis)` for async data loading, never `Thread.sleep`
+
+---
+
+## 9. Navigation Transitions & Animations
+
+Compose transition objects (`EnterTransition`, `ExitTransition`, `slideInHorizontally`, `tween`, ...) are **opaque**. You cannot inspect their internals (slide direction, duration, easing, offset pixels) from a unit or instrumented test. That's a feature, not a limitation — anything you *could* assert about internals would be brittle.
+
+### What to test (unit)
+
+- **Route → transition wiring.** For a given route, the correct transition object is chosen. Assert on the *identity* of the returned transition (e.g., `assertSame(FADE_TRANSITION, navGraph.transitionFor(Route.Detail))`), not on its behaviour.
+
+### What to test (instrumented, narrow)
+
+- **Navigation actually happens without crashing.** After tapping the button that navigates to Detail, key UI of the Detail screen is present.
+- **Back navigation returns to the right screen.** After navigating away and pressing back, the previous screen's key UI is present again.
+
+### What NOT to test
+
+- Exact slide direction, pixel offsets, or frame-by-frame timing.
+- "Feels polished" — that's manual/visual QA on a real device.
+- Animation internals — asserting on `tween` duration, `slideInHorizontally` offset, `EasingCurve` shape. These produce brittle tests with no value; a designer changing the easing curve will "break" tests that describe nothing about behavior.
+
+### Where transition definitions live
+
+A single file (e.g. `NavTransitions.kt`) is the source of truth. Changes to the transition style are intentional and reviewed visually — never by an automated test asserting the new tween parameters.
+
+```kotlin
+// Good — asserts wiring: this route uses this named transition.
+@Test
+fun `detail route uses the horizontal-slide transition`() {
+    assertSame(HORIZONTAL_SLIDE, navGraph.transitionFor(Route.Detail))
+}
+
+// Bad — asserts animation internals. Redesigning the transition breaks this test with no behavioral change.
+@Test
+fun `detail route slides in horizontally over 300ms`() {
+    val transition = navGraph.transitionFor(Route.Detail) as SlideInHorizontally
+    assertEquals(300, (transition.animationSpec as TweenSpec).durationMillis)
+}
+```
