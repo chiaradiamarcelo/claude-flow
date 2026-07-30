@@ -43,10 +43,11 @@ Apply all design and code conventions from the `clean-architecture` skill, plus 
 ### Extract domain concepts
 - Primitive obsession (raw strings/numbers for rich business concepts).
 - Missing value objects where validation/behavior should live.
+- Implicit concepts that should be made explicit — e.g. a `DateRange` type, a `Coordinates` type instead of raw `from`/`to` dates or `lat`/`lon` doubles passed side by side.
 
 ### Move logic to the right layer
-- Domain rules in controllers.
-- Business branching in orchestration code that belongs in domain services/value objects.
+- Business rules living in ViewModels/controllers or use cases that should be in domain models.
+- Sorting, filtering, and calculation in presentation code — belongs in a use case or on the domain entity, not the ViewModel.
 - **Standalone domain services that should be entity methods.** A `*Calculator`, `*Evaluator`,
   `*Resolver`, or `*Service` file that exports a stateless function whose only input is a single
   domain type (or its fields) and whose output is, or derives, one of that type's own fields is
@@ -72,6 +73,9 @@ Apply all design and code conventions from the `clean-architecture` skill, plus 
 
 ### Mapper cleanliness
 - Mappers should map data only, not apply business rules.
+
+### Naming — ubiquitous language
+- Flag generic terms (`data`, `info`, `item`, `process`, `handle*`, `manager`) where a domain term would be more specific. Names should reflect the ubiquitous language of the domain — a project reviewing loan applications talks about `LoanApplication`, not `ApplicationItem`.
 
 ### Readability — comments and function length
 - **Comment as a missing name.** Block comments that summarize *what* the next 3–10 lines do

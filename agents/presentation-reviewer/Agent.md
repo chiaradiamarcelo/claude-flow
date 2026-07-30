@@ -349,6 +349,28 @@ If a value affects what the user sees, the ViewModel should usually provide it d
 
 ---
 
+## 1i. Screen-state completeness
+
+Once each screen has a single atomic state (1f), that state must be **complete**: it must model every meaningful UI mode, and its success variant must carry **only** what the screen renders.
+
+### Every meaningful state is modelled
+A screen backed by asynchronous data has at least three meaningful modes — usually expressed as a sealed hierarchy:
+- **Loading** — the initial fetch is in flight.
+- **Success** — data is available; render it.
+- **Error** — the fetch failed; render a recoverable UI.
+
+Additional variants (Empty, Unauthorized, Offline) get their own sealed subclass rather than being expressed as flags on Success. Flag any screen that only exposes a single `data class` for its state when the underlying operation can fail or take time.
+
+### Success carries only what the screen needs
+The Success variant must carry **only** the fields the composable actually reads. Do not pass raw domain entities through — map them to a UI model (`FestivalCardUiModel`, not `Festival`) with only the fields the view consumes. Extra fields (technical IDs, database timestamps, computed values the UI ignores) are dead weight that make the state harder to test and blur the Humble View boundary.
+
+Red flags:
+- `Success(data: Festival)` where `Festival` has 20 fields but the screen reads three.
+- A sealed hierarchy missing a variant for a state the underlying flow can actually produce (`Result.failure(...)` reachable but no `Error` in the sealed class).
+- Optional/nullable fields on Success that encode "sub-states" instead of introducing a new variant.
+
+---
+
 ## 2. Composed Method Pattern
 
 **Readability is the top priority.** Unless there is a proven, measured performance concern, always choose readability over saving a function call.
