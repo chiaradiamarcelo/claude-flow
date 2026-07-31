@@ -18,6 +18,7 @@
 !hooks/rtk-rewrite.sh
 !hooks/on-enter-worktree.sh
 !hooks/worktree-warming.md
+!hooks/log-skill-invocation.sh
 
 # Worktree dep-warming worker (global default)
 !warm-deps.sh
