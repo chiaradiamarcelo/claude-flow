@@ -10,22 +10,21 @@
 # Log: $CLAUDE_PROJECT_DIR/.skill-invocations.log (falls back to $PWD).
 # Never blocks: always exits 0 with no decision output, so the Skill call proceeds.
 #
-# READING THE LOG — an EMPTY log is AMBIGUOUS, do not conclude from it alone:
-#   - control first: the main loop invokes Skill(run-reviewers), so `run-reviewers`
-#     MUST appear in the log. If even that is missing, the hook itself is broken
-#     (wrong $CLAUDE_PROJECT_DIR, matcher not firing) — fix that before reading on.
-#     (Firing is CONFIRMED for a top-level `claude -p --agent` dispatch — the
-#     test-reviewer/loads-injected-android-testing eval logs `android-testing`. The
-#     open question is only whether it also fires for a dispatched SUB-agent.)
-#   - with the control present, cross the log against the reviewer's BEHAVIOUR on a
-#     file that violates an injected-skill rule: log-has-skill => loaded (works,
-#     hooks reach sub-agents). log-empty + rule applied anyway => it loaded but the
-#     hook didn't capture the sub-agent's Skill call => hooks don't reach sub-agents
-#     (fall back to the behavioural probe). log-empty + rule NOT applied on a file
-#     that violates it => the agent ignored the injection => inline the skill.
-#   - a reviewer that @-references a skill (e.g. android-ui-test-reviewer ->
-#     android-ui-testing) inlines it and never calls Skill for it; only its
-#     INJECTED skills appear here. Absence of an @-referenced skill is not failure.
+# READING THE LOG — CONFIRMED the hook fires for BOTH top-level agents AND
+# dispatched SUB-agents: a real 5-agent /run-pipeline pass logged all 12 Skill
+# calls, one line per invocation, no gaps. So the log is a COMPLETE record of
+# runtime Skill invocations. It does NOT (by design) record two things:
+#   - @-referenced skills. A reviewer that pulls a skill via @skills/.../SKILL.md
+#     (e.g. android-ui-test-reviewer -> android-ui-testing) inlines it at
+#     prompt-build time — never a Skill call — so it never appears here. Its absence
+#     is not failure. (This is exactly why a self-report is unreliable: agents
+#     conflate inlined and invoked; the log doesn't.)
+#   - a skill the agent was asked to load but chose not to invoke.
+# So: a skill IN the log was loaded at runtime; a skill ABSENT was not invoked
+# (either inlined via @-ref, or the agent skipped it) — cross with the agent's
+# output to tell which. Control: the orchestrator invokes Skill(run-reviewers) /
+# Skill(run-pipeline), so one of those MUST appear; if not, the hook is broken
+# (wrong $CLAUDE_PROJECT_DIR or matcher not firing) — check that first.
 
 command -v jq >/dev/null 2>&1 || exit 0
 
