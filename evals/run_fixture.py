@@ -87,26 +87,41 @@ def setup_workspace(fixture_dir, given):
     return scratch
 
 
+# ---------- skill injection (mirror the two production commands' wording) -----
+def _reviewer_inject(skills):  # mirrors /run-reviewers Step 5
+    return ("\n\nProject skills — before reviewing, invoke the `Skill` tool to load "
+            "each of these, and apply their rules in addition to your own: "
+            + ", ".join(skills))
+
+
+def _worker_inject(skills):  # mirrors /run-pipeline Step 0
+    return ("\n\nProject skills — invoke the `Skill` tool to load each of these at the "
+            "start, in addition to your core skills: " + ", ".join(skills))
+
+
+def _clean_skill_log(cwd):
+    """The global Skill PreToolUse hook writes cwd/.skill-invocations.log (no
+    CLAUDE_PROJECT_DIR set -> falls back to $PWD == cwd). Clean it first so the
+    skill-loaded grader reads only THIS dispatch's Skill calls. Returns its path."""
+    log = Path(cwd) / ".skill-invocations.log"
+    log.unlink(missing_ok=True)
+    return str(log)
+
+
 # ---------- WHEN: the closed enum of handlers --------------------------------
 def do_agent(fixture_dir, when, scratch):
+    inject = when.get("injectSkills")
     if "prompt" in when:  # artifact-producing agent (e.g. architect writes a plan)
-        _claude(when["prompt"], scratch, when.get("tools", PLAN_TOOLS), agent=when["agent"])
-        return {"scratch": scratch, "input_dir": fixture_dir / "input"}
+        prompt = when["prompt"] + (_worker_inject(inject) if inject else "")
+        skill_log = _clean_skill_log(scratch)
+        _claude(prompt, scratch, when.get("tools", PLAN_TOOLS), agent=when["agent"])
+        return {"scratch": scratch, "input_dir": fixture_dir / "input", "skill_log": skill_log}
     given_dir = fixture_dir / "input"  # verdict reviewer: read in place
-    prompt = _REVIEW_PROMPT.format(d=given_dir)
-    inject = when.get("injectSkills")  # mimic /run-reviewers' agentSkills injection
-    if inject:
-        prompt += ("\n\nProject skills — before reviewing, invoke the `Skill` tool to "
-                   "load each of these, and apply their rules in addition to your own: "
-                   + ", ".join(inject))
-    # The global Skill PreToolUse hook logs invocations to cwd/.skill-invocations.log
-    # (no CLAUDE_PROJECT_DIR set -> falls back to $PWD == fixture_dir). Clean it first
-    # so the skill-loaded grader reads only THIS dispatch's Skill calls.
-    skill_log = fixture_dir / ".skill-invocations.log"
-    skill_log.unlink(missing_ok=True)
+    prompt = _REVIEW_PROMPT.format(d=given_dir) + (_reviewer_inject(inject) if inject else "")
+    skill_log = _clean_skill_log(fixture_dir)
     proc = _claude(prompt, fixture_dir,
                    when.get("tools", REVIEW_TOOLS), agent=when["agent"])
-    return {"verdict": _extract_json(proc.stdout), "skill_log": str(skill_log)}
+    return {"verdict": _extract_json(proc.stdout), "skill_log": skill_log}
 
 
 def do_command(fixture_dir, when, scratch):
@@ -116,8 +131,12 @@ def do_command(fixture_dir, when, scratch):
 
 
 def do_build(fixture_dir, when, scratch):
-    _claude(when["prompt"], scratch, when.get("tools", DEV_TOOLS), agent=when["agent"])
-    return {"scratch": scratch, "build_exit": verify_acceptance.gradle_build(scratch)}
+    inject = when.get("injectSkills")
+    prompt = when["prompt"] + (_worker_inject(inject) if inject else "")
+    skill_log = _clean_skill_log(scratch)
+    _claude(prompt, scratch, when.get("tools", DEV_TOOLS), agent=when["agent"])
+    return {"scratch": scratch, "build_exit": verify_acceptance.gradle_build(scratch),
+            "skill_log": skill_log}
 
 
 HANDLERS = {"agent": do_agent, "command": do_command, "build": do_build}
