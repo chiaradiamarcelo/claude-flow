@@ -60,6 +60,9 @@
 # ...but not the regenerable per-machine fingerprint cache or temp progress notes
 evals/**/.eval-cache.json
 evals/PROGRESS.md
+# ...nor the Skill-invocation log the global PreToolUse hook writes during eval dispatches
+evals/**/.skill-invocations.log
+.skill-invocations.log
 # ...nor the golden repos' build outputs / gradle daemon state (regenerable)
 evals/golden-repo/build/
 evals/golden-repo/.gradle/
