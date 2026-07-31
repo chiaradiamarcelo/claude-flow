@@ -93,7 +93,13 @@ def do_agent(fixture_dir, when, scratch):
         _claude(when["prompt"], scratch, when.get("tools", PLAN_TOOLS), agent=when["agent"])
         return {"scratch": scratch, "input_dir": fixture_dir / "input"}
     given_dir = fixture_dir / "input"  # verdict reviewer: read in place
-    proc = _claude(_REVIEW_PROMPT.format(d=given_dir), fixture_dir,
+    prompt = _REVIEW_PROMPT.format(d=given_dir)
+    inject = when.get("injectSkills")  # mimic /run-reviewers' agentSkills injection
+    if inject:
+        prompt += ("\n\nProject skills — before reviewing, invoke the `Skill` tool to "
+                   "load each of these, and apply their rules in addition to your own: "
+                   + ", ".join(inject))
+    proc = _claude(prompt, fixture_dir,
                    when.get("tools", REVIEW_TOOLS), agent=when["agent"])
     return {"verdict": _extract_json(proc.stdout)}
 

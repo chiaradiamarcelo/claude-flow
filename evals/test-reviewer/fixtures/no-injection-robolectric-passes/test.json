@@ -1,0 +1,15 @@
+{
+  "description": "The attribution control for `loads-injected-android-testing`: the SAME Robolectric/CMP test, but with NO skill injection. test-reviewer runs on its built-in `testing` skill alone — which knows nothing about Robolectric or CMP resources — and the test is structurally clean (present-simple name, GWT with blank-line separation, minimal data, behavioral assertion). So there is nothing for the base reviewer to flag: it must return PASS. Pairing PASS-here with FAIL-when-injected proves the Robolectric finding is caused by the injected android-testing skill, not by baseline test-reviewer behaviour — i.e. the injection is non-vacuous.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer",
+    "tools": ["Read", "Glob", "Grep", "Skill"]
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "PASS"
+  }
+}

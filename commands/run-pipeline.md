@@ -18,7 +18,7 @@ key is absent, no skills are injected.
 When you later dispatch `architect`, `test-designer`, or `developer`, append to
 that agent's invocation prompt:
 
-> Project skills (load these **in addition to** your core skills): `<comma-separated list>`
+> Project skills — invoke the `Skill` tool to load each of these at the start, in addition to your core skills: `<comma-separated list>`
 
 Only append the line for an agent that has a non-empty entry. Reviewers are
 dispatched by `/run-reviewers`, not here — it reads `agentSkills` and injects

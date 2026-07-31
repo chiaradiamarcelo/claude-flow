@@ -3,7 +3,7 @@ name: ui-test-reviewer
 description: Reviews React component and hook tests for naming, structure, query priority, mocking patterns, and behavioral focus. Use when writing or reviewing UI test files.
 type: reviewer
 triggers: ["**/*.test.tsx", "**/*.test.jsx"]
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Skill
 model: sonnet
 color: cyan
 ---

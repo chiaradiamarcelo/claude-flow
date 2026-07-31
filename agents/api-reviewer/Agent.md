@@ -3,7 +3,7 @@ name: api-reviewer
 description: Reviews API layer for HTTP conventions, thin controllers, proper response modeling, REST URL design, and separation of concerns.
 type: reviewer
 triggers: ["**/api/**", "**/controller/**", "**/dto/**"]
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Skill
 model: sonnet
 color: yellow
 ---

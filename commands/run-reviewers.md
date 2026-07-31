@@ -95,7 +95,7 @@ Agent(subagent_type="<name>", prompt="Review the code in this project. Focus on 
 
 For a reviewer with a non-empty `agentSkills` entry (from Step 3b), append to its prompt:
 
-> Project skills (load these **in addition to** your core skills): `<comma-separated list>`
+> Project skills — before reviewing, invoke the `Skill` tool to load each of these, and apply their rules **in addition to** your own: `<comma-separated list>`
 
 Do NOT review code yourself — only orchestrate.
 

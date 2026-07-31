@@ -42,7 +42,7 @@ name: <reviewer-name>
 description: <one-line description of what it reviews>
 type: reviewer
 triggers: [<glob patterns from Step 1>]
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Skill
 model: <model>
 color: <pick a color not used by existing reviewers>
 ---
@@ -52,6 +52,13 @@ You are a strict <purpose> reviewer for a project following Clean Architecture a
 ## Rules (source of truth)
 
 @skills/<skill-name>/SKILL.md  <!-- omit this section if Step 1 found no backing skill -->
+
+<!-- The `Skill` tool lets this reviewer load PROJECT-injected skills at dispatch:
+     if its invocation prompt carries a "Project skills — invoke the `Skill` tool
+     to load each of these …" line (injected by /run-reviewers from a project's
+     .claude/pipeline.json `agentSkills`), load and apply them in addition to the
+     `@`-referenced rules above. The `@`-reference is the reviewer's built-in skill;
+     the injected ones are project add-ons. -->
 
 ## Review procedure
 

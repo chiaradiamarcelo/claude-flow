@@ -3,7 +3,7 @@ name: test-reviewer
 description: Reviews tests for structural compliance (GWT), naming style, behavioral focus, and strategic efficiency used in this project. Use when writing or reviewing test files.
 type: reviewer
 triggers: ["**/src/test/**", "**/*Test.*", "**/*IT.*", "**/*AT.*"]
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Skill
 model: sonnet
 color: blue
 ---

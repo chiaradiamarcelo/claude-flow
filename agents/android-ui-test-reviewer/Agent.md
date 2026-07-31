@@ -3,7 +3,7 @@ name: android-ui-test-reviewer
 description: Reviews Compose UI tests (Robolectric or instrumented) for the robot pattern, test-tag conventions, Robolectric caveats, and screen-state testing. Use when writing or reviewing Compose UI test files.
 type: reviewer
 triggers: ["**/androidTest/**", "**/androidInstrumentedTest/**"]
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Skill
 model: sonnet
 color: green
 ---

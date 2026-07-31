@@ -3,7 +3,7 @@ name: android-presentation-reviewer
 description: Reviews Android presentation layer (Compose screens, ViewModels, navigation) for best practices, with a strong focus on the Humble View pattern, atomic screen state, and Composed Method readability. Use after implementing or modifying UI code.
 type: reviewer
 triggers: ["**/presentation/**"]
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Skill
 model: sonnet
 color: cyan
 ---
