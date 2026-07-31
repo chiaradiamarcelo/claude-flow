@@ -1,0 +1,26 @@
+{
+  "description": "A Compose UI test under the instrumented source set. It matches android-ui-test-reviewer's default trigger `**/androidTest/**`, so that reviewer must fire. It also matches test-reviewer's generic `**/*Test.*`, so test-reviewer legitimately fires too (routing is tolerant of extra fires). The src/main and API/UI-React/presentation reviewers must NOT fire: the path is neither src/main, nor api/controller/dto, nor *.test.tsx, nor under presentation/.",
+  "given": {
+    "workspace": "git-scratch",
+    "changedFiles": [
+      "app/src/androidTest/java/com/example/search/SearchScreenTest.kt"
+    ]
+  },
+  "when": {
+    "do": "command",
+    "command": "/run-reviewers --dry-run"
+  },
+  "then": {
+    "grader": "routing",
+    "fires": [
+      "android-ui-test-reviewer"
+    ],
+    "doesNotFire": [
+      "api-reviewer",
+      "arch-reviewer",
+      "refactor-advisor",
+      "ui-test-reviewer",
+      "presentation-reviewer"
+    ]
+  }
+}

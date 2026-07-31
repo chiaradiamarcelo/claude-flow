@@ -6,6 +6,42 @@ allowed-tools: Read, Glob, Grep, Edit, Bash, Agent, Skill
 
 Run the implementation pipeline for: **$ARGUMENTS**
 
+## Step 0: Resolve project skill injection
+
+Check if `.claude/pipeline.json` exists in the project root. If it does, read its
+optional `agentSkills` object — a map of agent `name` → array of skill names. These
+are **additive**: an agent always loads its own core skills (listed in its agent
+body), plus any listed here. Never treat this as a replacement, and never drop a
+core skill. Agents with no entry are unaffected. If the file or the `agentSkills`
+key is absent, no skills are injected.
+
+When you later dispatch `architect`, `test-designer`, or `developer` (and when
+`/run-reviewers` dispatches a reviewer), append to that agent's invocation prompt:
+
+> Project skills (load these **in addition to** your core skills): `<comma-separated list>`
+
+Only append the line for an agent that has a non-empty entry.
+
+### Dry run (skill-injection assertion — used by the live test)
+
+If `--dry-run` appears in **$ARGUMENTS**, resolve `agentSkills` as above, print the
+resolution in exactly this format (machine-greppable), then **STOP** — do not read
+the specification, dispatch any agent, or write code:
+
+```
+SKILLS
+architect: <comma-separated project skills, or (none)>
+test-designer: <…>
+developer: <…>
+test-reviewer: <…>
+```
+
+List one line per agent that appears in `agentSkills`; use `(none)` for an agent
+with no injected skills. List **only** the injected (project) skills — never the
+agent's core skills.
+
+## Step 1: Run the pipeline
+
 Read `docs/specifications/<feature-slug>/specification.md`. If it doesn't exist
 (or no slug uniquely identifies one feature under `docs/specifications/`),
 **STOP** and report that no approved specification was found — write no code.

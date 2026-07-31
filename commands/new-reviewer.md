@@ -108,15 +108,17 @@ Emit nothing but this JSON object.
 
 ## Step 4: Project trigger overrides
 
-If the reviewer is **global** but the user mentions it will be used in projects with different file conventions (e.g., TypeScript uses `*.spec.ts` instead of `*Test.*`), inform them they can override triggers per project by adding an entry to `.claude/review-triggers.json`:
+If the reviewer is **global** but the user mentions it will be used in projects with different file conventions (e.g., TypeScript uses `*.spec.ts` instead of `*Test.*`), inform them they can override triggers per project by adding an entry to the `reviewers` object in `.claude/pipeline.json`:
 
 ```json
 {
-  "<reviewer-name>": ["**/*.spec.ts", "**/*.test.ts"]
+  "reviewers": {
+    "<reviewer-name>": ["**/*.spec.ts", "**/*.test.ts"]
+  }
 }
 ```
 
-The review-gate reads this file and replaces the agent's frontmatter triggers with the override. Only reviewers that need different patterns need an entry.
+The review-gate reads this file and replaces the agent's frontmatter triggers with the override. Only reviewers that need different patterns need an entry. See `examples/pipeline.typescript.json`.
 
 ## Step 5: Scaffold a detection fixture (eval parity)
 

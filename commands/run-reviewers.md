@@ -47,7 +47,7 @@ From each valid reviewer's frontmatter, extract `name` and `triggers`. Read all 
 
 ## Step 3: Apply project trigger overrides
 
-Check if `.claude/review-triggers.json` exists in the project root. If it does, read it and override triggers for matching reviewer names. If it doesn't exist, skip this step.
+Check if `.claude/pipeline.json` exists in the project root. If it does, read it and use its `reviewers` object (an optional top-level key mapping reviewer `name` → glob array) to **override** triggers for matching reviewer names. Reviewers not named in `reviewers` keep their frontmatter triggers. If the file or the `reviewers` key is absent, skip this step.
 
 ## Step 4: Filter by relevance
 

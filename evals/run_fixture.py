@@ -35,6 +35,7 @@ import check_spec          # noqa: E402
 import check_choreography  # noqa: E402
 import check_refusal       # noqa: E402
 import check_routing       # noqa: E402
+import check_skills        # noqa: E402
 import verify_acceptance   # noqa: E402
 
 _JSON = re.compile(r"\{.*\}", re.S)
@@ -130,6 +131,7 @@ GRADERS = {
     "choreography": _g_choreography,
     "refusal":      lambda spec, ctx: check_refusal.grade(spec, ctx["scratch"], ctx["output"]),
     "routing":      lambda spec, ctx: check_routing.grade_routing(spec, ctx["output"]),
+    "skills":       lambda spec, ctx: check_skills.grade_skills(spec, ctx["output"]),
 }
 
 _NEEDS_SCRATCH = {"command", "build"}  # plus any agent-with-prompt (handled in run_one)

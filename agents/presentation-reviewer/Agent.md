@@ -749,43 +749,16 @@ LaunchedEffect(searchKey) {
 
 ---
 
-## 7. Presentation Test Quality
+## 7. Presentation Test Quality — out of scope
 
-For full Compose UI test conventions (robot pattern, test tags, Robolectric patterns, scroll retention testing), see the `android-ui-testing` skill.
-
-### Screen / composable tests
-- Prefer testing pure content composables with injected prepared state
-- Do NOT require a real ViewModel in composable tests
-- Cover each state variant that matters: loading, success, error, empty
-- Test user interactions and callback invocation
-- Test conditional visibility of major elements
-- Use `mutableStateOf` to drive state changes — never call `setContent` twice
-
-### ViewModel tests
-- Use fakes for dependencies
-- Use coroutine test rules / test dispatcher setup
-- Verify initial state
-- Verify state transitions after user intents
-- Verify error handling and edge cases
-- Prefer testing one public screen state rather than many fragmented public flows
-
-### Navigation tests
-- Use the **robot pattern** (`AppNavTestRobot`) — test bodies must read in 5 seconds
-- Scope assertions to the active tab when retained composition is used (all tabs always composed)
-- Navigation contract tests cover behavior, not implementation: tab switching, back policy, state retention, overlay push/pop
-
-### Test style
-- Test names should read like specs
-- Avoid control flow in test bodies
-- Mirror production files clearly
-
-### Red flags
-- Composable tests built around a real ViewModel
-- Tests that assemble screen state from multiple fake flows
-- Missing tests for key UI states
-- Brittle tests that rely on incidental formatting text instead of explicit tags or UI models
-- Navigation tests with raw `composeTestRule.onNodeWithTag(...)` chains instead of robot helpers
-- Unscoped assertions that match nodes in hidden retained tabs
+Compose UI test quality (robot pattern, test tags, Robolectric caveats, screen-state
+and navigation-contract testing) is reviewed by the dedicated **`android-ui-test-reviewer`**
+against the `android-ui-testing` skill — the single source of truth. Do **not**
+re-review test files or restate those rules here; that split keeps the two reviewers
+from double-flagging and prevents this agent's copy from drifting out of sync with the
+skill. Your job is the **production** presentation code (sections 1–6, 8). The only
+test-adjacent thing you assert is that production code stays *testable* — humble views
+and a stable ViewModel boundary — which sections 1 and 4 already cover.
 
 ---
 

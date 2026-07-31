@@ -18,7 +18,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 AGENT_TOOLS=(--allowedTools Read Glob Grep)
-REVIEWERS="api-reviewer arch-reviewer refactor-advisor test-reviewer ui-test-reviewer"
+REVIEWERS="api-reviewer arch-reviewer refactor-advisor test-reviewer ui-test-reviewer android-ui-test-reviewer"
 OPTIN=" developer pipeline orchestration "   # heavy/paid — run only when named
 fail=0
 do_agents=1; do_commands=1
@@ -30,7 +30,7 @@ case "${1:-}" in
   "")         ;;
   *)          ONLY_AGENT="$1"; ONLY_FIXTURE="${2:-}" ;;
 esac
-[ -n "$ONLY_AGENT" ] && [ "$ONLY_AGENT" != "run-reviewers" ] && do_commands=0
+[ -n "$ONLY_AGENT" ] && [ "$ONLY_AGENT" != "run-reviewers" ] && [ "$ONLY_AGENT" != "run-pipeline" ] && do_commands=0
 
 want() {  # want <corpus> — run it given ONLY_AGENT + the opt-in rule?
   local c="$1"
@@ -101,8 +101,9 @@ PY
 fi
 
 if [ "$do_commands" = 1 ]; then
-  echo ""; echo "== Phase 2: routing tests (engine) =="
-  engine_corpus run-reviewers
+  echo ""; echo "== Phase 2: command dry-run tests (engine) =="
+  want run-reviewers && engine_corpus run-reviewers
+  want run-pipeline  && engine_corpus run-pipeline
 fi
 
 echo ""

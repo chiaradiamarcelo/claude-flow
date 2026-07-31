@@ -1,0 +1,11 @@
+{
+  "reviewers": {
+    "android-ui-test-reviewer": ["**/androidTest/**", "**/androidInstrumentedTest/**", "**/src/test/**/*.kt"],
+    "test-reviewer": ["**/test/**/*.kt", "**/*Test.kt"]
+  },
+  "agentSkills": {
+    "test-designer": ["android-testing"],
+    "developer": ["android-testing", "android-ui-testing"],
+    "test-reviewer": ["android-testing"]
+  }
+}

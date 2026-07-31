@@ -1,0 +1,7 @@
+{
+  "agentSkills": {
+    "test-designer": ["android-testing"],
+    "developer": ["android-testing", "android-ui-testing"],
+    "test-reviewer": ["android-testing"]
+  }
+}

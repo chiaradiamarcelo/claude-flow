@@ -1,0 +1,26 @@
+{
+  "description": "Exercises the previously-untested project-override path (Step 3) under the NEW single-file schema. Changeset is one TypeScript test `src/widget.spec.ts`, which matches NO reviewer's default triggers (test-reviewer defaults to `**/*Test.*` / `**/src/test/**`; the src/main and api reviewers don't match; ui-test-reviewer wants `*.test.tsx`). The seeded `.claude/pipeline.json` overrides `reviewers.test-reviewer` to `[**/*.spec.ts]`, so test-reviewer — and ONLY test-reviewer — must fire. If the router ignored the file, or read the old `review-triggers.json` name, or failed to descend into the `reviewers` key, `fires` would be empty. So a non-empty `fires: test-reviewer` proves the new schema is read and applied.",
+  "given": {
+    "workspace": "git-scratch",
+    "changedFiles": [
+      "src/widget.spec.ts"
+    ],
+    "files": "workspace"
+  },
+  "when": {
+    "do": "command",
+    "command": "/run-reviewers --dry-run"
+  },
+  "then": {
+    "grader": "routing",
+    "fires": [
+      "test-reviewer"
+    ],
+    "doesNotFire": [
+      "api-reviewer",
+      "arch-reviewer",
+      "refactor-advisor",
+      "ui-test-reviewer"
+    ]
+  }
+}
