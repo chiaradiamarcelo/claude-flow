@@ -1,5 +1,5 @@
 {
-  "description": "Tests the CHOREOGRAPHY of the real `/run-pipeline` command, not agent quality. A real session runs `/run-pipeline withdraw-money` over a pre-seeded approved spec; the workers (architect/test-designer/developer/reviewers) are FAKE agent definitions (project-local .claude/agents overrides) that record their own invocation to pipeline-calls.log and return canned artifacts. The fake test-reviewer FORCES a FAIL on the first review (then PASS) so the fix pass is exercised on demand \u2014 something real agents won't do reliably. We assert the dance from the call log: plan before implement, implement before review, FAIL triggers a developer fix pass, re-review after the fix, and it stops after a passing review (no further fix). Invoking the real command (not prose) means this tests the production artifact. Paid + pass@k (the session is a real model); faking the workers makes it cheap and the FAIL path forceable. The full CLAUDE.md chain (/intent-and-goal \u2192 /run-pipeline) with REAL workers is the separate, opt-in Phase 1d e2e.",
+  "description": "Tests the CHOREOGRAPHY of the real `/run-pipeline` command, not agent quality. A real session runs `/run-pipeline withdraw-money` over a pre-seeded approved spec; the workers (architect/test-designer/developer/reviewers) are FAKE agent definitions (project-local .claude/agents overrides) that record their own invocation to pipeline-calls.log and return canned artifacts. The fake test-reviewer FORCES a FAIL on the first review (then PASS) so the fix pass is exercised on demand \u2014 something real agents won't do reliably. We assert the dance from the call log: plan before implement, implement before review, FAIL triggers a developer fix pass, re-review after the fix, and it stops after a passing review (no further fix). Invoking the real command (not prose) means this tests the production artifact. Paid + pass@k (the session is a real model); faking the workers makes it cheap and the FAIL path forceable. The full CLAUDE.md chain (/intent-and-goal \u2192 /run-pipeline) with REAL workers is the separate, opt-in Phase 1d e2e. It ALSO asserts agentSkills DELIVERY on a real (non-dry) dispatch: a seeded `.claude/pipeline.json` injects android-testing/android-ui-testing, and each fake echoes the skill tokens it actually received into the log (`test-designer-got:`, `developer-got:`, `test-reviewer-got:`). The write-side got-lines prove /run-pipeline appended the injection; the `test-reviewer-got:` line proves /run-reviewers did too \u2014 the read side that was dead code until now. Dry-run fixtures cover resolution/leak; this covers delivery.",
   "given": {
     "files": "input/"
   },
@@ -13,8 +13,12 @@
     "expectedSubsequence": [
       "architect",
       "test-designer",
+      "test-designer-got:android-testing",
       "developer:impl",
+      "developer-got:android-testing",
+      "developer-got:android-ui-testing",
       "test-reviewer",
+      "test-reviewer-got:android-testing",
       "developer:fix",
       "test-reviewer"
     ],

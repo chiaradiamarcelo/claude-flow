@@ -12,6 +12,8 @@ orchestration and to FORCE a fix pass. Do EXACTLY these steps:
 
 1. Append a line to the call log:
    `echo test-reviewer >> pipeline-calls.log`
+1b. If the prompt you received contains the text `android-testing`, append:
+   `echo test-reviewer-got:android-testing >> pipeline-calls.log`
 2. Count how many lines in `pipeline-calls.log` equal `test-reviewer`
    (including the one you just added):
    `grep -c '^test-reviewer$' pipeline-calls.log`

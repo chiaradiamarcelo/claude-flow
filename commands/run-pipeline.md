@@ -15,12 +15,14 @@ body), plus any listed here. Never treat this as a replacement, and never drop a
 core skill. Agents with no entry are unaffected. If the file or the `agentSkills`
 key is absent, no skills are injected.
 
-When you later dispatch `architect`, `test-designer`, or `developer` (and when
-`/run-reviewers` dispatches a reviewer), append to that agent's invocation prompt:
+When you later dispatch `architect`, `test-designer`, or `developer`, append to
+that agent's invocation prompt:
 
 > Project skills (load these **in addition to** your core skills): `<comma-separated list>`
 
-Only append the line for an agent that has a non-empty entry.
+Only append the line for an agent that has a non-empty entry. Reviewers are
+dispatched by `/run-reviewers`, not here — it reads `agentSkills` and injects
+into reviewer prompts itself (see its Step 3b), so do nothing extra for reviewers.
 
 ### Dry run (skill-injection assertion — used by the live test)
 
