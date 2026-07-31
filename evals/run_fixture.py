@@ -99,9 +99,14 @@ def do_agent(fixture_dir, when, scratch):
         prompt += ("\n\nProject skills — before reviewing, invoke the `Skill` tool to "
                    "load each of these, and apply their rules in addition to your own: "
                    + ", ".join(inject))
+    # The global Skill PreToolUse hook logs invocations to cwd/.skill-invocations.log
+    # (no CLAUDE_PROJECT_DIR set -> falls back to $PWD == fixture_dir). Clean it first
+    # so the skill-loaded grader reads only THIS dispatch's Skill calls.
+    skill_log = fixture_dir / ".skill-invocations.log"
+    skill_log.unlink(missing_ok=True)
     proc = _claude(prompt, fixture_dir,
                    when.get("tools", REVIEW_TOOLS), agent=when["agent"])
-    return {"verdict": _extract_json(proc.stdout)}
+    return {"verdict": _extract_json(proc.stdout), "skill_log": str(skill_log)}
 
 
 def do_command(fixture_dir, when, scratch):
@@ -138,6 +143,7 @@ GRADERS = {
     "refusal":      lambda spec, ctx: check_refusal.grade(spec, ctx["scratch"], ctx["output"]),
     "routing":      lambda spec, ctx: check_routing.grade_routing(spec, ctx["output"]),
     "skills":       lambda spec, ctx: check_skills.grade_skills(spec, ctx["output"]),
+    "skill-loaded": lambda spec, ctx: check_skills.grade_skill_loaded(spec, ctx.get("skill_log")),
 }
 
 _NEEDS_SCRATCH = {"command", "build"}  # plus any agent-with-prompt (handled in run_one)

@@ -23,6 +23,7 @@ spec fields:
 - `noInjection`: [agent, ...] — these agents must receive NO project skills.
 """
 import re
+from pathlib import Path
 
 _NAME = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 _LINE = re.compile(r"^[ \t]*([a-z][a-z0-9-]*)[ \t]*:[ \t]*(.*)$", re.I)
@@ -71,4 +72,35 @@ def grade_skills(spec, output):
         got = parsed.get(agent, set())
         if got:
             fails.append(f"agent {agent!r} must receive no project skills, got {sorted(got)}")
+    return fails
+
+
+def read_skill_log(path):
+    """Return the set of skill names in the Skill PreToolUse hook log (one per
+    line), or an empty set if the log is absent/empty."""
+    if not path:
+        return set()
+    p = Path(path)
+    if not p.is_file():
+        return set()
+    return {ln.strip() for ln in p.read_text().splitlines() if ln.strip()}
+
+
+def grade_skill_loaded(spec, skill_log_path):
+    """DIRECT loading check — the automated reproduction of the manual live-run audit.
+
+    Reads the Skill PreToolUse hook log the dispatch wrote and asserts which skills
+    were actually INVOKED at runtime: `mustLoad` (each must appear) and `mustNotLoad`
+    (each must be absent — an attribution/leakage control). Note: @-referenced skills
+    are inlined at prompt-build time, never a Skill call, so they never appear here —
+    assert only on skills that are loaded via the Skill tool.
+    """
+    loaded = read_skill_log(skill_log_path)
+    fails = []
+    for s in spec.get("mustLoad", []):
+        if s not in loaded:
+            fails.append(f"expected skill {s!r} to be invoked (in the hook log); loaded={sorted(loaded)}")
+    for s in spec.get("mustNotLoad", []):
+        if s in loaded:
+            fails.append(f"skill {s!r} was invoked but must NOT be; loaded={sorted(loaded)}")
     return fails
