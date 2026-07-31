@@ -16,6 +16,15 @@
             "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
           }
         ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/log-skill-invocation.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [

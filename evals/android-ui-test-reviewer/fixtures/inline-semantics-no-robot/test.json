@@ -1,0 +1,17 @@
+{
+  "description": "A multi-interaction navigation test that drives Compose semantics inline — raw composeTestRule.onNodeWithTag(...).performClick()/waitForIdle() chains, hardcoded tag string literals ('nav_item_search', 'festival_list'), and a bare assert(...) — instead of going through a test robot with domain-language helpers. The android-ui-testing skill makes the robot pattern mandatory for tests exercising more than one screen interaction. The reviewer must FAIL it; the headline is the missing robot.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "android-ui-test-reviewer"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "robot"
+    ]
+  }
+}

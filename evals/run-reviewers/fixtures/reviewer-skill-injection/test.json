@@ -1,0 +1,25 @@
+{
+  "description": "Read-side agentSkills injection (Step 3b + Step 5 of /run-reviewers). Changeset is a production class + its test, so arch-reviewer, refactor-advisor, and test-reviewer all fire. The seeded `.claude/pipeline.json` injects `android-testing` into test-reviewer only. The dry-run SKILLS block must show test-reviewer receiving android-testing, and the other two fired reviewers receiving nothing — proving the read side reads `agentSkills`, routes it to the right reviewer, and does NOT leak it into reviewers with no entry. This is the reviewer-side counterpart to run-pipeline/agentskills-injection; before this the reviewer path was dead code (run-reviewers never read agentSkills).",
+  "given": {
+    "workspace": "git-scratch",
+    "changedFiles": [
+      "src/main/Calculator.kt",
+      "src/test/CalculatorTest.kt"
+    ],
+    "files": "workspace"
+  },
+  "when": {
+    "do": "command",
+    "command": "/run-reviewers --dry-run"
+  },
+  "then": {
+    "grader": "skills",
+    "injects": {
+      "test-reviewer": ["android-testing"]
+    },
+    "noInjection": [
+      "arch-reviewer",
+      "refactor-advisor"
+    ]
+  }
+}

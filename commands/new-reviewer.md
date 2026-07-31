@@ -42,7 +42,7 @@ name: <reviewer-name>
 description: <one-line description of what it reviews>
 type: reviewer
 triggers: [<glob patterns from Step 1>]
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Skill
 model: <model>
 color: <pick a color not used by existing reviewers>
 ---
@@ -52,6 +52,13 @@ You are a strict <purpose> reviewer for a project following Clean Architecture a
 ## Rules (source of truth)
 
 @skills/<skill-name>/SKILL.md  <!-- omit this section if Step 1 found no backing skill -->
+
+<!-- The `Skill` tool lets this reviewer load PROJECT-injected skills at dispatch:
+     if its invocation prompt carries a "Project skills — invoke the `Skill` tool
+     to load each of these …" line (injected by /run-reviewers from a project's
+     .claude/pipeline.json `agentSkills`), load and apply them in addition to the
+     `@`-referenced rules above. The `@`-reference is the reviewer's built-in skill;
+     the injected ones are project add-ons. -->
 
 ## Review procedure
 
@@ -108,15 +115,17 @@ Emit nothing but this JSON object.
 
 ## Step 4: Project trigger overrides
 
-If the reviewer is **global** but the user mentions it will be used in projects with different file conventions (e.g., TypeScript uses `*.spec.ts` instead of `*Test.*`), inform them they can override triggers per project by adding an entry to `.claude/review-triggers.json`:
+If the reviewer is **global** but the user mentions it will be used in projects with different file conventions (e.g., TypeScript uses `*.spec.ts` instead of `*Test.*`), inform them they can override triggers per project by adding an entry to the `reviewers` object in `.claude/pipeline.json`:
 
 ```json
 {
-  "<reviewer-name>": ["**/*.spec.ts", "**/*.test.ts"]
+  "reviewers": {
+    "<reviewer-name>": ["**/*.spec.ts", "**/*.test.ts"]
+  }
 }
 ```
 
-The review-gate reads this file and replaces the agent's frontmatter triggers with the override. Only reviewers that need different patterns need an entry.
+The review-gate reads this file and replaces the agent's frontmatter triggers with the override. Only reviewers that need different patterns need an entry. See `examples/pipeline.typescript.json`.
 
 ## Step 5: Scaffold a detection fixture (eval parity)
 

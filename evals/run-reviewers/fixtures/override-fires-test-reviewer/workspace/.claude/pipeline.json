@@ -1,0 +1,5 @@
+{
+  "reviewers": {
+    "test-reviewer": ["**/*.spec.ts"]
+  }
+}

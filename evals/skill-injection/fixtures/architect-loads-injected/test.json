@@ -1,0 +1,16 @@
+{
+  "description": "WRITE-SIDE loading + additive-contract check (the automated settle of the 'architect dropped its core skill' finding, which was a no-op probe confound). Dispatches the real architect to actually PLAN a scenario, with kotlin-conventions injected the way /run-pipeline does. The skill-loaded grader reads the Skill PreToolUse hook log and asserts BOTH clean-architecture (architect's core skill, step 1 of its body) AND kotlin-conventions (injected) were invoked — i.e. injection is additive, the core skill is NOT dropped. Unlike a reviewer, a write-side agent Skill-loads its core skills (they are not @-referenced), so both appear in the log. Runs via run_fixture.py (prompt branch, cwd=scratch), which honors injectSkills.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "architect",
+    "injectSkills": ["kotlin-conventions"],
+    "prompt": "Plan SCENARIO-01 for the feature list-accounts. The specification is at docs/specifications/list-accounts/specification.md. Write the scenario plan file and nothing else."
+  },
+  "then": {
+    "grader": "skill-loaded",
+    "mustLoad": ["clean-architecture", "kotlin-conventions"]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "description": "Exercises Step 0 of /run-pipeline: additive agentSkills injection from `.claude/pipeline.json`. The seeded config injects android-testing into test-designer, android-testing + android-ui-testing into developer, and android-testing into test-reviewer; architect has NO entry. `/run-pipeline --dry-run` must resolve this and print a SKILLS block WITHOUT reading a spec or dispatching any agent (no spec file is present — a non-dry run would STOP). A correct block proves the command read the new single-file schema, descended into `agentSkills`, routed each project skill to the right agent, and left architect untouched. The grader (check_skills) asserts each injected set matches exactly and architect receives nothing.",
+  "given": {
+    "workspace": "git-scratch",
+    "files": "workspace"
+  },
+  "when": {
+    "do": "command",
+    "command": "/run-pipeline shipping-fee --dry-run"
+  },
+  "then": {
+    "grader": "skills",
+    "injects": {
+      "test-designer": ["android-testing"],
+      "developer": ["android-testing", "android-ui-testing"],
+      "test-reviewer": ["android-testing"]
+    },
+    "noInjection": [
+      "architect"
+    ]
+  }
+}

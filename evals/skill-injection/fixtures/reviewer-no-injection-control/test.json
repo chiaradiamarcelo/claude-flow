@@ -1,0 +1,15 @@
+{
+  "description": "Attribution control for reviewer-loads-injected: the SAME test-reviewer dispatch on the same input, but with NO skill injection. With nothing injected, test-reviewer relies on its @-referenced `testing` skill (inlined, no Skill call) and must NOT invoke android-testing — so the hook log must not contain it. Pairing 'android-testing present when injected' with 'absent when not' proves the log signal is caused by the injection, not ambient behaviour (non-vacuous).",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer",
+    "tools": ["Read", "Glob", "Grep", "Skill"]
+  },
+  "then": {
+    "grader": "skill-loaded",
+    "mustNotLoad": ["android-testing"]
+  }
+}

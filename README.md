@@ -69,7 +69,7 @@ After **all** scenarios are implemented, `/run-pipeline` runs `/run-reviewers` o
 
 1. Gets changed files via `git diff --name-only`. Falls back to `git ls-files` if no diff is available.
 2. Discovers reviewer agents by grepping for `type: reviewer` in agent frontmatter (global + project).
-3. Applies project trigger overrides from `.claude/review-triggers.json` if it exists.
+3. Applies project trigger overrides from the `reviewers` section of `.claude/pipeline.json` if it exists.
 4. Matches changed files against each reviewer's `triggers` glob patterns.
 5. Spawns **only relevant reviewers in parallel** (multiple Agent tool calls in a single message).
 6. Consolidates all findings into a single report with a PASS/FAIL verdict.
@@ -123,7 +123,7 @@ Run:
 or:
 
 ```
-/new-reviewer presentation-reviewer
+/new-reviewer android-presentation-reviewer
 ```
 
 The command asks for:
@@ -154,36 +154,36 @@ model: sonnet
 ### Global vs. project-specific reviewers
 
 - **Global** (`~/.claude/agents/`) — run on every project (e.g., `test-reviewer`, `arch-reviewer`)
-- **Project-specific** (`<project>/.claude/agents/`) — run only in that project (e.g., `presentation-reviewer`)
+- **Project-specific** (`<project>/.claude/agents/`) — run only in that project (e.g., `android-presentation-reviewer`)
 
 Both are discovered automatically. A project agent with the same name as a global agent overrides it entirely (Claude Code built-in behavior).
 
-### Project trigger overrides
+### Per-project pipeline config (`.claude/pipeline.json`)
 
-Global reviewers ship with default triggers suited for Kotlin/Java conventions. **No override is needed for Kotlin/Java projects** — the defaults just work.
-
-For projects using different file conventions (e.g., TypeScript) where you want to use the global reviewer agents but with different triggers, create a `.claude/review-triggers.json` in the project:
+A single optional file at the project root customizes the pipeline per project. Both sections are optional:
 
 ```json
 {
-  "test-reviewer": ["**/*.spec.ts", "**/*.test.ts", "**/__tests__/**"],
-  "arch-reviewer": ["**/src/**", "!**/*.spec.ts", "!**/*.test.ts"]
+  "reviewers":   { "<reviewer-name>": ["glob", "!negglob"] },
+  "agentSkills": { "<agent-name>":    ["skill-name"] }
 }
 ```
 
-`/run-reviewers` reads this file and replaces frontmatter triggers for matching reviewer names. Reviewers without an entry keep their defaults.
+- **`reviewers`** overrides a reviewer's frontmatter triggers by name. Global reviewers ship with defaults suited for Kotlin/Java conventions, so **no override is needed for Kotlin/Java projects**. Reviewers without an entry keep their defaults. `/run-reviewers` reads this section.
+- **`agentSkills`** injects **additional** skills into a pipeline agent's session, keyed by agent name — write-side agents (`architect`, `test-designer`, `developer`) and reviewers (`test-reviewer`, …) alike. It is **additive**: the agent always loads its core skills, plus whatever is listed here. This is how a project layers in stack-specific conventions (e.g. Android) without editing the global agents.
 
-To set up overrides, copy the template:
+To set up config, copy a template:
 
 ```bash
-cp ~/.claude/examples/review-triggers.typescript.json <project>/.claude/review-triggers.json
+cp ~/.claude/examples/pipeline.typescript.json <project>/.claude/pipeline.json
 ```
 
 Available templates:
 
 | Template | For |
 |---|---|
-| `examples/review-triggers.typescript.json` | TypeScript projects (`*.spec.ts`, `*.test.ts`, `__tests__/`) |
+| `examples/pipeline.typescript.json` | TypeScript projects (`*.spec.ts`, `*.test.ts`, `__tests__/`) |
+| `examples/pipeline.android.json` | Android/Kotlin projects (adds `android-test-reviewer` triggers + `android-testing`/`android-ui-testing` skill injection) |
 
 ## What's included
 
@@ -232,4 +232,4 @@ Available templates:
 | [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 12 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), and the v2 Spring/JPA vertical-slice integration (12) |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
-| [examples/](examples/) | Template files (e.g., `review-triggers.typescript.json` for project trigger overrides) |
+| [examples/](examples/) | Per-project `.claude/pipeline.json` templates (`pipeline.typescript.json`, `pipeline.android.json`) — reviewer trigger overrides + agent skill injection |

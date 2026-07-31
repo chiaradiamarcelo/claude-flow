@@ -1,0 +1,16 @@
+{
+  "description": "DIRECT automated loading check — the reproduction of the manual live-run hook audit. Dispatches the real test-reviewer with android-testing injected the way /run-reviewers does (injectSkills + the Skill tool granted), then reads the Skill PreToolUse hook log (.skill-invocations.log the dispatch wrote) and asserts android-testing was actually INVOKED via the Skill tool. test-reviewer's built-in `testing` skill is @-referenced (inlined at prompt-build time, never a Skill call), so the log reflects only runtime Skill invocations — android-testing appearing there means the injected skill was genuinely loaded, not merely requested. This is why it lives in its own corpus run through run_fixture.py (which honors injectSkills), NOT the Phase-1 reviewer loop (which uses a fixed prompt and would ignore injection). Paired with reviewer-no-injection-control for attribution.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "test-reviewer",
+    "tools": ["Read", "Glob", "Grep", "Skill"],
+    "injectSkills": ["android-testing"]
+  },
+  "then": {
+    "grader": "skill-loaded",
+    "mustLoad": ["android-testing"]
+  }
+}
