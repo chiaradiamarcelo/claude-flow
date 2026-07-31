@@ -69,10 +69,6 @@ class CalculateOccupancyTest {
 }
 ```
 
-## Mandatory Review
-
-**Every new or modified test must be reviewed by the `test-reviewer` agent.**
-
 ## Naming
 
 - Domain/unit test class/file: `<ClassUnderTest>Test` (or the stack's equivalent — e.g., `<ClassUnderTest>.test.ts`).
