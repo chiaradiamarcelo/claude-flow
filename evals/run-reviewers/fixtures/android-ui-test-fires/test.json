@@ -20,7 +20,7 @@
       "arch-reviewer",
       "refactor-advisor",
       "ui-test-reviewer",
-      "presentation-reviewer"
+      "android-presentation-reviewer"
     ]
   }
 }

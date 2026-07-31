@@ -123,7 +123,7 @@ Run:
 or:
 
 ```
-/new-reviewer presentation-reviewer
+/new-reviewer android-presentation-reviewer
 ```
 
 The command asks for:
@@ -154,7 +154,7 @@ model: sonnet
 ### Global vs. project-specific reviewers
 
 - **Global** (`~/.claude/agents/`) — run on every project (e.g., `test-reviewer`, `arch-reviewer`)
-- **Project-specific** (`<project>/.claude/agents/`) — run only in that project (e.g., `presentation-reviewer`)
+- **Project-specific** (`<project>/.claude/agents/`) — run only in that project (e.g., `android-presentation-reviewer`)
 
 Both are discovered automatically. A project agent with the same name as a global agent overrides it entirely (Claude Code built-in behavior).
 
