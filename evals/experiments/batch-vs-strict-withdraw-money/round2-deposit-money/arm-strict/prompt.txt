@@ -1,0 +1,12 @@
+Implement SCENARIO-01 of the deposit-money feature in THIS repository (a Kotlin / Spring Boot 4 project, base package `com.example.bank`).
+
+The plan is at `docs/specifications/deposit-money/SCENARIO-01.md`. Read it fully first: it contains the scenario, the architect's "Structure & Contracts", and a 14-row "Ordered Test List". The specification is at `docs/specifications/deposit-money/specification.md`. Do NOT modify either file.
+
+Execution discipline — STRICT row-by-row TDD (red → green → refactor), one test at a time:
+- Work through the Ordered Test List one row at a time, in the given order (#1, #2, … #14).
+- For EACH row: write that single test, run `./gradlew test` and SEE IT FAIL (red) for the reason the plan states, then write the minimal production code to make it pass, run `./gradlew test` and see it pass (green), then refactor if needed while staying green. Only then move to the next row.
+- Never write production code that isn't demanded by the test you just watched fail.
+
+Conventions: follow the project's Clean Architecture, testing, and tdd skills (load them). Implement idiomatic Kotlin. Test naming: domain/unit `<ClassName>Test`, controller slice `<ControllerName>IT`. Money is `BigDecimal`.
+
+Definition of done: all 14 rows implemented and `./gradlew test` is fully green. Do not modify the plan or spec files. Do not open PRs or commit.
