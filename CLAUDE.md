@@ -26,32 +26,10 @@
   approve the scenarios, drives the rest of the pipeline to completion. Never
   implement a feature any other way.
 
-## Methodology: TDD (Red-Green-Refactor)
+## Test naming
 
-1. **Red**: write a failing test first.
-2. **Green**: write the smallest code to pass.
-3. **Refactor**: clean while keeping tests green.
-4. Test file naming:
-   - Domain/unit tests: `<ClassName>Test`
-   - API controller slice tests: `<ControllerName>IT`
-5. Use descriptive test names that read as specifications (snake_case like `returns_400_when_creating_with_invalid_amount`).
-
-## VERY IMPORTANT: TDD applies to every production change
-
-- Every production change must be preceded by a failing test.
-- Bug fix: reproduce with a test first, then fix.
-- Refactor: no behavior change, keep tests green.
-
-## Inner-loop granularity in the agent pipeline: batch red-green per class
-
-The Red-Green cycle above is stated per test — the human discipline. In the
-`/intent-and-goal` pipeline the `developer` agent batches it **per class**: write ALL of a
-class's planned tests, run once and verify every one is red for the reason its row states
-(batch-red-verified — a first-run green is vacuous and is fixed before any production code),
-then write the class's production code to green. "Test precedes code, seen to fail" still holds;
-only the granularity moves from per-row to per-class. Outer loop unchanged: one scenario at a
-time. Applies only to the pipeline developer; hand-written TDD stays per-test. Evidence:
-`evals/experiments/batch-vs-strict-withdraw-money/RESULTS.md`.
+- Domain/unit tests: `<ClassName>Test`; API controller slice tests: `<ControllerName>IT`.
+- Descriptive test names that read as specifications (snake_case like `returns_400_when_creating_with_invalid_amount`).
 
 ## VERY IMPORTANT: Test design rules
 
