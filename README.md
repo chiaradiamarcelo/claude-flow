@@ -53,7 +53,7 @@ Then, for each unchecked scenario in `## BDD Acceptance Progress`, **top-to-bott
 
 1. **`architect`** plans the scenario's **structure** → writes `SCENARIO-XX.md` with a `## Structure & Contracts` section: which layers/ports/adapters/controllers exist, where they live, the CQRS side, contract-test obligations, and the API surface (URL, method, status mapping). It enumerates no tests and writes no code.
 2. **`test-designer`** (the "prophet") appends a `## Ordered Test List (FLFI · TPP · Contradiction)` section: the ordered, justified sequence of tests that will drive the implementation — each row named by its business rule (FLFI), tagged with the transformation it forces (TPP), and the assumption it contradicts. Flags any structural gap with a `> Note to architect:` line. Writes no code.
-3. **`developer`** executes the ordered test list with strict TDD — failing test (red) → minimal code (green) → refactor — flipping each row's `Status ☐ → ✅` and honoring any notes.
+3. **`developer`** executes the ordered test list **batch-red-per-class** — for each class: write its whole test batch, run once and verify every test is red for its planned reason (*batch-red-verified*), then implement the class to green and refactor — flipping each row's `Status ☐ → ✅` and honoring any notes. (Per-class rather than per-test because the design is decided up front by the architect + test-designer — see [finding 13](docs/findings/13-batch-vs-strict-tdd.md).)
 4. The scenario's box gets checked, then the next scenario begins.
 
 ```
@@ -190,7 +190,7 @@ Available templates:
 | Path | Purpose |
 |---|---|
 | **Config** | |
-| [CLAUDE.md](CLAUDE.md) | Global instructions — workflow rules, TDD methodology, test design rules |
+| [CLAUDE.md](CLAUDE.md) | Global instructions — workflow rules, test naming + test design rules (TDD itself is owned by the pipeline agents, not restated here) |
 | [RTK.md](RTK.md) | RTK usage reference (referenced by CLAUDE.md) |
 | [knowledge/refactor-catalog/](knowledge/refactor-catalog/index.md) | Language-agnostic catalog of code smells and refactorings (index + one file per pattern, loaded on demand by `refactor-advisor`) |
 | [settings.json](settings.json) | Permissions, hooks, plugins, statusline config |
@@ -202,7 +202,7 @@ Available templates:
 | [commands/run-reviewers.md](commands/run-reviewers.md) | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
 | **Agents — pipeline** | |
 | [agents/architect/](agents/architect/Agent.md) | Creates scenario plan files (invokes `clean-architecture` skill) |
-| [agents/developer/](agents/developer/Agent.md) | Implements the plan with strict TDD (invokes `clean-architecture`, `tdd`, `testing` skills) |
+| [agents/developer/](agents/developer/Agent.md) | Implements the plan (batch-red-per-class TDD, batch-red-verified; invokes `clean-architecture`, `testing` skills) |
 | **Agents — reviewers** | |
 | [agents/test-reviewer/](agents/test-reviewer/Agent.md) | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
 | [agents/arch-reviewer/](agents/arch-reviewer/Agent.md) | Reviews Clean Architecture structural compliance |
@@ -210,7 +210,6 @@ Available templates:
 | [agents/api-reviewer/](agents/api-reviewer/Agent.md) | Reviews API layer (HTTP conventions, thin controllers, REST URLs, response modeling) |
 | **Skills** | |
 | [skills/clean-architecture/](skills/clean-architecture/SKILL.md) | Folder structure, dependency rules, design and code conventions |
-| [skills/tdd/](skills/tdd/SKILL.md) | TDD red-green-refactor cycle enforcement |
 | [skills/testing/](skills/testing/SKILL.md) | Test structure, naming, fakes, and coverage conventions |
 | [skills/adr/](skills/adr/SKILL.md) | Architecture Decision Record creation |
 | **Evals — testing the pipeline** | |
@@ -229,7 +228,7 @@ Available templates:
 | [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — routing parser (finding-01), choreography/refusal graders, workspace setup, and a runner wiring scan that asserts every fixture's `when.do`/`then.grader` is registered. Run via `evals/run_tests.sh` |
 | [evals/check_choreography.py](evals/check_choreography.py) | Grader for the **choreography** test — asserts the real `/run-pipeline` command's call log (real session + fake workers) follows plan→implement→review→fix→re-review as an ordered subsequence |
 | [evals/orchestration/](evals/orchestration/) | Choreography fixture — an approved spec + **fake worker agent definitions** that self-log, for testing the real `/run-pipeline` command's dance (opt-in: `run_all.sh orchestration`) |
-| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 12 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), and the v2 Spring/JPA vertical-slice integration (12) |
+| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 14 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), the v2 Spring/JPA vertical-slice integration (12), the strict-vs-batch-red TDD experiment (13), and the mutation-gate spike (14) |
 | **Other** | |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Per-project `.claude/pipeline.json` templates (`pipeline.typescript.json`, `pipeline.android.json`) — reviewer trigger overrides + agent skill injection |

@@ -70,6 +70,23 @@ the eval suite (`evals/run_all.sh`).
     route other kinds through the engine, delete `/run-evals`; rejected dropping
     the cache for a single path (would regress `$0` re-runs to ~$1.7). Full
     one-path unification deferred.
+12. [v2 integration: a framework-ful golden repo (Spring/JPA vertical slice)](findings/12-v2-spring-jpa-integration.md)
+    — finding 07's developer ran on a framework-*free* repo; this adds a second
+    buildable skeleton `golden-repo-spring` (Spring Boot 4 + Spring Data JPA + H2)
+    so the pipeline is proven on a **full vertical slice** (HTTP + persistence),
+    building green on JDK 25 / Kotlin 2.1 / Gradle 9.4.
+13. [Strict row-by-row TDD vs batch-red-per-class (developer inner loop)](findings/13-batch-vs-strict-tdd.md)
+    — an A/B across **three structurally different scenarios + a 4×-per-arm variance
+    study**: batching red-green **per class** ran the test suite ~⅓ as often and was
+    ~30–50% cheaper with **no quality regression** (mutation/CRAP/duplication/reviewer
+    parity). Promoted to the developer's inner-loop rule; made the standalone `tdd`
+    skill redundant → **removed it** and the CLAUDE.md TDD prose.
+14. [Mutation/CRAP/DRY as a pipeline gate — spike](findings/14-mutation-gate-spike.md)
+    — spiked before building: a *naive* mutation gate is **100% false positives** on
+    clean pipeline output (all survivors are boilerplate/Kotlin intrinsics); a
+    *filtered* gate is silent on good output but caught a genuine test regression.
+    CRAP/CPD produced 0 findings. Recommend filtered mutation as an **optional
+    safety-net** gate only; skip CRAP/DRY. Not wired.
 
 ## Conventions used across these notes
 
