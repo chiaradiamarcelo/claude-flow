@@ -82,6 +82,9 @@ Built-in reviewers (defined in agent frontmatter):
 | `arch-reviewer` | `**/src/main/**` | Layer dependencies, domain purity, Clean Architecture patterns, TDD compliance |
 | `refactor-advisor` | `**/src/main/**` | Primitive obsession, misplaced logic, intent-revealing methods, naming, mapper cleanliness |
 | `api-reviewer` | `**/api/**`, `**/controller/**`, `**/dto/**` | HTTP conventions, thin controllers, REST URLs, response modeling |
+| `ui-test-reviewer` | `**/*.test.tsx`, `**/*.test.jsx` | React component/hook tests: naming, query priority, mocking, behavioral focus |
+| `android-presentation-reviewer` | `**/presentation/**` | Compose screens/ViewModels: Humble View, atomic screen state, Composed Method |
+| `android-ui-test-reviewer` | `**/androidTest/**`, `**/androidInstrumentedTest/**` | Compose UI tests: robot pattern, test tags, Robolectric caveats |
 
 ### Phase 4: Fix loop (bounded)
 
@@ -142,7 +145,7 @@ It creates the agent file at the chosen location with `type: reviewer` and `trig
 
 ```yaml
 ---
-name: presentation-reviewer
+name: dto-reviewer
 description: Reviews API response DTOs for leaking domain internals.
 type: reviewer
 triggers: ["**/api/**", "**/controller/**", "**/dto/**"]
@@ -183,7 +186,7 @@ Available templates:
 | Template | For |
 |---|---|
 | `examples/pipeline.typescript.json` | TypeScript projects (`*.spec.ts`, `*.test.ts`, `__tests__/`) |
-| `examples/pipeline.android.json` | Android/Kotlin projects (adds `android-test-reviewer` triggers + `android-testing`/`android-ui-testing` skill injection) |
+| `examples/pipeline.android.json` | Android/Kotlin projects (adds `android-ui-test-reviewer` triggers + `android-testing`/`android-ui-testing` skill injection into `test-designer`/`developer`/`test-reviewer`) |
 
 ## What's included
 
@@ -197,20 +200,31 @@ Available templates:
 | [statusline-command.sh](statusline-command.sh) | Context window usage bar for the statusline |
 | **Commands** | |
 | [commands/intent-and-goal.md](commands/intent-and-goal.md) | `/intent-and-goal` — entry point: intent refinement + scenario generation, then hands off to `/run-pipeline` |
-| [commands/run-pipeline.md](commands/run-pipeline.md) | `/run-pipeline <feature-slug>` — execution orchestrator: per-scenario architect→developer, reviewers, fix-loop (requires an approved spec) |
+| [commands/run-pipeline.md](commands/run-pipeline.md) | `/run-pipeline <feature-slug>` — execution orchestrator: per-scenario architect→test-designer→developer, reviewers, fix-loop (requires an approved spec) |
 | [commands/new-reviewer.md](commands/new-reviewer.md) | `/new-reviewer` — guided creation of reviewer agents |
 | [commands/run-reviewers.md](commands/run-reviewers.md) | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
 | **Agents — pipeline** | |
-| [agents/architect/](agents/architect/Agent.md) | Creates scenario plan files (invokes `clean-architecture` skill) |
-| [agents/developer/](agents/developer/Agent.md) | Implements the plan (batch-red-per-class TDD, batch-red-verified; invokes `clean-architecture`, `testing` skills) |
+| [agents/architect/](agents/architect/Agent.md) | Plans the scenario's **Structure & Contracts** (layers/ports/adapters); writes no tests or code (invokes `clean-architecture`, `cqrs`) |
+| [agents/test-designer/](agents/test-designer/Agent.md) | Appends the **Ordered Test List** (FLFI · TPP · Contradiction) — the justified test order that drives the slice; writes no code (invokes `testing`) |
+| [agents/developer/](agents/developer/Agent.md) | Implements the plan (batch-red-per-class TDD, batch-red-verified; invokes `clean-architecture`, `testing`) |
 | **Agents — reviewers** | |
 | [agents/test-reviewer/](agents/test-reviewer/Agent.md) | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
 | [agents/arch-reviewer/](agents/arch-reviewer/Agent.md) | Reviews Clean Architecture structural compliance |
 | [agents/refactor-advisor/](agents/refactor-advisor/Agent.md) | Suggests code quality improvements (invokes `clean-architecture` skill) |
 | [agents/api-reviewer/](agents/api-reviewer/Agent.md) | Reviews API layer (HTTP conventions, thin controllers, REST URLs, response modeling) |
+| [agents/ui-test-reviewer/](agents/ui-test-reviewer/Agent.md) | Reviews React component/hook tests (naming, query priority, mocking, behavioral focus) |
+| [agents/android-presentation-reviewer/](agents/android-presentation-reviewer/Agent.md) | Reviews Android presentation layer (Compose screens, ViewModels, Humble View, atomic screen state) |
+| [agents/android-ui-test-reviewer/](agents/android-ui-test-reviewer/Agent.md) | Reviews Compose UI tests (robot pattern, test tags, Robolectric caveats) |
 | **Skills** | |
 | [skills/clean-architecture/](skills/clean-architecture/SKILL.md) | Folder structure, dependency rules, design and code conventions |
-| [skills/testing/](skills/testing/SKILL.md) | Test structure, naming, fakes, and coverage conventions |
+| [skills/cqrs/](skills/cqrs/SKILL.md) | When to split write side (Repository + UseCase) from read side (Query); port naming, read-model shape |
+| [skills/api-conventions/](skills/api-conventions/SKILL.md) | HTTP/REST boundary rules — controller shape, URL design, request/response modeling, status codes, validation ownership |
+| [skills/testing/](skills/testing/SKILL.md) | Test structure, naming, fakes, coverage strategy, and the FLFI·TPP·Contradiction + mutation-question test-design procedure |
+| [skills/ui-testing/](skills/ui-testing/SKILL.md) | React component/hook test conventions (naming, query priority, render, mocking) |
+| [skills/android-testing/](skills/android-testing/SKILL.md) | General Android test conventions (JVM vs instrumented source set, Robolectric caveats) |
+| [skills/android-ui-testing/](skills/android-ui-testing/SKILL.md) | Compose UI test conventions (robot pattern, test tags, Voyager patterns, Robolectric limits) |
+| [skills/kotlin-conventions/](skills/kotlin-conventions/SKILL.md) | Kotlin style and idiom conventions |
+| [skills/legacy-code/](skills/legacy-code/SKILL.md) | Working with untested/tangled/legacy code (Feathers) — characterization tests, seams, migrations |
 | [skills/adr/](skills/adr/SKILL.md) | Architecture Decision Record creation |
 | **Evals — testing the pipeline** | |
 | [evals/README.md](evals/README.md) | Eval corpus + **testing strategy** — every fixture is a `test.json` (given/when/then) run by one engine; the confidence pyramid (unit → integration → acceptance/choreography), non-determinism and drift |
