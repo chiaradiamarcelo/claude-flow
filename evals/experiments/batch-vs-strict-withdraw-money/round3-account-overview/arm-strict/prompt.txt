@@ -1,0 +1,12 @@
+Implement SCENARIO-01 of the account-overview feature in THIS repository (a Kotlin / Spring Boot 4 project, base package `com.example.bank`). This is a READ-SIDE (CQRS query) slice — a Query + read model, no aggregate/UseCase.
+
+The plan is at `docs/specifications/account-overview/SCENARIO-01.md`. Read it fully first: it contains the scenario, the architect's "Structure & Contracts", and a 7-row "Ordered Test List". The specification is at `docs/specifications/account-overview/specification.md`. Do NOT modify either file.
+
+Execution discipline — STRICT row-by-row TDD (red → green → refactor), one test at a time:
+- Work through the Ordered Test List one row at a time, in the given order (#1 … #7).
+- For EACH row: write that single test, run `./gradlew test` and SEE IT FAIL (red) for the reason the plan states, then write the minimal production code to make it pass, run `./gradlew test` and see it pass (green), then refactor if needed while staying green. Only then move to the next row.
+- Never write production code that isn't demanded by the test you just watched fail.
+
+Conventions: follow the project's Clean Architecture, cqrs, testing, and tdd skills (load them). Implement idiomatic Kotlin. Test naming: unit `<ClassName>Test`, controller slice `<ControllerName>IT`. Money is `BigDecimal`.
+
+Definition of done: all 7 rows implemented and `./gradlew test` is fully green. Do not modify the plan or spec files. Do not open PRs or commit.

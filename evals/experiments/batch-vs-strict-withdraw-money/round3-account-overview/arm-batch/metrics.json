@@ -1,0 +1,22 @@
+{
+  "output_tokens": 18243,
+  "input_tokens": 62,
+  "cache_read_input_tokens": 1873049,
+  "cache_creation_input_tokens": 80242,
+  "total_cost_usd": 2.1964575,
+  "num_turns": 55,
+  "duration_ms": 241296,
+  "duration_api_ms": 225916,
+  "is_error": false,
+  "gradle_runs": 7,
+  "bash_calls": 13,
+  "tool_calls": {
+    "Skill": 5,
+    "Read": 8,
+    "Bash": 13,
+    "Write": 16,
+    "Edit": 5,
+    "Grep": 2
+  },
+  "wall_seconds": 245.0
+}

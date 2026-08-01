@@ -1,9 +1,10 @@
 # Experiment: strict row-by-row-red vs batch-red-per-class TDD (developer phase)
 
-**Status:** COMPLETE (n=2) — see [`RESULTS.md`](RESULTS.md). Verdict: across two scenarios
-(`withdraw-money` r1, `deposit-money` r2 in `round2-deposit-money/`), batch-red-per-class is
-combined −49% cost / −61% Gradle runs with no quality regression (mutation parity on logic,
-CRAP parity, zero duplication, plan-level reviewer findings). NOT merged; this branch is a lab
+**Status:** COMPLETE (n=3) — see [`RESULTS.md`](RESULTS.md). Verdict: across three structurally
+different scenarios (`withdraw-money` r1 + `deposit-money` r2 = write-side commands;
+`account-overview` r3 = read-side CQRS query), batch-red-per-class is combined **−46% cost /
+−61% Gradle runs** with no quality regression (all 6 runs green, mutation parity on logic, CRAP
+parity, zero duplication, plan-level reviewer findings). NOT merged; this branch is a lab
 notebook (promote the process rule + oracle separately if adopted).
 
 ## Hypothesis

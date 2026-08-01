@@ -1,0 +1,15 @@
+### [1/3] arm build: test + jacoco + cpd (JUnit 6)
+2026-08-01T13:15:35.976+02:00  INFO 53164 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-08-01T13:15:35.977+02:00  INFO 53164 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-08-01T13:15:35.977+02:00  INFO 53164 --- [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+Hibernate: drop table if exists accounts cascade 
+### [2/3] mutation sidecar (JUnit 5 + PIT)
+Enhanced functionality available at https://www.arcmutate.com/
+
+Build messages:- 
+* Project uses kotlin, but the Arcmutate kotlin plugin is not present. (https://docs.arcmutate.com/docs/kotlin.html)
+
+======== ORACLE SUMMARY: /private/tmp/claude-501/-Users-mchiaradia--claude/cf0ca281-959b-47b4-8b65-25957713be0f/scratchpad/exp-arms-r3/arm-strict/repo ========
+mutation:  3/3 killed  (100%)
+crap:      methods=26  over30=0  total=30.0  mean=1.15
+cpd/DRY:   0 duplication blocks, 0 duplicated lines
