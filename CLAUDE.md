@@ -26,21 +26,10 @@
   approve the scenarios, drives the rest of the pipeline to completion. Never
   implement a feature any other way.
 
-## Methodology: TDD (Red-Green-Refactor)
+## Test naming
 
-1. **Red**: write a failing test first.
-2. **Green**: write the smallest code to pass.
-3. **Refactor**: clean while keeping tests green.
-4. Test file naming:
-   - Domain/unit tests: `<ClassName>Test`
-   - API controller slice tests: `<ControllerName>IT`
-5. Use descriptive test names that read as specifications (snake_case like `returns_400_when_creating_with_invalid_amount`).
-
-## VERY IMPORTANT: TDD applies to every production change
-
-- Every production change must be preceded by a failing test.
-- Bug fix: reproduce with a test first, then fix.
-- Refactor: no behavior change, keep tests green.
+- Domain/unit tests: `<ClassName>Test`; API controller slice tests: `<ControllerName>IT`.
+- Descriptive test names that read as specifications (snake_case like `returns_400_when_creating_with_invalid_amount`).
 
 ## VERY IMPORTANT: Test design rules
 
