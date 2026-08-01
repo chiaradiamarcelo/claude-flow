@@ -45,22 +45,13 @@
 ## Inner-loop granularity in the agent pipeline: batch red-green per class
 
 The Red-Green cycle above is stated per test — the human discipline. In the
-`/intent-and-goal` pipeline the `developer` agent instead batches it **per class**: write
-ALL of a class's planned tests, run once and verify **every one is red for the reason its
-row states** (batch-red-verified — a test green on the first run is vacuous and is fixed
-before any production code), then write the class's production code to green. "Test precedes
-code, seen to fail" still holds; only the granularity moves from per-row to per-class. The
-Ordered Test List's row sequence stays the design order (simplest transformation first). The
-**outer loop is unchanged: one scenario at a time.**
-
-Rationale — measured, not assumed. An eval-harness A/B
-(`evals/experiments/batch-vs-strict-withdraw-money/`, n=3 structurally different scenarios +
-a 4-runs-per-arm variance study) found batch-per-class ran the test suite ~⅓ as often
-(noise-free) and was ~30–50% cheaper with no quality regression (mutation / CRAP / duplication /
-reviewer-finding parity), because this pipeline front-loads design into the architect +
-test-designer phases — so the developer *executes* a plan rather than discovering one, which is
-exactly where strict row-by-row-red earns least. This applies **only** to the plan-executing
-pipeline developer; hand-written TDD outside the pipeline stays per-test.
+`/intent-and-goal` pipeline the `developer` agent batches it **per class**: write ALL of a
+class's planned tests, run once and verify every one is red for the reason its row states
+(batch-red-verified — a first-run green is vacuous and is fixed before any production code),
+then write the class's production code to green. "Test precedes code, seen to fail" still holds;
+only the granularity moves from per-row to per-class. Outer loop unchanged: one scenario at a
+time. Applies only to the pipeline developer; hand-written TDD stays per-test. Evidence:
+`evals/experiments/batch-vs-strict-withdraw-money/RESULTS.md`.
 
 ## VERY IMPORTANT: Test design rules
 
