@@ -91,6 +91,34 @@ Across all six arms: **CRAP = 0 methods over threshold; CPD = 0 duplication bloc
 clean-architecture pipeline output they never fire. `refactor-advisor` already reasons about
 duplication/complexity. No marginal value as gates.
 
+## Why the output is already mutation-strong (and what that makes the gate)
+
+The 100%-junk result isn't luck — **the pipeline already does mutation analysis, by reasoning,
+at the `test-designer` stage.** The `testing` skill makes it an explicit gate:
+
+- **The mutation question** (verbatim): *"For every test in the list, ask the mutation question…
+  If you can't name a mutation the test rules out, the test is vacuous — redesign or delete."*
+  Plus the asymmetric-data corollary that empirical mutation testing would otherwise catch:
+  *"A test on a filtering/aggregating function must use data that distinguishes the correct
+  implementation from likely mutants. Symmetric data… is a smell — both the correct predicate and
+  its inversion give the same result."*
+- **The `Contradiction` column is a proactive mutant kill-list.** Every row of the ordered test
+  list names the specific mutant it must kill — in the real plans: *"pins Rule 3 (`>` vs `>=`)"*,
+  *"forces `isNotPositive` to `<= 0` rather than `== 0` or `< 0`"*, *"forces real `balance -
+  amount`"*. That is PIT's kill-analysis, done up front by reasoning.
+- **TPP** closes the loop: each test forces the *next-simplest* production transformation, so
+  production logic only ever exists in response to a test — no untested logic path for a mutant to
+  hide in. That's why the only survivors were `equals`/`hashCode`/`toString` boilerplate: exactly
+  the code the test-designer correctly doesn't target.
+
+So an empirical PIT gate is **redundant with the test-designer's reasoning by construction** —
+which is why it's silent here. Its residual value is a **backstop on that reasoning**, and the
+asymmetry is the whole point: the test-designer's analysis is *proactive but fallible* (a model
+reasoning about likely mutants can miss one on a complex feature), whereas PIT is *exhaustive but
+after-the-fact*. On these six small slices they agreed; on a large, gnarly feature PIT might still
+catch a mutant the reasoning skipped. That single failure mode — the test-designer having an off
+day — is the entire case for the optional filtered gate.
+
 ## Recommendation
 
 1. **Mutation — worth building, but only *filtered*, and as an *optional safety-net* gate.**
