@@ -1,4 +1,4 @@
-# Finding 12 — Strict row-by-row TDD vs batch-red-per-class in the pipeline developer
+# Finding 13 — Strict row-by-row TDD vs batch-red-per-class in the pipeline developer
 
 **Date:** 2026-08 · **Area:** `agents/developer/`, `CLAUDE.md`, `skills/tdd/` (removed), `evals/experiments/`
 **Status:** decided and shipped. The decision was merged in **PR #7**
