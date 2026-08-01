@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS accounts (
+    account_id VARCHAR(255) NOT NULL PRIMARY KEY,
+    balance    NUMERIC(19, 2) NOT NULL
+);

@@ -1,0 +1,15 @@
+Implement SCENARIO-01 of the withdraw-money feature in THIS repository (a Kotlin / Spring Boot 4 project, base package `com.example.bank`).
+
+The plan is at `docs/specifications/withdraw-money/SCENARIO-01.md`. Read it fully first: it contains the scenario, the architect's "Structure & Contracts", and a 19-row "Ordered Test List". The specification is at `docs/specifications/withdraw-money/specification.md`. Do NOT modify either file.
+
+Execution discipline — BATCH-PER-CLASS TDD. You hold the whole plan in context, so batch at CLASS granularity instead of one test at a time:
+- Group the Ordered Test List by the class each row exercises, and take the classes in the plan's order: `AccountTest` (rows #1–#7), `AccountRepositoryContractTest` + its fake spec (rows #8–#10), `WithdrawMoneyUseCaseTest` (rows #11–#13), `WithdrawMoneyControllerIT` (rows #14–#19).
+- For EACH class, in order:
+  1. Write ALL of that class's tests at once (keeping the plan's row order and justifications).
+  2. Run `./gradlew test` ONCE and verify BATCH-RED: every new test must fail for the reason the plan states. This guardrail is NON-NEGOTIABLE — if any new test is GREEN on this first run, it is vacuous; fix it (make it actually exercise the behaviour) BEFORE writing any production code.
+  3. Then write the production code for that class to make all its tests pass; run `./gradlew test` ONCE and confirm green.
+  4. Refactor if needed while staying green, then move to the next class.
+
+Conventions: follow the project's Clean Architecture, testing, and tdd skills (load them). Implement idiomatic Kotlin. Test naming: domain/unit `<ClassName>Test`, controller slice `<ControllerName>IT`. Money is `BigDecimal`.
+
+Definition of done: all 19 rows implemented and `./gradlew test` is fully green. Do not modify the plan or spec files. Do not open PRs or commit.

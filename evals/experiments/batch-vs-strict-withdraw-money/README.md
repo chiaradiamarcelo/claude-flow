@@ -1,6 +1,8 @@
 # Experiment: strict row-by-row-red vs batch-red-per-class TDD (developer phase)
 
-**Status:** in progress — Step 1 (oracle) being proven. NOT merged; this branch is a lab notebook.
+**Status:** COMPLETE — see [`RESULTS.md`](RESULTS.md). Verdict: batch-red-per-class is ~55%
+cheaper / 65% fewer Gradle runs with no quality regression. NOT merged; this branch is a lab
+notebook (promote the process rule + oracle separately if adopted).
 
 ## Hypothesis
 
@@ -90,10 +92,18 @@ arm-batch/         # generated tests+code + metrics.json                        
 RESULTS.md         # the axes side by side + verdict                                      [pending]
 ```
 
-## Sequence
+## Sequence (all complete)
 
-1. **[in progress]** Prove the oracle (PIT + JaCoCo-CRAP + detekt) on `oracle-smoke`.
-2. Regenerate the architect → test-designer plan for `withdraw-money`.
-3. Run developer `strict` arm, then `batch` arm (paid dispatches).
-4. Run the three oracles + capture tokens/time per arm → `RESULTS.md`.
-5. Keep the PR open, **not merged**.
+1. ✅ Prove the oracle (PIT sidecar + JaCoCo-CRAP + CPD) on `oracle-smoke`.
+2. ✅ Regenerate the architect → test-designer plan for `withdraw-money` (`plan/`).
+3. ✅ Run developer `strict` arm, then `batch` arm — in a neutral scratch dir (see the confound
+   note in RESULTS.md), copied back into `arm-strict/`, `arm-batch/`.
+4. ✅ Run the three oracles + reviewers + capture tokens/time per arm → `RESULTS.md`.
+5. ✅ PR open, **not merged**.
+
+## How to reproduce the oracle on an arm
+
+```
+oracle/run-oracle.sh <arm-repo>       # green build + JaCoCo→CRAP + CPD/DRY + PIT sidecar
+oracle/metrics.py <arm>/transcript.jsonl --wall <s>   # tokens/cost/turns/gradle-runs
+```

@@ -14,6 +14,8 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    // Spring's test starter brings AssertJ; the domain/application unit tests use it.
+    testImplementation("org.assertj:assertj-core:3.26.3")
 }
 
 // Java 21 bytecode so PIT's bundled ASM (9.7.1, max Java 23) can read the classes,
