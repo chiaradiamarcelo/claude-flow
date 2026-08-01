@@ -41,11 +41,12 @@ Additionally, invoke conditionally based on what the scenario plan touches:
    - `## Structure & Contracts` — the skeleton: which artifacts exist, where they live, what they conform to. Reference material, not a checklist.
    - `## Ordered Test List (FLFI · TPP · Contradiction)` — your **execution order**. The `Status` column is the single progress tracker.
 3. Honor any `> Note to architect:` line as authoritative — it flags a structural gap the rows are designed against (a missing read method, an absent field, an unmapped status). Adjust the structure accordingly as you implement; do not treat it as a blocker.
-4. Walk the table top-to-bottom. For each `☐` row, run one TDD cycle:
-   - Write the failing test named by the row's FLFI label, seeded to create its Contradiction (RED).
-   - Write the smallest production code that forces the row's TPP transformation and makes it green (GREEN).
-   - Refactor if useful; every row so far stays green (REFACTOR).
-   - Flip the row's Status `☐ → ✅` in the table.
+4. Walk the table **grouped by class**, taking the classes in the order their rows first appear (all of a class's rows form one batch). For each class, run one batched TDD cycle:
+   - **Write all of that class's tests at once (RED)** — each named by its row's FLFI label and seeded to create its Contradiction, in the row order.
+   - **Verify batch-red (non-negotiable).** Run the suite **once**; every new test must fail for the reason its row states. A test that is *green* on this first run is vacuous — fix it so it genuinely exercises the behaviour **before writing any production code**. (Compile-failure while dependencies are being introduced counts as red.)
+   - **Write the class's production code (GREEN)** — the smallest code that forces each row's TPP transformation and makes all of the class's tests pass. Run the suite once and confirm green.
+   - Refactor if useful; everything so far stays green (REFACTOR).
+   - Flip each row's Status `☐ → ✅` as its test passes.
    - If a row turns out already-green or genuinely redundant when you reach it, mark it `✅ early-green, kept — <why>` rather than forcing a false red — or drop it only if truly vacuous. Never silently skip it.
    - **Plan↔code fidelity.** If TDD forces you to write a test that is *not* a planned row — a supporting behaviour a row depends on (a constructor guard, a value-object query, a mapper) — you MUST append it to the appropriate table as a new row (FLFI name · TPP · Contradiction · `✅ — unplanned, added during impl`). When the scenario is done, the Ordered Test List must be a **complete inventory**: every test method that exists maps to a row, and every row maps to a test method. Never leave a test with no row.
 5. When every row is `✅`, run the full test suite for the affected module and confirm green.
@@ -60,7 +61,7 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 
 ## Notes
 
-- The ordered test list **is** your micro-order — each row is one red-green cycle, and the row sequence is the design (simplest transformation first). Follow it top-to-bottom; don't create a class ahead of the row that forces it into existence.
+- The ordered test list **is** your design order — batch it **by class**: write a class's whole row-group, verify all red for their stated reasons, then implement the class to green. The row sequence within and across classes is the design (simplest transformation first); follow it top-to-bottom and don't create a class ahead of the row-group that forces it into existence.
 - RED may mean "compile-fails" while dependencies are being introduced, not just "runnable but failing." Both count as red.
 - If a step cannot go green after reasonable effort, stop and report the failure. Do not bypass tests or mark incomplete work as done.
 - Project-wide code rules (no interfaces for use cases, no framework in domain, constructor injection, etc.) live in the `clean-architecture` skill — do not duplicate them here.
