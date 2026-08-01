@@ -5,7 +5,9 @@ different scenarios (`withdraw-money` r1 + `deposit-money` r2 = write-side comma
 `account-overview` r3 = read-side CQRS query), batch-red-per-class is combined **−46% cost /
 −61% Gradle runs** with no quality regression (all 6 runs green, mutation parity on logic, CRAP
 parity, zero duplication, plan-level reviewer findings). NOT merged; this branch is a lab
-notebook (promote the process rule + oracle separately if adopted).
+notebook (promote the process rule + oracle separately if adopted). A 4-runs-per-arm variance
+study (`round4-variance/VARIANCE.md`) confirms the Gradle-run advantage is noise-free and the
+cost advantage holds on average, while tokens/wall have run-to-run overlap (batch has fatter tails).
 
 ## Hypothesis
 

@@ -160,11 +160,13 @@ protects the *code* (red-before-green) is preserved by the batch-red gate.
 
 ## Honest caveats (do not over-read)
 
-- **n = 3 scenarios, one run per arm each.** The direction replicated across three structurally
-  different slices (batch cheaper on every axis every round) — reasonably robust — but it is still
-  three points, one run each, with no repeated-seed variance estimate (a single scenario re-run
-  with different seeds would bound run-to-run noise). Margins vary with plan size. Treat the
-  *direction* as robust and the *magnitude* (≈½ cost) as an estimate, not a constant.
+- **n = 3 scenarios, one run per arm each — plus a 4-runs-per-arm variance study** (round 4,
+  `round4-variance/VARIANCE.md`). Run-to-run noise is now measured, not assumed: **Gradle runs
+  separate completely** (strict 18–22 vs batch 7–10, disjoint) and cost/turns separate at n=4,
+  but **tokens and wall-clock overlap** — batch has fatter tails (an occasional expensive run
+  approaches strict's cost). So the direction is robust and the *mechanism* (far fewer test-suite
+  runs) is noise-free, but the **≈½-cost magnitude is a central tendency, not a floor** — expect
+  ~30–50% savings, not a guarantee. Margins also vary with plan size.
 - **Mutation absolute scores are noisy** on Kotlin (synthetic bytecode → equivalent mutants).
   The systematic component cancels in a same-shape A/B, but treat 88 vs 83 as "the same."
 - **Sequential runs** (strict then batch); no evidence of machine/model drift, and each
