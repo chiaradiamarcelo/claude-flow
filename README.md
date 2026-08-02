@@ -203,6 +203,7 @@ Available templates:
 | [commands/run-pipeline.md](commands/run-pipeline.md) | `/run-pipeline <feature-slug>` — execution orchestrator: per-scenario architect→test-designer→developer, reviewers, fix-loop (requires an approved spec) |
 | [commands/new-reviewer.md](commands/new-reviewer.md) | `/new-reviewer` — guided creation of reviewer agents |
 | [commands/run-reviewers.md](commands/run-reviewers.md) | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
+| [commands/mutation-audit.md](commands/mutation-audit.md) | `/mutation-audit <path>` — on-demand, filtered mutation audit (real survivors only; `--crap` for complexity×coverage). Backstop for suites you didn't generate; **not** part of `/run-pipeline` (see finding 14) |
 | **Agents — pipeline** | |
 | [agents/architect/](agents/architect/Agent.md) | Plans the scenario's **Structure & Contracts** (layers/ports/adapters); writes no tests or code (invokes `clean-architecture`, `cqrs`) |
 | [agents/test-designer/](agents/test-designer/Agent.md) | Appends the **Ordered Test List** (FLFI · TPP · Contradiction) — the justified test order that drives the slice; writes no code (invokes `testing`) |
@@ -244,5 +245,6 @@ Available templates:
 | [evals/orchestration/](evals/orchestration/) | Choreography fixture — an approved spec + **fake worker agent definitions** that self-log, for testing the real `/run-pipeline` command's dance (opt-in: `run_all.sh orchestration`) |
 | [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 14 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), the v2 Spring/JPA vertical-slice integration (12), the strict-vs-batch-red TDD experiment (13), and the mutation-gate spike (14) |
 | **Other** | |
+| [tools/mutation/](tools/mutation/) | Support scripts for `/mutation-audit` — `classify-survivors.py` (the mandatory junk-vs-real survivor filter) + `crap.py` (JaCoCo XML → CRAP) |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Per-project `.claude/pipeline.json` templates (`pipeline.typescript.json`, `pipeline.android.json`) — reviewer trigger overrides + agent skill injection |

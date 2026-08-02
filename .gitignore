@@ -41,6 +41,11 @@
 !scripts/
 !scripts/*.sh
 
+# Tools (support scripts for on-demand commands, e.g. /mutation-audit)
+!tools/
+!tools/**
+tools/**/__pycache__/
+
 # Examples
 !examples/
 !examples/*.json
