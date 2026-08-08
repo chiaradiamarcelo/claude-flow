@@ -44,6 +44,9 @@ def generated(inp: dict):
         yield path, len(e.get("new_string") or "")
 
 BUILD = re.compile(r"\b(gradlew|gradle|mvn|npm (run )?test|pytest|cargo test|go test)\b")
+COMMIT = re.compile(r"\bgit\s+commit\b")
+REVIEWER = re.compile(r"reviewer|refactor-advisor", re.I)
+FIXMODE = re.compile(r"\bfix\b", re.I)
 
 # --- transcript mining ------------------------------------------------------
 
@@ -68,7 +71,7 @@ def mine(subagents_dir):
             "chars": collections.Counter(),
             "tools": collections.Counter(),
             "models": set(), "efforts": set(),
-            "build_calls": 0,
+            "build_calls": 0, "commits": 0,
             "start": None, "end": None,
         }
         for line in open(tx, errors="replace"):
@@ -101,8 +104,12 @@ def mine(subagents_dir):
                 if name in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
                     for path, n in generated(inp):
                         r["chars"][bucket(path)] += n
-                elif name == "Bash" and BUILD.search(inp.get("command", "") or ""):
-                    r["build_calls"] += 1
+                elif name == "Bash":
+                    cmd = inp.get("command", "") or ""
+                    if BUILD.search(cmd):
+                        r["build_calls"] += 1
+                    if COMMIT.search(cmd):
+                        r["commits"] += 1
         r["dur_s"] = (r["end"] - r["start"]).total_seconds() if r["start"] and r["end"] else 0
         runs.append(r)
     return runs
@@ -134,6 +141,49 @@ def rows_from_plans(plans_dir):
             else:
                 c["unclassified"] += 1
     return c
+
+NOTE_TO_ARCHITECT = re.compile(r"^>\s*Note to architect:", re.M)
+
+def catches_from_plans(plans_dir):
+    """Agent-corrects-agent events. The test-designer prompt MANDATES a
+    `> Note to architect:` line for every structural gap, so these are the one
+    mechanically-countable proxy for judgment (as opposed to artifacts).
+    Human-corrects-agent and defects-found-by-red-state are still hand-logged."""
+    n = 0
+    for f in sorted(glob.glob(f"{plans_dir}/*.md")):
+        n += len(NOTE_TO_ARCHITECT.findall(open(f, errors="replace").read()))
+    return n
+
+def reviewer_rounds(runs, gap_min=15):
+    """Group reviewer dispatches into rounds by idle gap, and score how
+    parallel each round actually was.
+
+      ratio = sum(durations) / span   →  1.0 = fully serial, n = fully parallel
+
+    `/run-reviewers` mandates a single-message dispatch; this is how we tell
+    whether that actually happened."""
+    revs = sorted((r for r in runs if REVIEWER.search(r["role"]) and r["start"]),
+                  key=lambda r: r["start"])
+    rounds, cur = [], []
+    for r in revs:
+        if cur and (r["start"] - cur[-1]["end"]).total_seconds() / 60 > gap_min:
+            rounds.append(cur); cur = []
+        cur.append(r)
+    if cur:
+        rounds.append(cur)
+    out = []
+    for rd in rounds:
+        span = (max(x["end"] for x in rd) - min(x["start"] for x in rd)).total_seconds()
+        tot = sum(x["dur_s"] for x in rd)
+        out.append({"n": len(rd), "span_min": span / 60, "sum_min": tot / 60,
+                    "ratio": (tot / span) if span else float("nan"),
+                    "names": [x["role"] for x in rd]})
+    return out
+
+def fix_rounds(runs):
+    fx = [r for r in runs if r["role"] == "developer" and FIXMODE.search(r["desc"])]
+    return {"n": len(fx), "min": sum(r["dur_s"] for r in fx) / 60,
+            "out_tok": sum(r["out_tok"] for r in fx)}
 
 # --- reporting --------------------------------------------------------------
 
@@ -210,8 +260,29 @@ def main():
               f"classify. Mandating a status vocabulary in the developer prompt "
               f"drives this to 0 for future runs.")
 
+    # --- Stage 1 treatment metrics ---
+    rounds = reviewer_rounds(runs)
+    fx = fix_rounds(runs)
+    commits = sum(r["commits"] for r in runs)
+    catches = catches_from_plans(a.plans) if a.plans else 0
+
+    print("\n## Stage 1 metrics (reviewer gate · batching · commits)\n")
+    print("| metric | value |")
+    print("|---|---|")
+    for i, rd in enumerate(rounds, 1):
+        verdict = "SERIAL" if rd["ratio"] < 1.5 else ("parallel" if rd["ratio"] > 0.6 * rd["n"] else "partial")
+        print(f"| reviewer round {i} | {rd['n']} reviewers · span {rd['span_min']:.1f} min "
+              f"· sum {rd['sum_min']:.1f} min · **ratio {rd['ratio']:.2f} → {verdict}** |")
+    print(f"| fix rounds | {fx['n']} · {fx['min']:.1f} min · {fx['out_tok']:,} out tok |")
+    print(f"| git commits during run | {commits} |")
+    print(f"| catches (`> Note to architect:`) | {catches} |")
+    print("\n> ratio = sum(durations)/span. 1.0 means the reviewers ran one after "
+          "another; n means all n went out in a single message, as `/run-reviewers` requires.")
+
     if a.json:
         payload = {
+            "reviewer_rounds": rounds, "fix_rounds": fx,
+            "commits": commits, "catches_note_to_architect": catches,
             "label": a.label, "span_min": span_min, "agent_min": agent_min,
             "dispatches": len(runs), "output_tokens": out_tok,
             "scenarios": n_scen, "rows": n_rows,

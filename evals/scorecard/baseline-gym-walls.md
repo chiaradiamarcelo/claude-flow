@@ -30,3 +30,17 @@
 | open | 0 | 0.0% |
 
 > `unclassified` is free-text Status cells the parser could not classify. Mandating a status vocabulary in the developer prompt drives this to 0 for future runs.
+
+## Stage 1 metrics (reviewer gate · batching · commits)
+
+| metric | value |
+|---|---|
+| reviewer round 1 | 5 reviewers · span 12.7 min · sum 11.1 min · **ratio 0.88 → SERIAL** |
+| reviewer round 2 | 4 reviewers · span 7.4 min · sum 6.3 min · **ratio 0.85 → SERIAL** |
+| fix rounds | 2 · 24.4 min · 81,244 out tok |
+| git commits during run | 0 |
+| catches (`> Note to architect:`) | 40 |
+
+> ratio = sum(durations)/span. 1.0 means the reviewers ran one after another; n means all n went out in a single message, as `/run-reviewers` requires.
+
+_wrote evals/scorecard/baseline-gym-walls.json_

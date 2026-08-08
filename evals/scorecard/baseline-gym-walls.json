@@ -1,4 +1,38 @@
 {
+  "reviewer_rounds": [
+    {
+      "n": 5,
+      "span_min": 12.65,
+      "sum_min": 11.086216666666667,
+      "ratio": 0.8763807641633728,
+      "names": [
+        "arch-reviewer",
+        "test-reviewer",
+        "android-ui-test-reviewer",
+        "android-presentation-reviewer",
+        "refactor-advisor"
+      ]
+    },
+    {
+      "n": 4,
+      "span_min": 7.3898166666666665,
+      "sum_min": 6.304833333333334,
+      "ratio": 0.8531785858467396,
+      "names": [
+        "arch-reviewer",
+        "android-presentation-reviewer",
+        "android-ui-test-reviewer",
+        "refactor-advisor"
+      ]
+    }
+  ],
+  "fix_rounds": {
+    "n": 2,
+    "min": 24.357633333333336,
+    "out_tok": 81244
+  },
+  "commits": 0,
+  "catches_note_to_architect": 40,
   "label": "gym-walls (Android/KMP, baseline config, 2026-08-07)",
   "span_min": 308.71126666666663,
   "agent_min": 282.4436166666666,
