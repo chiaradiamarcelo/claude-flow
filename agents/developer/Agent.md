@@ -47,9 +47,27 @@ Additionally, invoke conditionally based on what the scenario plan touches:
    - **Verify batch-red (non-negotiable).** Run the suite **once**; every new test must fail for the reason its row states. A test that is *green* on this first run is vacuous — fix it so it genuinely exercises the behaviour **before writing any production code**. (Compile-failure while dependencies are being introduced counts as red.)
    - **Write the class's production code (GREEN)** — the smallest code that forces each row's TPP transformation and makes all of the class's tests pass. Run the suite once and confirm green.
    - Refactor if useful; everything so far stays green (REFACTOR).
-   - Flip each row's Status `☐ → ✅` as its test passes.
-   - If a row turns out already-green or genuinely redundant when you reach it, mark it `✅ early-green, kept — <why>` rather than forcing a false red — or drop it only if truly vacuous. Never silently skip it.
-   - **Plan↔code fidelity.** If TDD forces you to write a test that is *not* a planned row — a supporting behaviour a row depends on (a constructor guard, a value-object query, a mapper) — you MUST append it to the appropriate table as a new row (FLFI name · TPP · Contradiction · `✅ — unplanned, added during impl`). When the scenario is done, the Ordered Test List must be a **complete inventory**: every test method that exists maps to a row, and every row maps to a test method. Never leave a test with no row.
+   - Flip each row's Status as its test passes, using the **status vocabulary** below.
+   - If a row turns out already-green or genuinely redundant when you reach it, mark it `✅ EARLY-GREEN` rather than forcing a false red — or drop it only if truly vacuous. Never silently skip it.
+   - **Plan↔code fidelity.** If TDD forces you to write a test that is *not* a planned row — a supporting behaviour a row depends on (a constructor guard, a value-object query, a mapper) — you MUST append it to the appropriate table as a new row (FLFI name · TPP · Contradiction · `✅ UNPLANNED`). When the scenario is done, the Ordered Test List must be a **complete inventory**: every test method that exists maps to a row, and every row maps to a test method. Never leave a test with no row.
+
+### Status vocabulary (mandatory)
+
+A Status cell MUST begin with exactly one of these tokens, followed by ` — ` and your prose. The
+token is machine-read to score the run, so a cell starting any other way makes its row invisible to
+measurement. The prose after the token is unchanged in kind and length from what you would have
+written anyway — this fixes the *first* few characters of the cell, nothing else.
+
+| Token | Means |
+|---|---|
+| `☐` | not yet reached (the test-designer's initial state; no prose) |
+| `✅ RED→GREEN` | failed first for the reason its Contradiction states, then passed |
+| `✅ EARLY-GREEN` | passed on its batch-red run — say why it is kept, and name the mutant that shows it is not vacuous |
+| `✅ UNPLANNED` | not in the plan; TDD forced it — say what it supports |
+| `✅ DEFERRED` | written but not executed here — say where it will execute |
+| `❌ BLOCKED` | could not be made to pass — say why, and stop, per the failure rule below |
+
+Example: `✅ RED→GREEN — red with expected:<50> but was:<0> before the deposit was applied`
 5. When every row is `✅`, run the full test suite for the affected module and confirm green.
 6. Mark the scenario as `- [x]` in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`.
 
