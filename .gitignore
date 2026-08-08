@@ -81,3 +81,7 @@ evals/**/__pycache__/
 
 # macOS junk — re-ignore everywhere (the broad !dir/** whitelists re-include it)
 **/.DS_Store
+
+# Experimental arm workspaces: each is a measurement record, kept out of the
+# config repo. Scorecards under evals/benchmark/scorecards/ ARE committed.
+evals/benchmark/runs/
