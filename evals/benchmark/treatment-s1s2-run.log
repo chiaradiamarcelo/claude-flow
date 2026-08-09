@@ -1,0 +1,30 @@
+# Pipeline complete: `bank-accounts`
+
+**No VIOLATION was raised in any of the three reviewer passes, and none remains.** Verdict: **PASS**.
+
+## What ran
+
+All 9 scenarios, one at a time, architect → test-designer → developer, each committed as its own checkpoint. Then three reviewer passes with two fix rounds between them (the full budget).
+
+**132 tests, 0 failures** — verified myself with `clean test --rerun-tasks` against a cleared results directory.
+
+## Design decisions worth your attention
+
+- **Balance is never stored** (Rule 2). It's a sum over movements everywhere, including in the JPA mapping — there's no column that could disagree.
+- **Transfer atomicity** (Rule 5) is a single `AccountRepository.saveAll` port call, satisfied by Spring Data's transactional `saveAll` inside `infrastructure/`, so no framework leaks into the domain. The developer verified this: mutating it to two independent `save` calls reddens exactly one test, and mutating `transferOut` to replace rather than append movements reddens exactly one other. Both of the specification's declared mutant-killers work.
+- **Refusal vs not-found** (Rule 9) is structural, not documentary: `AccountNotFoundException` is a deliberate *sibling* of `AccountOperationRefused`, so 404 and 400 can't collapse into each other.
+- **Legacy rows are skipped, never repaired** (Rule 7). This needed a schema marker — the current shape genuinely could not tell "stored before movements existed" from "opened and never used", and the latter must still load. Both directions are pinned by tests.
+
+## Two things I want to flag
+
+**The red-arrival chains behaved exactly as the specification predicted.** SCENARIO-03 and SCENARIO-05 each arrived red because their predecessor deliberately shipped without the guard. That's the mechanism the experiment is testing, and it held.
+
+**I corrected my own test count mid-run.** I told you 136 after fix round 1, having "verified" it — but that number came from a results directory still holding XMLs from test classes that had since been renamed. The developer's lower count was right and mine was wrong; 132 is the true figure, confirmed from a wiped directory.
+
+## Deferred, on the record
+
+Everything not fixed is in the spec's new `## Follow-ups` section with its reason. The one I'd actually act on: **the three money-moving POSTs have no idempotency protection** — a client retry after a timeout double-credits. It's real, but it's a feature (stored replay state, a conflict status), not a fix, and no scenario asks for it.
+
+One finding was raised twice, examined, and rejected with reasoning rather than fixed: the read endpoints reuse `AccountRepository` instead of a query port. A separate read adapter would have to duplicate Rule 7's fossil-skip with nothing to catch the copies drifting. Both reviewers accepted that on the following pass.
+
+Also recorded: fix round 1's new tests were never written back into the `SCENARIO-XX.md` ordered lists, so those plans are no longer a complete inventory of the suite. That's a gap in the plan files, not the code.
