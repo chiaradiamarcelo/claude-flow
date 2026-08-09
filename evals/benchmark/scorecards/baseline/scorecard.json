@@ -1,21 +1,45 @@
 {
   "reviewer_rounds": [
     {
-      "n": 11,
-      "span_min": 31.102533333333334,
-      "sum_min": 23.251849999999997,
-      "ratio": 0.7475870132765176,
+      "n": 4,
+      "span_min": 2.1851166666666666,
+      "sum_min": 7.0391666666666675,
+      "ratio": 3.221414569778883,
       "names": [
         "arch-reviewer",
         "refactor-advisor",
         "api-reviewer",
-        "test-reviewer",
+        "test-reviewer"
+      ]
+    },
+    {
+      "n": 4,
+      "span_min": 2.5578166666666666,
+      "sum_min": 8.7554,
+      "ratio": 3.4229974783180968,
+      "names": [
         "arch-reviewer",
         "refactor-advisor",
         "api-reviewer",
-        "test-reviewer",
+        "test-reviewer"
+      ]
+    },
+    {
+      "n": 2,
+      "span_min": 2.9899,
+      "sum_min": 5.401866666666666,
+      "ratio": 1.8067047950321635,
+      "names": [
         "refactor-advisor",
-        "test-reviewer",
+        "test-reviewer"
+      ]
+    },
+    {
+      "n": 1,
+      "span_min": 2.055416666666667,
+      "sum_min": 2.055416666666667,
+      "ratio": 1.0,
+      "names": [
         "refactor-advisor"
       ]
     }

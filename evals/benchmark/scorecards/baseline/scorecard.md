@@ -33,11 +33,14 @@
 
 | metric | value |
 |---|---|
-| reviewer round 1 | 11 reviewers · span 31.1 min · sum 23.3 min · **ratio 0.75 → SERIAL** |
+| reviewer round 1 | 4 reviewers · span 2.2 min · sum 7.0 min · **ratio 3.22 → parallel** |
+| reviewer round 2 | 4 reviewers · span 2.6 min · sum 8.8 min · **ratio 3.42 → parallel** |
+| reviewer round 3 | 2 reviewers · span 3.0 min · sum 5.4 min · **ratio 1.81 → parallel** |
+| reviewer round 4 | 1 reviewers · span 2.1 min · sum 2.1 min · **ratio 1.00 → SERIAL** |
 | fix rounds | 3 · 19.9 min · 72,932 out tok |
 | git commits during run | 0 |
 | catches (`> Note to architect:`) | 9 |
 
 > ratio = sum(durations)/span. 1.0 means the reviewers ran one after another; n means all n went out in a single message, as `/run-reviewers` requires.
 
-_wrote scorecards/baseline/scorecard.json_
+_wrote evals/benchmark/scorecards/baseline/scorecard.json_
