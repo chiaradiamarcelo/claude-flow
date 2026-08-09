@@ -69,7 +69,14 @@ written anyway — this fixes the *first* few characters of the cell, nothing el
 
 Example: `✅ RED→GREEN — red with expected:<50> but was:<0> before the deposit was applied`
 5. When every row is `✅`, run the full test suite for the affected module and confirm green.
-6. Mark the scenario as `- [x]` in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`.
+6. Mark the scenario as `- [x]` in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`. **One line.** What was built, and any defect found — nothing else. The checklist is a checklist.
+7. If the scenario is worth a narrative record — a defect witnessed by a red state, a deviation from the plan, a mutant applied — write it to `docs/specifications/<feature-slug>/<scenario-id>.record.md`, **never** into the plan file or the specification.
+
+   The record is written **once, at the end, for a human reading later**. No agent
+   reads it: the architect, test-designer and developer that follow all read the
+   plan and the specification, which is exactly why those two must stay small. A
+   narrative appended to the plan is re-read on every subsequent invocation for the
+   rest of the feature.
 
 ## Fix mode
 

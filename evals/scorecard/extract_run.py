@@ -154,21 +154,23 @@ def catches_from_plans(plans_dir):
         n += len(NOTE_TO_ARCHITECT.findall(open(f, errors="replace").read()))
     return n
 
-def reviewer_rounds(runs, gap_min=15):
-    """Group reviewer dispatches into rounds by idle gap, and score how
-    parallel each round actually was.
+def reviewer_rounds(runs):
+    """Group reviewer dispatches into rounds, and score how parallel each was.
 
       ratio = sum(durations) / span   →  1.0 = fully serial, n = fully parallel
 
-    `/run-reviewers` mandates a single-message dispatch; this is how we tell
-    whether that actually happened."""
-    revs = sorted((r for r in runs if REVIEWER.search(r["role"]) and r["start"]),
-                  key=lambda r: r["start"])
+    A round boundary is a DEVELOPER dispatch, not an idle gap. The baseline arm
+    proved why: its four review rounds were separated by fix dispatches shorter
+    than any sensible gap threshold, so a 15-minute-gap heuristic collapsed all
+    eleven reviewers into one 'round' and understated the serialisation.
+    Review → fix → review is the actual cycle, so the fix is the delimiter."""
+    ordered = sorted((r for r in runs if r["start"]), key=lambda r: r["start"])
     rounds, cur = [], []
-    for r in revs:
-        if cur and (r["start"] - cur[-1]["end"]).total_seconds() / 60 > gap_min:
+    for r in ordered:
+        if REVIEWER.search(r["role"]):
+            cur.append(r)
+        elif cur:                      # a non-reviewer closes the open round
             rounds.append(cur); cur = []
-        cur.append(r)
     if cur:
         rounds.append(cur)
     out = []
