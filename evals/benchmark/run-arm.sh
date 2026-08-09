@@ -80,7 +80,9 @@ else
 fi
 
 echo "== cost + row-level scorecard =="
-SLUG="$(echo "$WS" | sed 's|/|-|g')"
+# Claude Code's project slug replaces both '/' and '.' with '-', so ~/.claude
+# becomes '--claude'. Getting this wrong silently loses the whole cost side.
+SLUG="$(echo "$WS" | sed 's|[/.]|-|g')"
 SESSDIR="$(ls -dt "$HOME/.claude/projects/$SLUG"/*/subagents 2>/dev/null | head -1 || true)"
 if [ -z "$SESSDIR" ]; then
   echo "no session transcripts found for $SLUG — was the arm run from $WS?" >&2

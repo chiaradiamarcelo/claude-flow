@@ -1,0 +1,21 @@
+## Pipeline complete — `bank-accounts`
+
+All 9 scenarios implemented and checked off; **128 tests green** on a clean build (`./gradlew clean test`), 40 production files, 18 test classes.
+
+**Per scenario:** architect → test-designer → developer, one at a time, in order. Both red-arrival chains held — SCENARIO-02 shipped with the amount unguarded so SCENARIO-03 arrived red, and SCENARIO-04 shipped with the balance unchecked so SCENARIO-05 arrived red. SCENARIO-06's atomicity was verified by actually mutating the adapter: removing `@Transactional` from `saveAll` reddens exactly one test (the committed half-transfer), and delete-and-recreate reddens exactly the `@Version` row — the two mutants the spec names.
+
+Three live defects were found and fixed along the way, each by a test that went red first: movements silently discarded on persistence (a deposit returned 200 and stored a balance of 0), missing transaction isolation in the JPA contract IT, and an unroutable path folding into 500 instead of 404.
+
+**Reviewer rounds:** 4 fires as the spec predicted (`arch-reviewer`, `test-reviewer`, `refactor-advisor`, `api-reviewer`); the three Android/React reviewers skip on no glob match. Round 1 FAIL → round 2 (arch + api PASS) → round 3 (test-reviewer PASS) → round 4. Three fix rounds used, which is the cap.
+
+Four findings were rejected with recorded rationale rather than applied. The most important: refactor-advisor wanted the decode seam to propagate a bad record, which is precisely the defect SCENARIO-08 exists to prevent — applying it would have regressed Rule 7. Also rejected: idempotency keys (outside the frozen spec's scope), an `AccountNumber` value object (speculative — Rule 1 defines no format), and several "redundant" test deletions that mutation testing showed were each the sole killer of a distinct mutant.
+
+### One outstanding finding — I recommend fixing it
+
+The final review surfaced a real defect that the round cap leaves unaddressed:
+
+`OpenAccountUseCase` never checks whether the account number is already taken. Because the JPA adapter upserts by primary key, **`POST /accounts` on an existing number silently wipes that account's movement history and resets its balance to zero.** That contradicts Rule 1 ("no two accounts share one"), and it destroys data rather than merely returning a wrong answer.
+
+No scenario covers it — the spec's SCENARIO-01 notes uniqueness is undriven by any test row — so no test reddens today. The fix is small and follows established precedent: a `findById` guard, an `AccountAlreadyExistsException`, and a `409` mapping on the shared handler, mirroring `InsufficientBalanceException`.
+
+I stopped at the three-round cap rather than continuing the loop. Say the word and I'll dispatch a fourth round for just this.

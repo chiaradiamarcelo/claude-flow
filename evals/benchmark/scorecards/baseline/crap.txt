@@ -1,0 +1,12 @@
+methods=155  over_30=0  total_crap=190.0  mean_crap=1.23
+    CRAP  comp    cov  method
+     4.0     4    1.0  Account.equals
+     3.0     3    1.0  TransferMoneyUseCase.run
+     3.0     3    1.0  StoredAccounts.predatesMovements
+     2.0     1    0.0  BankApplicationKt.main
+     2.0     2    1.0  DepositMoneyUseCase.run
+     2.0     2    1.0  ReadAccountStatementUseCase.run
+     2.0     2    1.0  WithdrawMoneyUseCase.run
+     2.0     1    0.0  UseCaseConfiguration.<init>
+     2.0     1    0.0  UseCaseConfiguration.openAccountUseCase
+     2.0     1    0.0  UseCaseConfiguration.depositMoneyUseCase

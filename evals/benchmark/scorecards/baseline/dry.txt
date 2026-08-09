@@ -1,0 +1,15 @@
+lines analysed      2,807
+clones              16
+duplicated lines    139 (4.95%)
+
+largest clones:
+    15 lines  test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt:8  <->  test/kotlin/com/example/bank/api/TransferMoneyControllerIT.kt:10
+    15 lines  test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt:8  <->  test/kotlin/com/example/bank/api/WithdrawMoneyControllerIT.kt:7
+    15 lines  test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt:4  <->  test/kotlin/com/example/bank/application/TransferMoneyUseCaseTest.kt:5
+    11 lines  test/kotlin/com/example/bank/domain/models/account/AccountRepository.contract.kt:101  <->  test/kotlin/com/example/bank/infrastructure/AccountRepositoryJpaAdapterIT.kt:41
+    10 lines  test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt:13  <->  test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt:8
+    10 lines  test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt:27  <->  test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt:43
+    10 lines  test/kotlin/com/example/bank/application/TransferMoneyUseCaseTest.kt:1  <->  test/kotlin/com/example/bank/application/WithdrawMoneyUseCaseTest.kt:1
+    10 lines  test/kotlin/com/example/bank/infrastructure/AccountStatementQueryJpaAdapterIT.kt:7  <->  test/kotlin/com/example/bank/infrastructure/AccountsQueryJpaAdapterIT.kt:11
+     9 lines  test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt:10  <->  test/kotlin/com/example/bank/application/WithdrawMoneyUseCaseTest.kt:10
+     8 lines  main/kotlin/com/example/bank/api/DepositMoneyController.kt:6  <->  main/kotlin/com/example/bank/api/TransferMoneyController.kt:6

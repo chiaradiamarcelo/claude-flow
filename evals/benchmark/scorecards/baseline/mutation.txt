@@ -1,0 +1,12 @@
+arm                    mutants killed surv junk real
+-------------------------------------------------------
+baseline                    42     33    9    7    2
+-------------------------------------------------------
+TOTAL                       42     33    9    7    2
+
+Surviving mutants: 9  |  junk (noise): 7 (78%)  |  candidate-real: 2 (22%)
+=> naive-gate false-positive rate ≈ 78% of emitted findings would be junk
+
+--- CANDIDATE-REAL survivors (inspect each: genuine gap vs equivalent) ---
+  [baseline] Account.receiveTransfer:50 — VoidMethodCallMutator (SURVIVED) :: business-logic survivor in `receiveTransfer` (SURVIVED)
+  [baseline] Account.sendTransfer:43 — VoidMethodCallMutator (SURVIVED) :: business-logic survivor in `sendTransfer` (SURVIVED)
