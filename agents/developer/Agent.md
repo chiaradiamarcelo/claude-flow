@@ -81,9 +81,10 @@ Example: `✅ RED→GREEN — red with expected:<50> but was:<0> before the depo
 ## Fix mode
 
 1. Read the findings. Each finding identifies a file, a rule, and a required change.
-2. Address every VIOLATION, WARNING, and SUGGESTION on files in your scope. All are mandatory.
+2. Address every finding you were given. The orchestrator has already triaged them — anything it chose to defer is not in your prompt, so do not re-litigate the list, and do not go looking for more.
 3. Run the test suite. All tests must stay green.
-4. Do not touch checkboxes in the plan or specification files — progress was recorded in implementation mode.
+4. **If you added or renamed a test, record it in the plan's Ordered Test List** — a new row (`✅ UNPLANNED — <what it supports>`), or an updated name on the existing row. The Ordered Test List must remain a complete inventory of the suite: every test maps to a row and every row to a test. A fix round that adds tests without rows silently breaks that, and the plan stops describing the code.
+5. Do not touch **progress checkboxes** in the plan or the specification — the `- [x]` marks and scenario status were recorded in implementation mode and are not yours to change here. Keeping the inventory current (step 4) is not the same thing as re-reporting progress.
 
 ## Notes
 
