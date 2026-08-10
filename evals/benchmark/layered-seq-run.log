@@ -1,0 +1,48 @@
+Pipeline complete.
+
+## `/run-pipeline-layered bank-accounts` — final report
+
+**141 tests, 0 failures.** Five commits, one per layer plus review fixes. All nine scenarios ticked.
+
+### Build order (one layer at a time, one `developer` in flight)
+
+| Layer | New tests | Total |
+|---|---|---|
+| L1 Domain | 57 | 57 |
+| L2 Application | 28 | 85 |
+| L3 Infrastructure | 27 | 112 |
+| L4 API | 25 | 137 |
+| Review fixes | 4 | 141 |
+
+Batch-red per class held throughout — 6, 4, 4 and 6 batches respectively. Both red-arrival chains arrived for the right reason: SCENARIO-03's rows failed with "no exception was thrown" because SCENARIO-02's row was implemented without the guard, and likewise 05 on 04.
+
+### Step 4 verification — every scenario is falsifiable
+
+I didn't take the developers' coverage claims at face value. I applied ten mutants and confirmed each was killed by a specific named test:
+
+| Mutant | Killed by |
+|---|---|
+| Balance is a stored zero, not a fold (Rule 2) | 37 tests |
+| Non-positive guard removed (S03) | 11 |
+| Insufficient-balance guard removed (S05) | 7 |
+| Statement ordering flipped (S07) | `AccountStatementQueryJpaAdapterIT.findByAccountNumber_lists_the_movements_most_recent_first` |
+| Pre-movements record loaded anyway (S08) | 3 |
+| Unknown account silently ignored (S09) | 6 |
+| **Transfer as delete-and-recreate (S06 third `Then`)** | `AccountJpaAdapterIT.a_transfer_keeps_the_movements_the_two_accounts_already_had` |
+| Transfer as two independent transactions (Rule 5) | `AccountJpaAdapterIT.a_transfer_moves_no_money_when_the_credit_cannot_be_stored` |
+| One corrupt record fails the whole read | `AccountListQueryJpaAdapterIT.the_accounts_that_can_be_read_are_returned_when_one_stored_record_cannot_be_decoded` |
+| Opened account never stored (S01) | 3 |
+
+**No scenario is uncovered.** SCENARIO-06's third `Then` and SCENARIO-08 are pinned in the database at L3 rather than at the HTTP boundary — with the dependency mocked, an L4 row for either would be vacuous.
+
+### Reviewers
+
+Four fired (`arch-reviewer`, `api-reviewer`, `test-reviewer`, `refactor-advisor`); the two Android reviewers and `ui-test-reviewer` had no path match. **No VIOLATION** — `arch-reviewer` passed clean. One fix round handled the three consequential items; the rest are in the spec's new `## Follow-ups` with reasons (no idempotency keys — a feature absent from the spec; two thin controller slices — vacuous under a mocked use case, since they re-enter the same single advice mapping).
+
+### Specification gaps — carried, not closed
+
+Three business rules **no scenario would falsify**: **Rule 1** (nothing opens a duplicate account), **Rule 8** (03 and 05 refuse before any store is attempted, so no scenario reaches a failing store), and **Rule 5's atomicity half** (S06's third `Then` pins identity, not atomicity). All three are guarded in the implementation anyway and tested, but the *specification* would accept an implementation that violated them. Closing them means adding scenarios, which is your call.
+
+The design also had to decide five things the spec leaves open — most consequentially how a pre-movements record is recognised. "Has no movements" collides with a freshly opened account, so this uses an explicit `movementsRecordedAt IS NULL` column; a different discriminator is equally spec-compliant and behaves differently.
+
+Three real contradictions surfaced mid-flight and were resolved in `DESIGN.md` before the affected layer was built: `save` could not both reject duplicates and be the write path for every movement; the decoder's `iff` on the timestamp would have reinstated the known total-read-failure defect; and `MovementEntity` had no surrogate key, which would have made Rules 5/6 unfalsifiable in the database.

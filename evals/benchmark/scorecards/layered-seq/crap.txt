@@ -1,0 +1,12 @@
+methods=179  over_30=0  total_crap=224.07  mean_crap=1.25
+    CRAP  comp    cov  method
+    4.07     4  0.833  AccountRecordDecoder.decode
+     4.0     4    1.0  TransferMoneyController.transfer
+     4.0     4    1.0  AccountRecordDecoder.decodeMovement
+     4.0     4    1.0  Account.equals
+     3.0     3    1.0  AccountNumber.constructor-impl
+     3.0     3    1.0  Account.requireBalanceCovers
+     3.0     3    1.0  Movement.reducesBalance
+     3.0     3    1.0  AccountStatementQueryJpaAdapter.findByAccountNumber
+     2.0     2    1.0  WithdrawMoneyController.withdraw
+     2.0     2    1.0  OpenAccountController.open

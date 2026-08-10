@@ -1,0 +1,147 @@
+{
+  "reviewer_rounds": [
+    {
+      "n": 4,
+      "span_min": 2.9081166666666665,
+      "sum_min": 8.67675,
+      "ratio": 2.9836320184311726,
+      "names": [
+        "arch-reviewer",
+        "api-reviewer",
+        "test-reviewer",
+        "refactor-advisor"
+      ]
+    }
+  ],
+  "fix_rounds": {
+    "n": 0,
+    "min": 0.0,
+    "out_tok": 0
+  },
+  "commits": 0,
+  "catches_note_to_architect": 0,
+  "staleness": {
+    "events": [],
+    "by_source": {}
+  },
+  "label": "layered-seq",
+  "span_min": 73.59623333333334,
+  "agent_min": 72.80776666666667,
+  "dispatches": 13,
+  "output_tokens": 284149,
+  "scenarios": 9,
+  "rows": 0,
+  "min_per_scenario": 8.17735925925926,
+  "min_per_row": NaN,
+  "out_tok_per_row": NaN,
+  "roles": {
+    "test-designer": {
+      "n": 4,
+      "min": 17.38886666666667,
+      "out_tok": 75297,
+      "chars": {
+        "other_md": 46733
+      },
+      "builds": 0,
+      "reads": 38,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "developer": {
+      "n": 4,
+      "min": 44.55135,
+      "out_tok": 157966,
+      "chars": {
+        "code_test": 87372,
+        "code_prod": 38381,
+        "other_md": 17648,
+        "spec_plan": 12229
+      },
+      "builds": 63,
+      "reads": 20,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "refactor-advisor": {
+      "n": 1,
+      "min": 2.29475,
+      "out_tok": 11051,
+      "chars": {},
+      "builds": 0,
+      "reads": 42,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "arch-reviewer": {
+      "n": 1,
+      "min": 2.9081166666666665,
+      "out_tok": 12712,
+      "chars": {},
+      "builds": 0,
+      "reads": 46,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "system-architect": {
+      "n": 1,
+      "min": 2.1908000000000003,
+      "out_tok": 10500,
+      "chars": {
+        "other_md": 13696
+      },
+      "builds": 0,
+      "reads": 1,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "test-reviewer": {
+      "n": 1,
+      "min": 2.06985,
+      "out_tok": 10964,
+      "chars": {},
+      "builds": 0,
+      "reads": 31,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "api-reviewer": {
+      "n": 1,
+      "min": 1.4040333333333335,
+      "out_tok": 5659,
+      "chars": {},
+      "builds": 0,
+      "reads": 25,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    }
+  },
+  "rows_detail": {}
+}

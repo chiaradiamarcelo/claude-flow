@@ -142,7 +142,7 @@ def rows_from_plans(plans_dir):
                 c["unclassified"] += 1
     return c
 
-NOTE_TO_ARCHITECT = re.compile(r"^>\s*Note to architect:", re.M)
+NOTE_TO_ARCHITECT = re.compile(r"^>\s*Note to (?:system-)?architect:", re.M)
 STALE_PLAN = re.compile(r"^>\s*Stale plan:(.*)$", re.M)
 
 

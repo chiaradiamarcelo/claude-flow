@@ -1,0 +1,15 @@
+lines analysed      3,009
+clones              22
+duplicated lines    188 (6.25%)
+
+largest clones:
+    16 lines  test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt:7  <->  test/kotlin/com/example/bank/application/WithdrawMoneyUseCaseTest.kt:7
+    14 lines  test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt:11  <->  test/kotlin/com/example/bank/api/TransferMoneyControllerIT.kt:8
+    13 lines  test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt:13  <->  test/kotlin/com/example/bank/api/WithdrawMoneyControllerIT.kt:11
+    13 lines  test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt:10  <->  test/kotlin/com/example/bank/application/TransferMoneyUseCaseTest.kt:15
+    12 lines  test/kotlin/com/example/bank/api/AccountListControllerIT.kt:5  <->  test/kotlin/com/example/bank/api/AccountStatementControllerIT.kt:10
+    11 lines  test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt:12  <->  test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt:12
+    10 lines  main/kotlin/com/example/bank/api/DepositMoneyController.kt:6  <->  main/kotlin/com/example/bank/api/WithdrawMoneyController.kt:6
+    10 lines  test/kotlin/com/example/bank/api/AccountStatementControllerIT.kt:69  <->  test/kotlin/com/example/bank/domain/query/AccountStatementQuery.contract.kt:54
+    10 lines  test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt:72  <->  test/kotlin/com/example/bank/application/WithdrawMoneyUseCaseTest.kt:82
+    10 lines  test/kotlin/com/example/bank/domain/models/account/AccountRepository.contract.kt:130  <->  test/kotlin/com/example/bank/domain/models/account/AccountRepository.contract.kt:146
