@@ -54,21 +54,27 @@ Only the **developer** writes code, so only the developer must be serial. The
 `architect` and `test-designer` read files and write their own plan — they cannot
 collide with an implementation in flight. Run them alongside it.
 
-**Steady state — dispatch these three in a single message, then wait for all three:**
+**Steady state — two dispatches per scenario:**
 
-| | agent | scenario |
-|---|---|---|
-| implement | `developer` | **N** |
-| plan | `test-designer` | **N+1** (its architect already ran) |
-| plan | `architect` | **N+2** |
+1. **`developer` N ∥ `architect` N+1** in a single message. Wait for both.
+2. **`test-designer` N+1** alone.
 
-Then N+1 becomes N and repeat. Planning disappears behind the implementation instead
-of adding to it.
+Then N+1 becomes N and repeat.
 
-**Priming, for the first two scenarios:**
-1. `architect` **1**.
-2. `test-designer` **1** ∥ `architect` **2**.
-3. Steady state from here: `developer` 1 ∥ `test-designer` 2 ∥ `architect` 3.
+**Only the architect looks ahead, and only by one.** The `test-designer` is
+deliberately *not* pipelined: it always runs after the predecessor's code exists, so
+it sees the real world. That is not a missed optimisation, it is the point —
+measured, a deeper schedule that also pipelined the test-designer cut wall-clock 28%
+and took red→green from 86% to 64%, with 28% of tests arriving unplanned. The
+test-designer's judgement about *which guards are still missing* is what makes rows
+arrive red, and it cannot make that judgement against code that has not been written.
+
+The architect can look ahead safely because it plans structure rather than
+falsifiability, and because the test-designer re-derives that structure from current
+code immediately afterwards — so an architect mis-prediction is caught one step later
+by an agent that can see the truth.
+
+**Priming:** `architect` 1 → `test-designer` 1 → steady state.
 
 **Winding down:** when there is no N+1 or N+2 left to plan, dispatch what remains.
 Never invent work to fill a slot.

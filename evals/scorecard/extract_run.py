@@ -158,13 +158,8 @@ def staleness_from_plans(plans_dir):
     for f in sorted(glob.glob(f"{plans_dir}/*.md")):
         for tail in STALE_PLAN.findall(open(f, errors="replace").read()):
             events.append((os.path.basename(f), tail.strip()))
-            low = tail.lower()
-            if "code was the source" in low or "code) was" in low:
-                by_source["code"] += 1
-            elif "plan was the source" in low or "plan) was" in low:
-                by_source["plan"] += 1
-            else:
-                by_source["unattributed"] += 1
+            m = re.search(r"SOURCE\s*=\s*(code|plan)\b", tail, re.I)
+            by_source[m.group(1).lower() if m else "unattributed"] += 1
     return events, by_source
 
 def catches_from_plans(plans_dir):

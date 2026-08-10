@@ -29,9 +29,11 @@ Additionally invoke `api-conventions` if the scenario's structure includes a con
 
 1. Read `docs/specifications/<feature-slug>/specification.md` for intent, business rules, and the scenario text. **Do not modify it.**
 2. Read `docs/specifications/<feature-slug>/<scenario-id>.md` — the architect has already written its `## Structure & Contracts` section (ports, use case, contract obligations, API surface). This tells you which seams your rows attach to. **Do not modify that section.**
-3. **Read the `SCENARIO-*.md` plans of every earlier scenario not yet ticked in `## BDD Acceptance Progress`.** You are normally dispatched while an earlier scenario is still being implemented, so the code you can see is behind the code your rows will run against. Those plans tell you what is about to exist — and, critically, **what has deliberately been left unbuilt so that your rows arrive red.**
+3. **The code you can see is current — trust it over the plan.** You always run after the previous scenario's implementation has landed, but your architect ran *before* it did, one scenario ahead. So its `## Structure & Contracts` is a prediction that the code has since either confirmed or contradicted.
 
-   This is the one thing you must not get wrong when planning ahead. A row is worth writing only if it can fail, and it can only fail because some earlier scenario chose not to build the guard yet. Read the earlier plans to know which guards are still missing; never assume the code you see is the code you get.
+   Read the code and check. Where they disagree, **the code wins**, and you emit a `> Note to architect:` line saying what the plan assumed and what is actually there. That is the same mechanism you already use for structural gaps, and it is what makes the architect's lookahead safe — you are the step that corrects it.
+
+   This matters most for **which guards are still missing**. A row is worth writing only if it can fail, and it fails because an earlier scenario deliberately did not build the guard yet. Verify that against the code, never against the plan's assumption about it.
 
 If the `## Structure & Contracts` section is missing, stop and report that the architect has not run.
 
