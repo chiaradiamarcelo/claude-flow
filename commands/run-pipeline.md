@@ -48,47 +48,12 @@ Read `docs/specifications/<feature-slug>/specification.md`. If it doesn't exist
 (or no slug uniquely identifies one feature under `docs/specifications/`),
 **STOP** and report that no approved specification was found — write no code.
 
-### Scenarios are implemented one at a time, but planned ahead
-
-Only the **developer** writes code, so only the developer must be serial. The
-`architect` and `test-designer` read files and write their own plan — they cannot
-collide with an implementation in flight. Run them alongside it.
-
-**Steady state — two dispatches per scenario:**
-
-1. **`developer` N ∥ `architect` N+1** in a single message. Wait for both.
-2. **`test-designer` N+1** alone.
-
-Then N+1 becomes N and repeat.
-
-**Only the architect looks ahead, and only by one.** The `test-designer` is
-deliberately *not* pipelined: it always runs after the predecessor's code exists, so
-it sees the real world. That is not a missed optimisation, it is the point —
-measured, a deeper schedule that also pipelined the test-designer cut wall-clock 28%
-and took red→green from 86% to 64%, with 28% of tests arriving unplanned. The
-test-designer's judgement about *which guards are still missing* is what makes rows
-arrive red, and it cannot make that judgement against code that has not been written.
-
-The architect can look ahead safely because it plans structure rather than
-falsifiability, and because the test-designer re-derives that structure from current
-code immediately afterwards — so an architect mis-prediction is caught one step later
-by an agent that can see the truth.
-
-**Priming:** `architect` 1 → `test-designer` 1 → steady state.
-
-**Winding down:** when there is no N+1 or N+2 left to plan, dispatch what remains.
-Never invent work to fill a slot.
-
-**After each developer returns:**
-1. Check the scenario's box.
-2. **Commit the scenario's work** (`git add -A && git commit`) with the scenario ID in the message. A green scenario is a checkpoint; leaving a whole feature uncommitted across hours puts every earlier scenario at the mercy of the next agent's `git` command.
-3. **If the developer reported a `> Stale plan:` note**, read it before dispatching the next batch. It means a plan was drafted against structure that has since changed. One is normal. Several in a row means the lookahead is too deep for this feature — drop `architect` back to **N+1** and note it in your final report.
-
-**What planning ahead does and does not change:** the architect and test-designer are
-now planning against code that **does not exist yet**. They are told to plan against
-the earlier scenarios' *plans* as well as the committed code (see their agent
-definitions). Do not compensate for this by feeding them extra context; if a plan
-comes back wrong, that is the signal this stage exists to measure.
+**For each unchecked scenario in `## BDD Acceptance Progress` (top-to-bottom, one at a time):**
+1. Run **`architect`** to plan its structure (produces `SCENARIO-XX.md` with a `## Structure & Contracts` section).
+2. Run **`test-designer`** to append the `## Ordered Test List (FLFI · TPP · Contradiction)` section to that file.
+3. Run **`developer`** to implement it (executes the ordered test list red-green; honors any `> Note to architect:` lines).
+4. Check its box.
+5. **Commit the scenario's work** (`git add -A && git commit`) with the scenario ID in the message. A green scenario is a checkpoint; leaving a whole feature uncommitted across hours puts every earlier scenario at the mercy of the next agent's `git` command.
 
 **After all scenarios are implemented:**
 1. Run **`/run-reviewers`** (no arguments).
@@ -101,7 +66,6 @@ comes back wrong, that is the signal this stage exists to measure.
 5. **If any VIOLATION remains unfixed when the budget is spent, say so as the headline of your final report** — not as a footnote. An unfixed violation is the single most important thing the run has to tell the reader.
 
 **Rules:**
-- **Exactly one `developer` in flight at any time.** Two developers on different scenarios would collide on files, and worse, would destroy the red-arrival property the whole method rests on: a scenario's tests are red only because its predecessor deliberately has not built the thing yet. Concurrency is for planning only.
-- **Order within a scenario is still strict** — architect → test-designer → developer. The test-designer needs the `## Structure & Contracts` section; the developer needs the ordered list.
+- One scenario at a time. Never run architect / test-designer / developer in parallel or batched, and always in that order — the test-designer needs the architect's `## Structure & Contracts` section, and the developer needs the test-designer's ordered list.
 - Never skip `/run-reviewers`.
 - Auto-continue — do not ask for permission between steps.

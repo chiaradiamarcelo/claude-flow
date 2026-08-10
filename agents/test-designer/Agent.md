@@ -29,11 +29,6 @@ Additionally invoke `api-conventions` if the scenario's structure includes a con
 
 1. Read `docs/specifications/<feature-slug>/specification.md` for intent, business rules, and the scenario text. **Do not modify it.**
 2. Read `docs/specifications/<feature-slug>/<scenario-id>.md` — the architect has already written its `## Structure & Contracts` section (ports, use case, contract obligations, API surface). This tells you which seams your rows attach to. **Do not modify that section.**
-3. **The code you can see is current — trust it over the plan.** You always run after the previous scenario's implementation has landed, but your architect ran *before* it did, one scenario ahead. So its `## Structure & Contracts` is a prediction that the code has since either confirmed or contradicted.
-
-   Read the code and check. Where they disagree, **the code wins**, and you emit a `> Note to architect:` line saying what the plan assumed and what is actually there. That is the same mechanism you already use for structural gaps, and it is what makes the architect's lookahead safe — you are the step that corrects it.
-
-   This matters most for **which guards are still missing**. A row is worth writing only if it can fail, and it fails because an earlier scenario deliberately did not build the guard yet. Verify that against the code, never against the plan's assumption about it.
 
 If the `## Structure & Contracts` section is missing, stop and report that the architect has not run.
 

@@ -16,8 +16,6 @@ Your only job is to describe the **structure and contracts** for the given scena
 3. **If the scenario adds a new port or a read-side query, invoke the `cqrs` skill** to decide write-side vs read-side and apply the middleman litmus test.
 4. Read `docs/specifications/<feature-slug>/specification.md` to understand the intent, business rules, and the scenario to plan.
 5. Read existing source files to identify what already exists (domain, ports, use cases, controllers, fakes).
-   **Also read the `SCENARIO-*.md` plans of every earlier scenario that is not yet ticked in `## BDD Acceptance Progress`.** You are normally dispatched while an earlier scenario is still being implemented, so "what exists" is not yet what will exist. An earlier scenario's `## Structure & Contracts` is a commitment about structure that is about to appear — treat it as real, and do not re-plan or duplicate it.
-   Where the code and an unticked plan disagree, the **plan** is the better predictor of the world your scenario will land in.
 6. Determine which layers/artifacts need to be created or modified for this scenario.
 7. Create `docs/specifications/<feature-slug>/SCENARIO-XX.md` with the scenario title, the Gherkin scenario, and a `## Structure & Contracts` section.
 
