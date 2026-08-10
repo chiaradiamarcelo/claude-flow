@@ -1,0 +1,220 @@
+{
+  "reviewer_rounds": [
+    {
+      "n": 4,
+      "span_min": 3.1664833333333333,
+      "sum_min": 8.92325,
+      "ratio": 2.8180315702488037,
+      "names": [
+        "arch-reviewer",
+        "api-reviewer",
+        "test-reviewer",
+        "refactor-advisor"
+      ]
+    },
+    {
+      "n": 4,
+      "span_min": 3.231933333333333,
+      "sum_min": 8.941733333333334,
+      "ratio": 2.76668248107428,
+      "names": [
+        "arch-reviewer",
+        "api-reviewer",
+        "test-reviewer",
+        "refactor-advisor"
+      ]
+    }
+  ],
+  "fix_rounds": {
+    "n": 2,
+    "min": 21.010066666666667,
+    "out_tok": 79585
+  },
+  "commits": 0,
+  "catches_note_to_architect": 21,
+  "staleness": {
+    "events": [
+      {
+        "file": "SCENARIO-02.md",
+        "note": "SOURCE=code | the plan assumed SCENARIO-01 shipped a `Result<Account, Failure>` vocabulary for use cases and the repository \u2014 actually SCENARIO-01 shipped `OpenAccountUseCase.open(accountNumber): Account` and `AccountRepository.findById(accountNumber): Account?`, so `DepositMoneyUseCase.deposit(accountNumber, amount): Account` was implemented against that and carries a non-null assertion on the lookup until SCENARIO-09 introduces not-found handling."
+      },
+      {
+        "file": "SCENARIO-02.md",
+        "note": "SOURCE=plan | the Structure & Contracts section puts the deposit action on the shared `AccountController`, which the test-designer's third note flags as contradicting `api-conventions` (one controller per business action, `DepositMoneyController`) \u2014 followed the plan and SCENARIO-01's precedent, so `AccountController` now has two actions."
+      },
+      {
+        "file": "SCENARIO-03.md",
+        "note": "SOURCE=plan | the plan places `Result<T, F>` in `application/Result.kt` while also"
+      },
+      {
+        "file": "SCENARIO-04.md",
+        "note": "SOURCE=code | Structure & Contracts places `Result<T, F>` in `application/Result.kt` \u2014 actually at `domain/Result.kt`, since `Account` returns it and the domain may not import the application layer."
+      },
+      {
+        "file": "SCENARIO-04.md",
+        "note": "SOURCE=code | plan says to extract SCENARIO-03's positive-amount guard out of `deposit` into a shared private check \u2014 it was already extracted as `Account.isNotPositive(...)`; what actually needed sharing was the append-a-movement path, now a private `Account.record(kind, amount)` that both `deposit` and `withdraw` call."
+      },
+      {
+        "file": "SCENARIO-04.md",
+        "note": "SOURCE=code | rows 10, 11 and 13 name controller tests that already exist verbatim in `AccountControllerIT` for deposits (`returns_400_when_the_amount_is_missing`, `returns_400_when_the_amount_is_not_a_number`, `sends_a_zero_amount_to_the_use_case_instead_of_rejecting_it_at_the_boundary`) \u2014 duplicate method names in one class do not compile, so the withdrawal rows were renamed to say \"withdrawal\"."
+      },
+      {
+        "file": "SCENARIO-05.md",
+        "note": "SOURCE=code | the Structure section says `Account.withdraw` \"gains a second guard, checked after the existing positive-amount guard\" \u2014 actually SCENARIO-04 implemented `withdraw` as a one-line delegation to a shared private `record(kind, amount)` that owns the positive-amount guard, so there was no withdrawal-only body to add a guard to; `withdraw` was given a body holding the balance guard alone, ahead of `record`."
+      },
+      {
+        "file": "SCENARIO-05.md",
+        "note": "SOURCE=code | the Structure section implies the controller's `refusal()` only needed extending once the mapping row was reached \u2014 actually `refusal()` is an exhaustive `when` over `AccountFailure`, so adding `InsufficientBalance` broke `compileKotlin` and coupled the use-case and controller batches into one batch-red run (the branch was stubbed with `TODO(...)` for that run only)."
+      },
+      {
+        "file": "SCENARIO-07.md",
+        "note": "SOURCE=plan | Structure & Contracts put the OPENED filter and the most-recent-first reversal in the DTO mapper \u2014 the test-designer's note relocated both to `Account.statement()` in the domain, which is where rows 1\u20133 are written and where they were implemented; `StatementResponse.of` maps straight through."
+      },
+      {
+        "file": "SCENARIO-07.md",
+        "note": "SOURCE=plan | Structure & Contracts specified a `404` on the statement path when `findById` returns null \u2014 the test-designer's note defers it to SCENARIO-09, so the read path was left unguarded (`findById(...)!!`, consistent with `TransferMoneyUseCase`)."
+      },
+      {
+        "file": "SCENARIO-08.md",
+        "note": "SOURCE=code | the plan assumed 4 `Account.reconstitute` call sites (`AccountTest` \u00d73, `AccountJpaAdapterIT` \u00d71) \u2014 actually there are 8 test call sites across 5 files (`AccountTest` \u00d72, `AccountJpaAdapterIT` \u00d71, `AccountControllerIT` \u00d73, `DepositMoneyUseCaseTest`/`WithdrawMoneyUseCaseTest`/`TransferMoneyUseCaseTest` \u00d71 each) plus `AccountJpaAdapter.toDomain`, because SCENARIO-06 and SCENARIO-07 added reconstitute-based fixtures the plan was written before. Handled by extracting one shared `anAccountWith(...)` fixture (`AccountFixtures.kt`) ahead of the signature change."
+      },
+      {
+        "file": "SCENARIO-08.md",
+        "note": "SOURCE=code | row 5's Contradiction assumed `AccountJpaAdapter.findById` \"unwraps the decoded account unconditionally\" \u2014 actually SCENARIO-01 implemented it as `accounts.findById(n).map(::toDomain).orElse(null)`, which already yields null once `toDomain` is nullable, so the row could not be made red for its stated reason."
+      },
+      {
+        "file": "SCENARIO-08.md",
+        "note": "SOURCE=plan | the plan recorded `findAll` as having \"**no production caller** \u2026 test-only API surface until one exists\" and accepted that \u2014 actually the Gherkin's \"When the bank's accounts are read\" names the caller, and the missing endpoint left the scenario unobservable outside the repository contract. `ListAccountsController` (`GET /accounts`) added in the review fix round, injecting `AccountRepository` directly, matching the statement seam the `arch-reviewer` passed as correct CQRS."
+      }
+    ],
+    "by_source": {
+      "code": 8,
+      "plan": 5
+    }
+  },
+  "label": "treatment-s3-1deep",
+  "span_min": 106.46821666666666,
+  "agent_min": 122.53293333333333,
+  "dispatches": 37,
+  "output_tokens": 465913,
+  "scenarios": 9,
+  "rows": 127,
+  "min_per_scenario": 11.829801851851851,
+  "min_per_row": 0.8383324146981627,
+  "out_tok_per_row": 3668.6062992125985,
+  "roles": {
+    "developer": {
+      "n": 11,
+      "min": 73.5049,
+      "out_tok": 288473,
+      "chars": {
+        "code_test": 101860,
+        "code_prod": 37299,
+        "spec_plan": 57567,
+        "spec_sot": 3212
+      },
+      "builds": 104,
+      "reads": 126,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "test-designer": {
+      "n": 9,
+      "min": 19.74555,
+      "out_tok": 71817,
+      "chars": {
+        "spec_plan": 36438
+      },
+      "builds": 0,
+      "reads": 111,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "refactor-advisor": {
+      "n": 2,
+      "min": 6.0499,
+      "out_tok": 21221,
+      "chars": {},
+      "builds": 0,
+      "reads": 80,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "architect": {
+      "n": 9,
+      "min": 11.417499999999999,
+      "out_tok": 33725,
+      "chars": {
+        "spec_plan": 23211
+      },
+      "builds": 0,
+      "reads": 64,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "api-reviewer": {
+      "n": 2,
+      "min": 3.207533333333333,
+      "out_tok": 15102,
+      "chars": {},
+      "builds": 0,
+      "reads": 32,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "test-reviewer": {
+      "n": 2,
+      "min": 5.339883333333334,
+      "out_tok": 23442,
+      "chars": {},
+      "builds": 0,
+      "reads": 39,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "arch-reviewer": {
+      "n": 2,
+      "min": 3.2676666666666665,
+      "out_tok": 12133,
+      "chars": {},
+      "builds": 0,
+      "reads": 59,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    }
+  },
+  "rows_detail": {
+    "total": 127,
+    "red_then_green": 78,
+    "unplanned": 31,
+    "early_green": 18
+  }
+}

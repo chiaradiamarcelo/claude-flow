@@ -1,0 +1,753 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 14,
+        "endLoc": {
+          "column": 5,
+          "line": 14,
+          "position": 528
+        },
+        "name": "main/kotlin/com/example/bank/api/DepositMoneyController.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 181
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 14,
+        "endLoc": {
+          "column": 5,
+          "line": 14,
+          "position": 531
+        },
+        "name": "main/kotlin/com/example/bank/api/TransferMoneyController.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 184
+        }
+      },
+      "tokens": 69
+    },
+    {
+      "firstFile": {
+        "end": 14,
+        "endLoc": {
+          "column": 5,
+          "line": 14,
+          "position": 528
+        },
+        "name": "main/kotlin/com/example/bank/api/DepositMoneyController.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 181
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 14,
+        "endLoc": {
+          "column": 5,
+          "line": 14,
+          "position": 530
+        },
+        "name": "main/kotlin/com/example/bank/api/WithdrawMoneyController.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 183
+        }
+      },
+      "tokens": 69
+    },
+    {
+      "firstFile": {
+        "end": 6,
+        "endLoc": {
+          "column": 63,
+          "line": 6,
+          "position": 254
+        },
+        "name": "main/kotlin/com/example/bank/application/DepositMoneyUseCase.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 6,
+        "endLoc": {
+          "column": 63,
+          "line": 6,
+          "position": 254
+        },
+        "name": "main/kotlin/com/example/bank/application/OpenAccountUseCase.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 5,
+          "line": 9,
+          "position": 289
+        },
+        "name": "main/kotlin/com/example/bank/application/DepositMoneyUseCase.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 5,
+          "line": 9,
+          "position": 289
+        },
+        "name": "main/kotlin/com/example/bank/application/TransferMoneyUseCase.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "tokens": 67
+    },
+    {
+      "firstFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 5,
+          "line": 9,
+          "position": 289
+        },
+        "name": "main/kotlin/com/example/bank/application/DepositMoneyUseCase.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 5,
+          "line": 9,
+          "position": 289
+        },
+        "name": "main/kotlin/com/example/bank/application/WithdrawMoneyUseCase.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "tokens": 67
+    },
+    {
+      "firstFile": {
+        "end": 6,
+        "endLoc": {
+          "column": 46,
+          "line": 6,
+          "position": 237
+        },
+        "name": "main/kotlin/com/example/bank/application/DepositMoneyUseCase.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 6,
+        "endLoc": {
+          "column": 46,
+          "line": 6,
+          "position": 237
+        },
+        "name": "test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "tokens": 59
+    },
+    {
+      "firstFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 58,
+          "line": 11,
+          "position": 412
+        },
+        "name": "main/kotlin/com/example/bank/application/DepositMoneyUseCase.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 46,
+          "line": 8,
+          "position": 351
+        },
+        "name": "test/kotlin/com/example/bank/application/OpenAccountUseCaseTest.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "tokens": 87
+    },
+    {
+      "firstFile": {
+        "end": 12,
+        "endLoc": {
+          "column": 39,
+          "line": 12,
+          "position": 487
+        },
+        "name": "main/kotlin/com/example/bank/application/DepositMoneyUseCase.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 12,
+      "secondFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 46,
+          "line": 9,
+          "position": 423
+        },
+        "name": "test/kotlin/com/example/bank/application/TransferMoneyUseCaseTest.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "tokens": 101
+    },
+    {
+      "firstFile": {
+        "end": 7,
+        "endLoc": {
+          "column": 6,
+          "line": 7,
+          "position": 292
+        },
+        "name": "main/kotlin/com/example/bank/infrastructure/AccountJpaAdapter.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 7,
+        "endLoc": {
+          "column": 6,
+          "line": 7,
+          "position": 309
+        },
+        "name": "test/kotlin/com/example/bank/infrastructure/AccountJpaAdapterIT.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "tokens": 65
+    },
+    {
+      "firstFile": {
+        "end": 20,
+        "endLoc": {
+          "column": 40,
+          "line": 20,
+          "position": 902
+        },
+        "name": "test/kotlin/com/example/bank/api/AccountStatementControllerIT.kt",
+        "start": 5,
+        "startLoc": {
+          "column": 0,
+          "line": 5,
+          "position": 148
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 16,
+      "secondFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 17,
+          "line": 23,
+          "position": 1041
+        },
+        "name": "test/kotlin/com/example/bank/api/TransferMoneyControllerIT.kt",
+        "start": 8,
+        "startLoc": {
+          "column": 0,
+          "line": 8,
+          "position": 312
+        }
+      },
+      "tokens": 163
+    },
+    {
+      "firstFile": {
+        "end": 14,
+        "endLoc": {
+          "column": 27,
+          "line": 14,
+          "position": 641
+        },
+        "name": "test/kotlin/com/example/bank/api/AccountStatementControllerIT.kt",
+        "start": 8,
+        "startLoc": {
+          "column": 0,
+          "line": 8,
+          "position": 322
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 14,
+        "endLoc": {
+          "column": 27,
+          "line": 14,
+          "position": 630
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 8,
+        "startLoc": {
+          "column": 0,
+          "line": 8,
+          "position": 311
+        }
+      },
+      "tokens": 69
+    },
+    {
+      "firstFile": {
+        "end": 20,
+        "endLoc": {
+          "column": 7,
+          "line": 20,
+          "position": 869
+        },
+        "name": "test/kotlin/com/example/bank/api/AccountStatementControllerIT.kt",
+        "start": 8,
+        "startLoc": {
+          "column": 0,
+          "line": 8,
+          "position": 322
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 13,
+      "secondFile": {
+        "end": 18,
+        "endLoc": {
+          "column": 7,
+          "line": 18,
+          "position": 758
+        },
+        "name": "test/kotlin/com/example/bank/api/ListAccountsControllerIT.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 211
+        }
+      },
+      "tokens": 117
+    },
+    {
+      "firstFile": {
+        "end": 13,
+        "endLoc": {
+          "column": 10,
+          "line": 13,
+          "position": 539
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 4,
+        "startLoc": {
+          "column": 10,
+          "line": 4,
+          "position": 96
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 13,
+        "endLoc": {
+          "column": 10,
+          "line": 13,
+          "position": 538
+        },
+        "name": "test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt",
+        "start": 4,
+        "startLoc": {
+          "column": 10,
+          "line": 4,
+          "position": 95
+        }
+      },
+      "tokens": 99
+    },
+    {
+      "firstFile": {
+        "end": 18,
+        "endLoc": {
+          "column": 6,
+          "line": 18,
+          "position": 826
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 9,
+        "startLoc": {
+          "column": 28,
+          "line": 9,
+          "position": 389
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 19,
+        "endLoc": {
+          "column": 7,
+          "line": 19,
+          "position": 827
+        },
+        "name": "test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt",
+        "start": 9,
+        "startLoc": {
+          "column": 28,
+          "line": 9,
+          "position": 388
+        }
+      },
+      "tokens": 92
+    },
+    {
+      "firstFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 1,
+          "line": 23,
+          "position": 942
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 15,
+        "startLoc": {
+          "column": 0,
+          "line": 15,
+          "position": 645
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 25,
+        "endLoc": {
+          "column": 7,
+          "line": 25,
+          "position": 1122
+        },
+        "name": "test/kotlin/com/example/bank/api/WithdrawMoneyControllerIT.kt",
+        "start": 18,
+        "startLoc": {
+          "column": 0,
+          "line": 18,
+          "position": 820
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 27,
+          "line": 11,
+          "position": 513
+        },
+        "name": "test/kotlin/com/example/bank/api/TransferMoneyControllerIT.kt",
+        "start": 4,
+        "startLoc": {
+          "column": 18,
+          "line": 4,
+          "position": 105
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 27,
+          "line": 11,
+          "position": 513
+        },
+        "name": "test/kotlin/com/example/bank/api/WithdrawMoneyControllerIT.kt",
+        "start": 4,
+        "startLoc": {
+          "column": 18,
+          "line": 4,
+          "position": 105
+        }
+      },
+      "tokens": 97
+    },
+    {
+      "firstFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 11,
+          "line": 11,
+          "position": 503
+        },
+        "name": "test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 191
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 12,
+        "endLoc": {
+          "column": 11,
+          "line": 12,
+          "position": 575
+        },
+        "name": "test/kotlin/com/example/bank/application/TransferMoneyUseCaseTest.kt",
+        "start": 7,
+        "startLoc": {
+          "column": 0,
+          "line": 7,
+          "position": 263
+        }
+      },
+      "tokens": 73
+    },
+    {
+      "firstFile": {
+        "end": 17,
+        "endLoc": {
+          "column": 26,
+          "line": 17,
+          "position": 719
+        },
+        "name": "test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt",
+        "start": 7,
+        "startLoc": {
+          "column": 37,
+          "line": 7,
+          "position": 283
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 17,
+        "endLoc": {
+          "column": 29,
+          "line": 17,
+          "position": 722
+        },
+        "name": "test/kotlin/com/example/bank/application/WithdrawMoneyUseCaseTest.kt",
+        "start": 7,
+        "startLoc": {
+          "column": 37,
+          "line": 7,
+          "position": 283
+        }
+      },
+      "tokens": 86
+    },
+    {
+      "firstFile": {
+        "end": 92,
+        "endLoc": {
+          "column": 48,
+          "line": 92,
+          "position": 3560
+        },
+        "name": "test/kotlin/com/example/bank/domain/models/account/AccountRepository.contract.kt",
+        "start": 86,
+        "startLoc": {
+          "column": 12,
+          "line": 86,
+          "position": 3250
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 108,
+        "endLoc": {
+          "column": 48,
+          "line": 108,
+          "position": 4295
+        },
+        "name": "test/kotlin/com/example/bank/domain/models/account/AccountRepository.contract.kt",
+        "start": 102,
+        "startLoc": {
+          "column": 106,
+          "line": 102,
+          "position": 3985
+        }
+      },
+      "tokens": 64
+    },
+    {
+      "firstFile": {
+        "end": 7,
+        "endLoc": {
+          "column": 5,
+          "line": 7,
+          "position": 250
+        },
+        "name": "test/kotlin/com/example/bank/domain/models/account/fakes/FakeAccountRepository.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "format": "kotlin",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 6,
+        "endLoc": {
+          "column": 6,
+          "line": 6,
+          "position": 250
+        },
+        "name": "test/kotlin/com/example/bank/domain/models/account/fakes/FakeAccountRepositoryTest.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "tokens": 56
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-08-10T12:24:30.073Z",
+    "formats": {
+      "kotlin": {
+        "clones": 20,
+        "duplicatedLines": 162,
+        "duplicatedTokens": 1620,
+        "lines": 2589,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 6.257242178447277,
+        "percentageTokens": 9.101123595505618,
+        "sources": 42,
+        "tokens": 17800
+      }
+    },
+    "total": {
+      "clones": 20,
+      "duplicatedLines": 162,
+      "duplicatedTokens": 1620,
+      "lines": 2589,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 6.257242178447277,
+      "percentageTokens": 9.101123595505618,
+      "sources": 42,
+      "tokens": 17800
+    }
+  }
+}

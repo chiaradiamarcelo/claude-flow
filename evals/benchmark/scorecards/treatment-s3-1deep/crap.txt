@@ -1,0 +1,12 @@
+methods=116  over_30=0  total_crap=156.02  mean_crap=1.35
+    CRAP  comp    cov  method
+    6.02     6  0.923  TransferMoneyUseCase.transfer
+     5.0     5    1.0  AccountFailureResponse.of
+     3.0     3    1.0  DepositMoneyUseCase.deposit
+     3.0     3    1.0  WithdrawMoneyUseCase.withdraw
+     3.0     3    1.0  Account.equals
+     2.0     2    1.0  WithdrawMoneyController.withdraw
+     2.0     2    1.0  OpenAccountController.open
+     2.0     2    1.0  AccountStatementController.statement
+     2.0     2    1.0  ApiErrorHandler.messageFor
+     2.0     2    1.0  DepositMoneyController.deposit
