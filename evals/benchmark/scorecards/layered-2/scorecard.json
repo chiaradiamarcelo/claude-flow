@@ -1,0 +1,146 @@
+{
+  "reviewer_rounds": [
+    {
+      "n": 4,
+      "span_min": 4.013,
+      "sum_min": 11.441699999999999,
+      "ratio": 2.851158734114129,
+      "names": [
+        "arch-reviewer",
+        "test-reviewer",
+        "refactor-advisor",
+        "api-reviewer"
+      ]
+    }
+  ],
+  "fix_rounds": {
+    "n": 2,
+    "min": 22.215933333333332,
+    "out_tok": 67601
+  },
+  "commits": 0,
+  "catches_note_to_architect": 0,
+  "staleness": {
+    "events": [],
+    "by_source": {}
+  },
+  "label": "layered-2",
+  "span_min": 103.10646666666666,
+  "agent_min": 102.8868,
+  "dispatches": 15,
+  "output_tokens": 364545,
+  "scenarios": 9,
+  "rows": 0,
+  "min_per_scenario": 11.456274074074074,
+  "min_per_row": NaN,
+  "out_tok_per_row": NaN,
+  "roles": {
+    "test-designer": {
+      "n": 4,
+      "min": 15.847516666666666,
+      "out_tok": 53550,
+      "chars": {
+        "other_md": 45259
+      },
+      "builds": 0,
+      "reads": 39,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "developer": {
+      "n": 6,
+      "min": 72.61905,
+      "out_tok": 252539,
+      "chars": {
+        "code_prod": 52209,
+        "code_test": 89520,
+        "other_md": 25164
+      },
+      "builds": 118,
+      "reads": 41,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "arch-reviewer": {
+      "n": 1,
+      "min": 2.32875,
+      "out_tok": 8215,
+      "chars": {},
+      "builds": 0,
+      "reads": 58,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "system-architect": {
+      "n": 1,
+      "min": 2.978533333333333,
+      "out_tok": 14161,
+      "chars": {
+        "other_md": 14772
+      },
+      "builds": 0,
+      "reads": 1,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "test-reviewer": {
+      "n": 1,
+      "min": 3.966,
+      "out_tok": 16224,
+      "chars": {},
+      "builds": 0,
+      "reads": 31,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "api-reviewer": {
+      "n": 1,
+      "min": 2.3748,
+      "out_tok": 11051,
+      "chars": {},
+      "builds": 0,
+      "reads": 26,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "refactor-advisor": {
+      "n": 1,
+      "min": 2.7721500000000003,
+      "out_tok": 8805,
+      "chars": {},
+      "builds": 0,
+      "reads": 44,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    }
+  },
+  "rows_detail": {}
+}

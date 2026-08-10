@@ -1,0 +1,12 @@
+methods=194  over_30=0  total_crap=257.0  mean_crap=1.32
+    CRAP  comp    cov  method
+     5.0     5    1.0  Movement.<init>
+     4.0     4    1.0  Money$Companion.of
+     3.0     3    1.0  AccountNumber.constructor-impl
+     3.0     3    1.0  Account.equals
+     3.0     3    1.0  Movement$Companion.namesACounterparty
+     3.0     3    1.0  Money.equals
+     3.0     3    1.0  MovementAmount$Companion.of
+     3.0     3    1.0  MovementAmount.equals
+     2.0     2    1.0  ApiExceptionHandler.answer
+     2.0     2    1.0  AccountStatementController.accountOf-lTVUI1c

@@ -1,0 +1,40 @@
+Pipeline complete. **156 tests, all green**, seven commits.
+
+## What ran
+
+| Layer | Plan | Rows | Commit |
+|---|---|---|---|
+| L1 Domain | `LAYER-domain.md` | 68 | `cf62154` |
+| L2 Application | `LAYER-application.md` | 24 | `ff88e85` |
+| L3 Infrastructure | `LAYER-infrastructure.md` | 39 | `068528a` |
+| L4 API | `LAYER-api.md` | 27 | `34a0bd8` |
+
+Batch-red per class held throughout. From L2 on, the developers also hand-applied each load-bearing mutant and confirmed it reddened exactly the intended row — a compile-error red can't tell you *which* row holds which contradiction, and at L3 that practice caught three defects nothing else would have.
+
+## Step 4: scenario coverage — all nine traced
+
+Every scenario has a test that fails if its `Then` is violated:
+
+- **01** `returns_201_with_the_opened_account_and_a_balance_of_nothing` + `open_stores_the_new_account_so_the_bank_has_it`
+- **02** `returns_200_with_the_new_balance_when_money_is_deposited`
+- **03** `returns_400_with_a_non_positive_amount_code_when_the_amount_is_zero`; the second `Then` ("still 50") is falsified by `MovementAmountTest.fails_with_non_positive_amount_when_the_amount_is_zero` — the controller builds the amount before calling the use case, so a zero deposit cannot reach the account unless that test fails
+- **04** `returns_200_with_the_new_balance_when_money_is_withdrawn`
+- **05** `returns_400_with_an_insufficient_balance_code…` + `withdraw_leaves_the_account_it_was_refused_on_unchanged`
+- **06** `returns_200_with_the_balance_of_both_sides…`; the third `Then` at L1 (`send`/`receive` return equal accounts, identity-only equality) and L3 (`save_keeps_the_row_the_stored_account_already_had`, via `storedIdFor`)
+- **07** `returns_the_movements_most_recent_first` — reddens if the controller maps `movements()` instead of `statement()`
+- **08** `findAll_skips_a_stored_account_that_predates_movements`, **credited to L3** — a legacy row never reaches a controller, so L4 adds nothing
+- **09** `returns_404_with_an_account_not_found_code…`, distinguishable from 03's and 05's codes
+
+**No scenario is reported as not covered.** The layered build's specific risk — satisfying every layer's contract while leaving a scenario unfalsified — did not materialise, but it took two corrections to the design matrix to establish that honestly: SCENARIO-03 × L2 and SCENARIO-08 × L4 were both marked `X` when neither layer can falsify them.
+
+## Reviewers: **no VIOLATIONs**
+
+`arch-reviewer` PASS. Two fix rounds spent on the two warnings and five suggestions.
+
+**The consequential find** — `test-reviewer` caught that the write-side contract asserted only that a save leaves *one* row, and the content assertion had been deleted as "superseded". Row count and row content are orthogonal: a save that kept the count right while silently discarding the new movements passed all 149 tests. Under the discard mutant the uniqueness row stays green and the new row fails, in both the fake and the JPA runs. Adjacent to it, `openedAt` preservation had no test at all — and couldn't have had a working one, because the IT's clock was the same instant the fixture stamped, so a restamp was invisible.
+
+## Specification gaps — reported, not closed
+
+`DESIGN.md` lists these rule by rule. **Rules 1, 2, 5 and 8 are entirely undriven**, plus halves of Rules 3, 7 and 9 and Rule 4's exact-balance boundary. Concretely: an `open` that silently overwrites an existing account, and a stored-balance implementation with a write-time movement log, both pass all nine scenarios. The code honours every rule; what's missing is a test that would notice if it stopped. Closing them means adding scenarios, which is yours to write — I've recorded them in the specification's new `## Follow-ups` section along with the unfixed reviewer items (chiefly **no idempotency on the money-moving POSTs**, where a client retry after a timeout double-credits).
+
+Two notes on how I read the arm's constraints: I appended that `## Follow-ups` section and ticked the acceptance checkboxes, both of which the pipeline mandates, but left every scenario and rule byte-identical. And `DESIGN.md` was amended four times mid-run — the frozen artifact is the specification, not the design, and each amendment closed a gap a test-designer found before code existed rather than after.

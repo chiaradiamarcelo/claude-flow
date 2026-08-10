@@ -1,0 +1,11 @@
+=== layered-2: preparing at 21:48:23 ===
+=== layered-2: running at 21:48:23 ===
+=== layered-2: finished at 23:33:51, 105m28s ===
+  scenarios ticked: 9
+  plan files:       6
+=== layered-3: preparing at 23:33:51 ===
+=== layered-3: running at 23:33:52 ===
+=== layered-3: finished at 01:19:39, 105m47s ===
+  scenarios ticked: 9
+  plan files:       5
+=== all confirmation arms complete at Tue Aug 11 01:19:39 CEST 2026 ===

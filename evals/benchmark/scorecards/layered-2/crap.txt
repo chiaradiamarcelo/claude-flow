@@ -1,0 +1,12 @@
+methods=220  over_30=0  total_crap=284.1  mean_crap=1.29
+    CRAP  comp    cov  method
+     3.0     3    1.0  ApiExceptionHandler.unmappedFailure
+     3.0     3    1.0  ApiExceptionHandler.statusTheFrameworkAlreadyChose
+     3.0     3    1.0  Money.equals
+     3.0     3    1.0  Account.equals
+     3.0     3    1.0  AccountsQueryJpaAdapter.findStatement_lTVUI1c$lambda$5$lambda$4
+     3.0     3    1.0  AccountJpaAdapter.store
+     2.0     2    1.0  ApiExceptionHandler.respond
+     2.0     2    1.0  ReadStatementController.statement
+     2.0     1    0.0  BankApplicationKt.main
+     2.0     2    1.0  DepositMoneyUseCase.deposit-ZTdaX4Y

@@ -1,0 +1,33 @@
+Pipeline complete. `bank-accounts` is implemented, green at **145 tests**, in 7 commits.
+
+## What ran
+
+**Step 1 — whole-feature design.** `system-architect` produced `DESIGN.md` in one pass: one `Account` aggregate (balance derived from movements, equality on account number only), Rule 3 enforced once in `Movement.init`, four write use cases, one `AccountsQuery` read topic, all exception→status mapping in a single `ApiExceptionHandler`. Build order `domain → application → infrastructure → api`.
+
+**Step 2 — four layers, one at a time**, each `test-designer` → `developer` → commit. Batch-red per class held throughout; where a class-level batch would have hidden a guard's red, the developer split into sub-batches and reported the boundaries.
+
+| Layer | Tests | The red that mattered |
+|---|---|---|
+| `domain` | 43 | A deposit of 0 succeeded; withdrawing 100 from 30 drove the balance to **−70** — both chains witnessed, not assumed |
+| `application` | +25 | Split-`save` transfer **destroyed 40**; self-transfer **created 40** |
+| `infrastructure` | +30 | 19 contract rows re-run verbatim against real H2; `saveAll` needed a real transaction boundary |
+| `api` | +27 | Two full-stack rows over real H2 for Scenario 06 and 08 |
+
+**Step 3 — reviewers.** Four fired (`arch-reviewer`, `test-reviewer`, `refactor-advisor`, `api-reviewer`); the three Android/React ones had no matching paths. **No VIOLATIONs.** Two fix rounds spent on 11 findings, most-consequential first.
+
+The fix rounds found two things worth naming. `AccountNumber` was a bare value class, so the non-blank rule existed only at the HTTP boundary and the three path-variable controllers bypassed it entirely — a blank number reached the use case as an NPE. And building the `Location` header by string interpolation meant `URI.create` **threw on an account number containing a space, so a successful account opening answered 500** — the reviewer filed that as a style suggestion; it was a defect.
+
+## Specification gaps — reported, not closed
+
+**Seven of the nine rules are not fully driven by any scenario.** Rule 1 (uniqueness) has no scenario at all — an implementation that silently overwrites `ACC-001` passes all nine. Rule 5's atomicity and Rule 8's storage failure are never exercised, and the spec's own note that "the refusal scenarios carry Rule 8" is not true: 03 and 05 refuse *before* any store call. Full list in `DESIGN.md` and the spec's new `## Follow-ups`. The implementation covers all of them by `DESIGN.md` contract, so a future change could satisfy every scenario and still break them.
+
+## Step 4 — scenario verification
+
+All nine trace to a test that fails if their `Then` is violated, so all nine are ticked. Two honest qualifications, both recorded as follow-ups rather than papered over:
+
+- **The "and the balance is still X" half of Scenarios 03 and 05 is falsifiable only at the domain level.** Nothing asserts the *stored* balance after a refusal, so an implementation that caught the refusal and saved a changed account would pass. Narrow in practice, but it is precisely the gap building-by-layer can leave.
+- **Withdrawal is never exercised end to end** — only deposit and transfer have full-stack rows.
+
+Also rejected two reviewer findings with reasons (the contract suite's two-sound-account seed is what makes the read-abort defect red; `BEFORE_EACH_TEST_METHOD` was tried and breaks fake injection).
+
+One deviation from your instructions to flag: `.claude/CLAUDE.md` says to run `/run-pipeline` and nothing else, but you invoked `/run-pipeline-layered`. I took the explicit slash command as the intent for this arm and did not mix the two pipelines.
