@@ -1,0 +1,37 @@
+# Pipeline complete — `bank-accounts`
+
+**No unfixed VIOLATION.** Both violations raised by the reviewers were fixed in round 1 and confirmed resolved. Final verdict: **PASS**. 104 tests green, working tree clean, 9/9 scenarios ticked.
+
+## Run shape
+
+All nine scenarios ran architect → test-designer → developer, with planning two scenarios ahead of the implementation and exactly one developer in flight. Each scenario was committed as its own checkpoint.
+
+| | Scenario | Outcome |
+|---|---|---|
+| 01 | Account opened | 15 tests |
+| 02 | Deposit | Contract test caught the JPA adapter **silently dropping every movement on save** |
+| 03 | Non-positive deposit refused | red arrival held |
+| 04 | Withdraw | found `balance()` folding **unsigned** amounts — a withdrawal *raised* the balance |
+| 05 | Insufficient balance refused | red arrival held |
+| 06 | Transfer | both atomicity and identity proved by genuine reds (see below) |
+| 07 | Statement | read-side; `@OrderColumn` caveat recorded |
+| 08 | Legacy record skipped | found a **leaked save-refusal** making test order significant |
+| 09 | Not found | found the statement read still answering **500** for an unknown account |
+
+## The load-bearing parts worked
+
+- **Both red-arrival chains held.** 03 and 05 each failed first because their predecessor deliberately left the guard unbuilt.
+- **SCENARIO-06's mutant-killer earned its place.** The first transfer implementation did `save(debited)` then `save(credited)` — the test failed with the source debited and the destination not credited, money destroyed. That forced `saveAll`. Then `saveAll` as a plain loop failed again at the adapter (each JPA save committed separately) until wrapped in one `@Transactional` boundary. Rules 5 and 6 are enforced, not asserted.
+- **Four defects were found by tests going red**, not by inspection.
+
+## Two things worth your attention
+
+**Lookahead cost was real but small.** Eight `> Stale plan:` notes across the feature, clustered in scenarios 2, 4 and 5 — never more than two per scenario, and every one was absorbed without changing a plan's shape. Most attributed to a *predecessor's code* diverging from its own plan rather than to plans disagreeing. I kept the architect at N+2 throughout; the data doesn't justify dropping to N+1.
+
+**The reviewers directly contradict each other on the read side, and I did not resolve it.** `api-reviewer` raised it as a VIOLATION that the read controllers injected the write-side repository and that the statement controller did its own not-found branching. I fixed both. On re-review, `arch-reviewer` called the resulting `AccountQuery.findByNumber` a duplicate and `ReadAccountStatementUseCase` a middleman, and wants both collapsed back — which would re-open the violation. `refactor-advisor` sides with keeping them. I left the round-1 shape standing and recorded the conflict in `## Follow-ups`, because reversing it trades a warning for a violation and the behaviour is correct either way. This is a genuine gap in the reviewer set, not a code problem.
+
+Also worth knowing: the test-designer's redundancy gate deleted controller rows on the assumption that a `@WebMvcTest` slice is shared across controllers. It isn't — each loads its own. That assumption cost ~14 missing status-mapping rows on money-moving endpoints, reinstated across the two fix rounds.
+
+Fix budget spent (2 of 2 rounds). Fourteen findings are deferred with reasons in `docs/specifications/bank-accounts/specification.md` `## Follow-ups` — the most substantive being three unit-level ZOMBIES-zero gaps that the final pass surfaced after the budget closed.
+
+One process note: the repo had no `.gitignore`, so my first commit swept in 256 build artifacts. I added one and untracked them in the two commits that follow.

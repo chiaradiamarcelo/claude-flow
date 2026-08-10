@@ -1,0 +1,220 @@
+{
+  "reviewer_rounds": [
+    {
+      "n": 4,
+      "span_min": 2.621383333333333,
+      "sum_min": 8.325233333333333,
+      "ratio": 3.1758931353038795,
+      "names": [
+        "arch-reviewer",
+        "refactor-advisor",
+        "test-reviewer",
+        "api-reviewer"
+      ]
+    },
+    {
+      "n": 4,
+      "span_min": 2.4999833333333332,
+      "sum_min": 7.689066666666666,
+      "ratio": 3.07564717098114,
+      "names": [
+        "arch-reviewer",
+        "refactor-advisor",
+        "test-reviewer",
+        "api-reviewer"
+      ]
+    },
+    {
+      "n": 2,
+      "span_min": 2.1715333333333335,
+      "sum_min": 3.177516666666667,
+      "ratio": 1.4632594480090872,
+      "names": [
+        "test-reviewer",
+        "api-reviewer"
+      ]
+    }
+  ],
+  "fix_rounds": {
+    "n": 2,
+    "min": 16.107683333333334,
+    "out_tok": 68219
+  },
+  "commits": 0,
+  "catches_note_to_architect": 8,
+  "staleness": {
+    "events": [
+      {
+        "file": "SCENARIO-02.md",
+        "note": "this plan assumed `Account` already had a movement collection to extend (\"balance stays derived as the sum of movements ... never assigned directly\") \u2014 actually `Account` is `class Account(val number: AccountNumber)` with `balance()` returning the constant `BigDecimal.ZERO` and no movement collection at all \u2014 SCENARIO-01's *code* was the source: its own plan said \"keep the aggregate's movement-derivation shape ready to extend\", and the implementation instead hardcoded the constant. The collection is introduced here."
+      },
+      {
+        "file": "SCENARIO-02.md",
+        "note": "row 5 assumed SCENARIO-01 \"pinned the projection with an empty movement list\" \u2014 actually SCENARIO-01's row 7 asserts `number` and `balance` as two separate field assertions and never mentions movements \u2014 SCENARIO-01's *code* was the source (its plan did call row 7 a full-projection row). Row 5 is therefore written as a new contract test rather than an edit of row 7's test, so the two rows stay 1:1 with two test methods."
+      },
+      {
+        "file": "SCENARIO-04.md",
+        "note": "this plan assumed `Movement` needed no structural change because it \"already models a typed movement\" \u2014 actually `MovementType` is an enum with a single `DEPOSIT` constant, so a `WITHDRAWAL` constant had to be added along with a `Movement.withdrawal(...)` factory \u2014 SCENARIO-02's *code* was the source: its plan only promised a `Movement` that \"records a `DEPOSIT` with its amount\", and the implementation chose to express the kind as a one-constant enum."
+      },
+      {
+        "file": "SCENARIO-04.md",
+        "note": "this plan assumed \"balance stays derived as the sum of movements\" carried over unchanged \u2014 actually `Account.balance()` folds each movement's raw `amount`, so summing an unsigned withdrawal *raises* the balance; a `Movement.signedAmount()` was introduced and `balance()` now folds that \u2014 SCENARIO-02's *code* was the source, which had no reason to distinguish sign with only deposits in existence."
+      },
+      {
+        "file": "SCENARIO-05.md",
+        "note": "the plan assumed `withdraw` held the positivity guard inline, so the balance guard would be \"evaluated after\" it \u2014 actually SCENARIO-04 extracted the positivity guard into a shared private `record(amount, movement)` used by both `deposit` and `withdraw`, so `exceedsBalance` is evaluated *before* it (equivalent: a non-positive amount never exceeds a non-negative balance, and `fails_when_the_withdrawn_amount_is_negative` still passes) \u2014 predecessor's code was the source."
+      },
+      {
+        "file": "SCENARIO-05.md",
+        "note": "the plan placed `InsufficientBalanceException` in the same *file* as `Account` \u2014 actually every exception in this package has its own file (`NonPositiveAmountException.kt`, `AccountAlreadyExistsException.kt`), so it got `InsufficientBalanceException.kt` \u2014 predecessor's code was the source."
+      },
+      {
+        "file": "SCENARIO-06.md",
+        "note": "the plan assumed the adapter spec could take the contract's new `breakSavingOf` hook as a plain public test class \u2014 actually SCENARIO-01 declared `AccountJpaRepository` `internal`, so the hook's delegating JPA repository and the adapter spec itself both had to become `internal` \u2014 code was the source (a predecessor's implementation choice the plan did not carry)."
+      },
+      {
+        "file": "SCENARIO-08.md",
+        "note": "the plan assumed the adapter's decode of a legacy row *fails* (catch/skip a throwing row) \u2014 actually the current schema has no way to express a pre-movements record at all, so one had to be added (`AccountEntity.stored_balance`, nullable, never written) and decoding it never throws; the skip is a recognised-and-returned-null, not a caught exception \u2014 the plan was the source (it predicted a mechanism the schema does not have)."
+      },
+      {
+        "file": "SCENARIO-08.md",
+        "note": "the plan assumed the contract could freely `save` ACC-002 \u2014 actually SCENARIO-06's `BreakableAccountJpaRepository` keeps refusing a number for the rest of the class once `breakSavingOf` is called, so row 1 reddened on a leaked refusal; the adapter suite's before-each now resets it \u2014 a predecessor's code was the source."
+      },
+      {
+        "file": "SCENARIO-09.md",
+        "note": "the Structure section says \"SCENARIO-07's statement read is explicitly out of scope for this scenario per its own plan; leave it unguarded\" \u2014 actually SCENARIO-07's plan says the opposite (\"Account-not-found handling \u2026 deferred to SCENARIO-09\", and it lists `returns_404_when_the_account_does_not_exist` as \"SCENARIO-09's red arrival\") \u2014 the *plan* was the source: this scenario's architect mis-read a predecessor's plan, not its code. Row 6's note-to-architect is authoritative and was followed; the controller is guarded here."
+      }
+    ],
+    "by_source": {
+      "unattributed": 5,
+      "code": 4,
+      "plan": 1
+    }
+  },
+  "label": "treatment-s3",
+  "span_min": 75.45360000000001,
+  "agent_min": 103.38516666666666,
+  "dispatches": 39,
+  "output_tokens": 414457,
+  "scenarios": 9,
+  "rows": 89,
+  "min_per_scenario": 8.383733333333334,
+  "min_per_row": 0.8477932584269664,
+  "out_tok_per_row": 4656.820224719101,
+  "roles": {
+    "test-designer": {
+      "n": 9,
+      "min": 15.7327,
+      "out_tok": 62865,
+      "chars": {
+        "spec_plan": 29446
+      },
+      "builds": 0,
+      "reads": 64,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "architect": {
+      "n": 9,
+      "min": 7.990200000000001,
+      "out_tok": 35453,
+      "chars": {
+        "spec_plan": 20033
+      },
+      "builds": 0,
+      "reads": 50,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "test-reviewer": {
+      "n": 3,
+      "min": 5.763816666666667,
+      "out_tok": 25610,
+      "chars": {},
+      "builds": 0,
+      "reads": 67,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "developer": {
+      "n": 11,
+      "min": 60.47045000000001,
+      "out_tok": 222671,
+      "chars": {
+        "spec_plan": 62832,
+        "code_test": 81095,
+        "code_prod": 39804,
+        "spec_sot": 2265,
+        "other": 104
+      },
+      "builds": 79,
+      "reads": 136,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "api-reviewer": {
+      "n": 3,
+      "min": 4.624516666666667,
+      "out_tok": 27997,
+      "chars": {},
+      "builds": 0,
+      "reads": 69,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "arch-reviewer": {
+      "n": 2,
+      "min": 3.7636666666666665,
+      "out_tok": 17912,
+      "chars": {},
+      "builds": 0,
+      "reads": 79,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "refactor-advisor": {
+      "n": 2,
+      "min": 5.039816666666667,
+      "out_tok": 21949,
+      "chars": {},
+      "builds": 0,
+      "reads": 95,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    }
+  },
+  "rows_detail": {
+    "total": 89,
+    "red_then_green": 57,
+    "early_green": 7,
+    "unplanned": 25
+  }
+}
