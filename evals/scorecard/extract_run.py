@@ -143,6 +143,29 @@ def rows_from_plans(plans_dir):
     return c
 
 NOTE_TO_ARCHITECT = re.compile(r"^>\s*Note to architect:", re.M)
+STALE_PLAN = re.compile(r"^>\s*Stale plan:(.*)$", re.M)
+
+
+def staleness_from_plans(plans_dir):
+    """Plan-vs-code divergences the developer recorded, split by what mis-predicted.
+
+    This is the measurement Stage 3 exists for. Planning a scenario ahead of its
+    predecessor's implementation is safe only if divergences are rare AND mostly
+    trace to a predecessor's PLAN (which exists when the planner reads it) rather
+    than its CODE (which does not yet). A run heavy in code-attributed staleness
+    means the lookahead is too deep for that feature."""
+    events, by_source = [], collections.Counter()
+    for f in sorted(glob.glob(f"{plans_dir}/*.md")):
+        for tail in STALE_PLAN.findall(open(f, errors="replace").read()):
+            events.append((os.path.basename(f), tail.strip()))
+            low = tail.lower()
+            if "code was the source" in low or "code) was" in low:
+                by_source["code"] += 1
+            elif "plan was the source" in low or "plan) was" in low:
+                by_source["plan"] += 1
+            else:
+                by_source["unattributed"] += 1
+    return events, by_source
 
 def catches_from_plans(plans_dir):
     """Agent-corrects-agent events. The test-designer prompt MANDATES a
@@ -278,6 +301,11 @@ def main():
     print(f"| fix rounds | {fx['n']} · {fx['min']:.1f} min · {fx['out_tok']:,} out tok |")
     print(f"| git commits during run | {commits} |")
     print(f"| catches (`> Note to architect:`) | {catches} |")
+    if a.plans:
+        stale, by_src = staleness_from_plans(a.plans)
+        print(f"| **plan staleness** (`> Stale plan:`) | **{len(stale)}** "
+              f"— plan-attributed {by_src['plan']}, code-attributed {by_src['code']}, "
+              f"unattributed {by_src['unattributed']} |")
     print("\n> ratio = sum(durations)/span. 1.0 means the reviewers ran one after "
           "another; n means all n went out in a single message, as `/run-reviewers` requires.")
 
@@ -285,6 +313,9 @@ def main():
         payload = {
             "reviewer_rounds": rounds, "fix_rounds": fx,
             "commits": commits, "catches_note_to_architect": catches,
+            "staleness": {"events": [{"file": f, "note": n} for f, n in
+                                     (staleness_from_plans(a.plans)[0] if a.plans else [])],
+                          "by_source": dict(staleness_from_plans(a.plans)[1]) if a.plans else {}},
             "label": a.label, "span_min": span_min, "agent_min": agent_min,
             "dispatches": len(runs), "output_tokens": out_tok,
             "scenarios": n_scen, "rows": n_rows,

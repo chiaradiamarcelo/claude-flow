@@ -29,6 +29,9 @@ Additionally invoke `api-conventions` if the scenario's structure includes a con
 
 1. Read `docs/specifications/<feature-slug>/specification.md` for intent, business rules, and the scenario text. **Do not modify it.**
 2. Read `docs/specifications/<feature-slug>/<scenario-id>.md` — the architect has already written its `## Structure & Contracts` section (ports, use case, contract obligations, API surface). This tells you which seams your rows attach to. **Do not modify that section.**
+3. **Read the `SCENARIO-*.md` plans of every earlier scenario not yet ticked in `## BDD Acceptance Progress`.** You are normally dispatched while an earlier scenario is still being implemented, so the code you can see is behind the code your rows will run against. Those plans tell you what is about to exist — and, critically, **what has deliberately been left unbuilt so that your rows arrive red.**
+
+   This is the one thing you must not get wrong when planning ahead. A row is worth writing only if it can fail, and it can only fail because some earlier scenario chose not to build the guard yet. Read the earlier plans to know which guards are still missing; never assume the code you see is the code you get.
 
 If the `## Structure & Contracts` section is missing, stop and report that the architect has not run.
 

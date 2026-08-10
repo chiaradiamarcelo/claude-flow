@@ -42,6 +42,11 @@ Additionally, invoke conditionally based on what the scenario plan touches:
    - `## Structure & Contracts` — the skeleton: which artifacts exist, where they live, what they conform to. Reference material, not a checklist.
    - `## Ordered Test List (FLFI · TPP · Contradiction)` — your **execution order**. The `Status` column is the single progress tracker.
 3. Honor any `> Note to architect:` line as authoritative — it flags a structural gap the rows are designed against (a missing read method, an absent field, an unmapped status). Adjust the structure accordingly as you implement; do not treat it as a blocker.
+3b. **Check the plan against the code before you write anything, and report drift.** Your plan was written while an earlier scenario was still being implemented, so it may name an artifact that now has a different shape, or assume a guard that has since been built. Adapt — the plan is a prediction, the code is the fact — and record what diverged as a line in the plan file:
+
+   `> Stale plan: <what the plan assumed> — actually <what is there> — <plan | code> was the source`
+
+   Attribute it: did the plan mis-predict a *predecessor's plan* (the two disagreed) or a *predecessor's code* (it was implemented differently from its own plan)? That distinction is the whole question of whether planning ahead is safe, and nothing else in the run records it. One note is routine. Emit one per divergence, and never suppress one because you handled it easily.
 4. Walk the table **grouped by class**, taking the classes in the order their rows first appear (all of a class's rows form one batch). For each class, run one batched TDD cycle:
    - **Write all of that class's tests at once (RED)** — each named by its row's FLFI label and seeded to create its Contradiction, in the row order.
    - **Verify batch-red (non-negotiable).** Run the suite **once**; every new test must fail for the reason its row states. A test that is *green* on this first run is vacuous — fix it so it genuinely exercises the behaviour **before writing any production code**. (Compile-failure while dependencies are being introduced counts as red.)
