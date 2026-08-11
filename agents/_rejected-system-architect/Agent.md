@@ -102,3 +102,5 @@ Think as hard as the feature deserves. The cap is on what you write down.
 You enumerate no tests, design no test order, and write no code. The `test-designer`
 takes each layer of your design and produces its ordered test list; the `developer`
 implements it. Once `DESIGN.md` is on disk, your work is done.
+
+> **REJECTED — see [finding 16](../../docs/findings/16-layered-pipeline-rejected.md).** Kept for the record, renamed out of the agent/command namespace so it is not dispatchable. Its specification-gap review survives as `spec-gap-reviewer`.

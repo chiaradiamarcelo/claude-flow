@@ -47,6 +47,28 @@ Scenario: <clear description>
 - Reuse existing domain objects when possible.
 - Do not suggest implementation details or architecture in this phase.
 
+## Phase 2b: Gap review (before the SoT is written)
+
+Once the user is happy with the scenarios, run the **`spec-gap-reviewer`** agent on the
+draft rules and scenarios. It answers one question per business rule: *is there a
+scenario that would fail if this rule were violated?*
+
+Report its findings to the user in full, then ask which gaps they want to close with a
+new scenario and which they accept as-is. **Do not add scenarios yourself, and do not
+proceed to Phase 3 until they have answered.** A gap the user knowingly accepts is a
+decision; one nobody mentioned is an accident.
+
+Record every accepted gap in the specification's `## Business Rules & Invariants` as a
+note on the rule — *"no scenario drives this; accepted at refinement"* — so the next
+reader finds the hole labelled rather than discovering it in production.
+
+Why this phase exists, measured: a feature shipped a rule stating account numbers were
+unique, with no scenario exercising a collision. Four separate pipeline runs all
+produced code where re-opening an existing account silently destroyed its movement
+history, and all of them passed every scenario. The review found it in 2 minutes for
+~10k tokens, along with two further undriven rules the author had missed. See
+[finding 16](../docs/findings/16-layered-pipeline-rejected.md).
+
 ## Phase 3: SoT Creation
 
 Upon approval, create a folder at `docs/specifications/<feature-slug>/` and write the specification file inside it.
