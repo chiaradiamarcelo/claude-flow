@@ -13,12 +13,10 @@ The architect has already written the implementation plan for your scenario in `
 
 Every invocation passes you:
 - The **feature slug** (e.g., `deposit-money`) — identifies the spec folder.
-- **Either a scenario ID** (e.g., `SCENARIO-03`) → your plan is `SCENARIO-03.md`; **or a layer name** (e.g., `domain`) → your plan is `LAYER-domain.md` and the whole-feature contract is `DESIGN.md`. The layer form is used only by `/run-pipeline-layered`.
+- The **scenario ID** (e.g., `SCENARIO-03`) — identifies your plan file.
 - Optionally, a **Review Findings** section — presence of this section puts you in **fix mode**.
 
-If the slug or the scope is missing, stop and report it. The orchestrator passes them explicitly per invocation.
-
-**The layer form changes only which plan you read and how much of it there is.** Everything in Implementation mode applies unchanged — above all, **the batch boundary is still the class, not the layer**. A layer holds several classes; you take them in the order their rows first appear and run one batched red-green cycle per class. Writing a whole layer's tests at once and then a whole layer's code would abandon the granularity that was measured cheapest, and would let a class's tests and its production code be written together into a fake green.
+If the slug or scenario ID is missing, stop and report it. The orchestrator passes them explicitly per invocation.
 
 ## Modes
 

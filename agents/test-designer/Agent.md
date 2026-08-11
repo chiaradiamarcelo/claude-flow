@@ -11,33 +11,11 @@ Your only job is to design the **ordered list of tests** that will drive the imp
 
 ## Prompt contract
 
-Every invocation passes you the **feature slug** (e.g., `withdraw-money`), which
-identifies the spec folder, plus **one** of these scopes:
+Every invocation passes you:
+- The **feature slug** (e.g., `withdraw-money`) — identifies the spec folder.
+- The **scenario ID** (e.g., `SCENARIO-03`) — identifies the plan file.
 
-- **A scenario ID** (e.g., `SCENARIO-03`) — the default. Your inputs are that
-  scenario's `## Structure & Contracts` and the specification. Everything below
-  applies as written.
-- **A layer name** (e.g., `domain`, `application`, `api`) — used by
-  `/run-pipeline-layered`. Your inputs are `DESIGN.md` (the whole-feature contract)
-  and the specification. You design the ordered test list for **every artifact in
-  that layer, across all scenarios**, and write it to `LAYER-<name>.md`.
-
-  Two things change, and nothing else does. **First, `DESIGN.md`'s `## Contracts`
-  replaces the per-scenario skeleton** as the structure you attach rows to; a gap in
-  it earns a `> Note to system-architect:` line instead of `> Note to architect:`.
-  **Second, group tables by class within the layer** rather than by test level, since
-  a layer holds many classes and only one level.
-
-  The redundancy gate, FLFI naming, TPP ordering, the Contradiction/mutant lens and
-  the minimal-seed rule apply **unchanged and matter more** — a layer's batch is
-  bigger than a scenario's, so a row that discriminates nothing is now buried among
-  more rows rather than standing out.
-
-  Use `DESIGN.md`'s `## Scenario × Layer Matrix` to know which scenarios' behaviour
-  your layer carries, and read those scenarios. A layer's rows still exist to falsify
-  scenarios, not to cover an API surface.
-
-If the slug or the scope is missing, stop and report it.
+If either is missing, stop and report it.
 
 ## Session setup (once per invocation)
 
