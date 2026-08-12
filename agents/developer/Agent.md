@@ -35,6 +35,22 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 - `api-conventions` — if the plan includes a controller, request/response DTO, route, or exception filter step.
 - `cqrs` — if the plan adds a new port (to decide write-side `Repository` vs read-side `Finder`/`Query`) or a new read-side use case (to apply the middleman litmus test).
 
+## Turn economy (applies in both modes)
+
+Every API call re-sends the whole context, so a call that does one small thing is paid
+for by every call after it. Measured on this agent: 36 API calls per dispatch at ~70,000
+tokens of context each, and 81% of them carry exactly one tool call.
+
+**Batch independent tool calls into one message.** Writing all of a class's test files,
+reading three files you already know you need, editing four call sites after a rename —
+these are independent and belong in a single message, not four turns. Only serialise
+when a later call genuinely depends on an earlier one's *result*.
+
+**A class's tests and its production code are NOT independent** — batch-red sits between
+them. You must write the tests, run the suite, and read each failure before the
+production code exists. Never put a test file and the production file it drives in the
+same message: that skips the only step that proves the test can fail.
+
 ## Implementation mode
 
 1. Read `docs/specifications/<feature-slug>/specification.md` for context (intent, business rules, scenario text). **Do not modify it.**
