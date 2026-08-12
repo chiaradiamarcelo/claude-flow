@@ -35,6 +35,25 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 - `api-conventions` — if the plan includes a controller, request/response DTO, route, or exception filter step.
 - `cqrs` — if the plan adds a new port (to decide write-side `Repository` vs read-side `Finder`/`Query`) or a new read-side use case (to apply the middleman litmus test).
 
+## Turn economy (applies in both modes)
+
+Every turn re-sends the whole context, so a turn that does one small thing is paid for
+by every turn after it. Measured: 68 turns per dispatch at ~65,800 tokens of context
+each. Two habits fix most of it.
+
+**Batch independent tool calls into one message.** Writing a class's test file and its
+production file, reading three files you already know you need, editing four call sites
+after a rename — these are independent and belong in a single message, not four turns.
+Only serialise when a later call genuinely depends on an earlier one's *result*.
+
+**Keep build output small on success and complete on failure.** Run the suite plainly
+(no `--info`, no `--debug`, no `--stacktrace` unless you are actually diagnosing a
+stack). When it goes green you need one line; when it goes red you need **the full
+failure detail**, because batch-red requires knowing that each test failed *for the
+reason its row states* — and "it failed" is not that. **Never suppress or truncate
+failure output to save context.** A quiet green is a saving; a quiet red is a broken
+verification.
+
 ## Implementation mode
 
 1. Read `docs/specifications/<feature-slug>/specification.md` for context (intent, business rules, scenario text). **Do not modify it.**

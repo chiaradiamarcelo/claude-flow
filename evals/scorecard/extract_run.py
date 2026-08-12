@@ -71,7 +71,7 @@ def mine(subagents_dir):
             "chars": collections.Counter(),
             "tools": collections.Counter(),
             "models": set(), "efforts": set(),
-            "build_calls": 0, "commits": 0,
+            "build_calls": 0, "commits": 0, "turns": 0,
             "start": None, "end": None,
         }
         for line in open(tx, errors="replace"):
@@ -86,6 +86,8 @@ def mine(subagents_dir):
             if ev.get("effort"):
                 r["efforts"].add(ev["effort"])
             msg = ev.get("message") or {}
+            if msg.get("role") == "assistant":
+                r["turns"] += 1
             if msg.get("model"):
                 r["models"].add(msg["model"])
             u = msg.get("usage") or {}
@@ -230,13 +232,15 @@ def main():
 
     by_role = collections.defaultdict(
         lambda: {"n": 0, "out": 0, "dur": 0.0, "chars": collections.Counter(),
-                 "builds": 0, "models": set(), "efforts": set(), "reads": 0})
+                 "builds": 0, "models": set(), "efforts": set(), "reads": 0,
+                 "turns": 0, "cache": 0})
     for r in runs:
         g = by_role[r["role"]]
         g["n"] += 1; g["out"] += r["out_tok"]; g["dur"] += r["dur_s"]
         g["chars"] += r["chars"]; g["builds"] += r["build_calls"]
         g["models"] |= r["models"]; g["efforts"] |= r["efforts"]
         g["reads"] += r["tools"]["Read"]
+        g["turns"] += r["turns"]; g["cache"] += r["cache_read"]
 
     rows = rows_from_plans(a.plans) if a.plans else collections.Counter()
     n_rows = rows.get("total", 0)
@@ -255,9 +259,14 @@ def main():
         print(f"- test rows {n_rows} · **{per(span_min, n_rows):.2f} min/row** "
               f"· {per(out_tok, n_rows):,.0f} out-tok/row")
 
+    cache_tot = sum(r["cache_read"] for r in runs)
+    turns_tot = sum(r["turns"] for r in runs)
+    print(f"- turns {turns_tot:,} · cache-read {cache_tot:,} "
+          f"(**{cache_tot/max(out_tok,1):.0f}x output**) · "
+          f"avg context/turn {cache_tot/max(turns_tot,1):,.0f}")
     print("\n## Cost by role\n")
-    print("| role | disp | min | out tok | tok/disp | md chars | code chars | md share | builds | reads | model | effort |")
-    print("|---|---|---|---|---|---|---|---|---|---|---|---|")
+    print("| role | disp | min | out tok | turns/disp | ctx/turn | md chars | code chars | md share | builds | reads | model | effort |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for role, g in sorted(by_role.items(), key=lambda kv: -kv[1]["out"]):
         md = g["chars"]["spec_plan"] + g["chars"]["spec_sot"] + g["chars"]["other_md"]
         code = g["chars"]["code_prod"] + g["chars"]["code_test"]
@@ -265,7 +274,7 @@ def main():
         models = ",".join(sorted(m.split("-2")[0] for m in g["models"])) or "—"
         efforts = ",".join(sorted(g["efforts"])) or "—"
         print(f"| {role} | {g['n']} | {g['dur']/60:.1f} | {g['out']:,} | "
-              f"{g['out']//max(g['n'],1):,} | {md:,} | {code:,} | {share} | "
+              f"{g['turns']//max(g['n'],1)} | {g['cache']//max(g['turns'],1):,} | {md:,} | {code:,} | {share} | "
               f"{g['builds']} | {g['reads']} | {models} | {efforts} |")
 
     if n_rows:
