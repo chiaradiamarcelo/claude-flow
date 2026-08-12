@@ -72,6 +72,9 @@ def mine(subagents_dir):
             "tools": collections.Counter(),
             "models": set(), "efforts": set(),
             "build_calls": 0, "commits": 0,
+            "events": 0,                      # assistant log events (NOT API calls)
+            "usage": {},                      # requestId -> usage, deduped
+            "tool_calls_by_req": collections.Counter(),
             "start": None, "end": None,
         }
         for line in open(tx, errors="replace"):
@@ -86,12 +89,26 @@ def mine(subagents_dir):
             if ev.get("effort"):
                 r["efforts"].add(ev["effort"])
             msg = ev.get("message") or {}
+            if msg.get("role") == "assistant":
+                r["events"] += 1
             if msg.get("model"):
                 r["models"].add(msg["model"])
+
+            # ONE API response is logged as SEVERAL assistant events (a thinking
+            # block, then one per tool_use), each repeating the same `usage`
+            # block. Summing per event inflated cache-read 1.76x and turned
+            # "turns" into a count of log lines. Key on requestId instead: one
+            # usage record per API call. Events with no requestId get a synthetic
+            # unique key so they are never merged with a real request.
+            rid = ev.get("requestId") or f"__norid_{r['events']}_{ev.get('uuid','')}"
             u = msg.get("usage") or {}
-            r["out_tok"] += u.get("output_tokens", 0) or 0
-            r["in_tok"] += u.get("input_tokens", 0) or 0
-            r["cache_read"] += u.get("cache_read_input_tokens", 0) or 0
+            if u:
+                prev = r["usage"].get(rid)
+                if prev is None:
+                    r["usage"][rid] = u
+                elif (u.get("output_tokens") or 0) > (prev.get("output_tokens") or 0):
+                    r["usage"][rid] = u      # keep the most complete record
+
             content = msg.get("content")
             if not isinstance(content, list):
                 continue
@@ -100,6 +117,7 @@ def mine(subagents_dir):
                     continue
                 name = b.get("name", "")
                 r["tools"][name] += 1
+                r["tool_calls_by_req"][rid] += 1
                 inp = b.get("input") or {}
                 if name in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
                     for path, n in generated(inp):
@@ -110,6 +128,13 @@ def mine(subagents_dir):
                         r["build_calls"] += 1
                     if COMMIT.search(cmd):
                         r["commits"] += 1
+        for u in r["usage"].values():
+            r["out_tok"] += u.get("output_tokens", 0) or 0
+            r["in_tok"] += u.get("input_tokens", 0) or 0
+            r["cache_read"] += u.get("cache_read_input_tokens", 0) or 0
+        r["api_calls"] = len(r["usage"])
+        r["tool_calls"] = sum(r["tool_calls_by_req"].values())
+        r["single_tool_calls"] = sum(1 for n in r["tool_calls_by_req"].values() if n == 1)
         r["dur_s"] = (r["end"] - r["start"]).total_seconds() if r["start"] and r["end"] else 0
         runs.append(r)
     return runs
@@ -118,9 +143,25 @@ def mine(subagents_dir):
 
 STATUS = re.compile(r"\|\s*(✅|☑|☐|❌)([^|\n]*)\|?\s*$", re.M)
 
+RED_EVIDENCE = re.compile(
+    r"\bred\b|expected[:<]|but was|unresolved reference|compile|does not compile"
+    r"|no exception thrown|none found", re.I)
+
+
 def rows_from_plans(plans_dir):
-    """Classify Status cells. Heuristic today; a mandated status vocabulary in
-    the developer prompt makes this exact for future runs."""
+    """Classify Status cells.
+
+    TWO INDEPENDENT AXES, deliberately. `provenance` (planned / unplanned /
+    early-green) and `red arrival` (did the test demonstrably fail first) are
+    orthogonal, and an earlier version of this function conflated them: its
+    elif-chain tested `unplanned` before `red`, so an unplanned row that HAD
+    gone red→green was counted only as unplanned and silently subtracted from
+    the red→green rate. That made the turn-economy arm — which added 16
+    unplanned rows, nearly all of them describing a real red state — look like
+    a 9-point regression in test strength when it was the opposite.
+
+    `red_arrival` is therefore counted across every ✅ token, from the prose
+    evidence, and is the metric to compare between arms."""
     c = collections.Counter()
     for f in sorted(glob.glob(f"{plans_dir}/*.md")):
         if os.path.basename(f) == "specification.md":
@@ -128,6 +169,8 @@ def rows_from_plans(plans_dir):
         for mark, tail in STATUS.findall(open(f, errors="replace").read()):
             t = tail.lower()
             c["total"] += 1
+
+            # axis 1 — provenance
             if mark == "☐":
                 c["open"] += 1
             elif "unplanned" in t:
@@ -140,6 +183,16 @@ def rows_from_plans(plans_dir):
                 c["deferred_blind"] += 1
             else:
                 c["unclassified"] += 1
+
+            # axis 2 — red arrival, independent of provenance
+            if mark != "☐":
+                c["green"] += 1
+                if "early-green" in t or "early green" in t:
+                    pass                       # green on first run by definition
+                elif RED_EVIDENCE.search(tail):
+                    c["red_arrival"] += 1
+                else:
+                    c["no_red_evidence"] += 1
     return c
 
 NOTE_TO_ARCHITECT = re.compile(r"^>\s*Note to (?:system-)?architect:", re.M)
@@ -230,13 +283,16 @@ def main():
 
     by_role = collections.defaultdict(
         lambda: {"n": 0, "out": 0, "dur": 0.0, "chars": collections.Counter(),
-                 "builds": 0, "models": set(), "efforts": set(), "reads": 0})
+                 "builds": 0, "models": set(), "efforts": set(), "reads": 0,
+                 "api_calls": 0, "cache": 0, "tool_calls": 0, "single": 0})
     for r in runs:
         g = by_role[r["role"]]
         g["n"] += 1; g["out"] += r["out_tok"]; g["dur"] += r["dur_s"]
         g["chars"] += r["chars"]; g["builds"] += r["build_calls"]
         g["models"] |= r["models"]; g["efforts"] |= r["efforts"]
         g["reads"] += r["tools"]["Read"]
+        g["api_calls"] += r["api_calls"]; g["cache"] += r["cache_read"]
+        g["tool_calls"] += r["tool_calls"]; g["single"] += r["single_tool_calls"]
 
     rows = rows_from_plans(a.plans) if a.plans else collections.Counter()
     n_rows = rows.get("total", 0)
@@ -255,9 +311,20 @@ def main():
         print(f"- test rows {n_rows} · **{per(span_min, n_rows):.2f} min/row** "
               f"· {per(out_tok, n_rows):,.0f} out-tok/row")
 
+    cache_tot = sum(r["cache_read"] for r in runs)
+    api_tot = sum(r["api_calls"] for r in runs)
+    ev_tot = sum(r["events"] for r in runs)
+    tc_tot = sum(r["tool_calls"] for r in runs)
+    single_tot = sum(r["single_tool_calls"] for r in runs)
+    print(f"- **API calls {api_tot:,}** ({ev_tot:,} assistant log events, "
+          f"{ev_tot/max(api_tot,1):.2f} per call) · cache-read {cache_tot:,} "
+          f"(**{cache_tot/max(out_tok,1):.0f}x output**) · "
+          f"avg context/call {cache_tot/max(api_tot,1):,.0f}")
+    print(f"- tool calls {tc_tot:,} · **{tc_tot/max(api_tot,1):.2f} per API call** "
+          f"· calls carrying exactly one tool call {100*single_tot/max(api_tot,1):.0f}%")
     print("\n## Cost by role\n")
-    print("| role | disp | min | out tok | tok/disp | md chars | code chars | md share | builds | reads | model | effort |")
-    print("|---|---|---|---|---|---|---|---|---|---|---|---|")
+    print("| role | disp | min | out tok | api/disp | ctx/call | tool/call | md chars | code chars | md share | builds | reads | model | effort |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for role, g in sorted(by_role.items(), key=lambda kv: -kv[1]["out"]):
         md = g["chars"]["spec_plan"] + g["chars"]["spec_sot"] + g["chars"]["other_md"]
         code = g["chars"]["code_prod"] + g["chars"]["code_test"]
@@ -265,7 +332,8 @@ def main():
         models = ",".join(sorted(m.split("-2")[0] for m in g["models"])) or "—"
         efforts = ",".join(sorted(g["efforts"])) or "—"
         print(f"| {role} | {g['n']} | {g['dur']/60:.1f} | {g['out']:,} | "
-              f"{g['out']//max(g['n'],1):,} | {md:,} | {code:,} | {share} | "
+              f"{g['api_calls']//max(g['n'],1)} | {g['cache']//max(g['api_calls'],1):,} | "
+              f"{g['tool_calls']/max(g['api_calls'],1):.2f} | {md:,} | {code:,} | {share} | "
               f"{g['builds']} | {g['reads']} | {models} | {efforts} |")
 
     if n_rows:
@@ -276,9 +344,18 @@ def main():
                   "unplanned", "unclassified", "open"):
             v = rows.get(k, 0)
             print(f"| {k} | {v} | {100*v/n_rows:.1f}% |")
-        print(f"\n> `unclassified` is free-text Status cells the parser could not "
-              f"classify. Mandating a status vocabulary in the developer prompt "
-              f"drives this to 0 for future runs.")
+        green = rows.get("green", 0)
+        red_arr = rows.get("red_arrival", 0)
+        print(f"| **red arrival** (all ✅, incl. unplanned) | **{red_arr}** | "
+              f"**{100*red_arr/max(green,1):.1f}%** of green rows |")
+        print(f"| no red evidence | {rows.get('no_red_evidence', 0)} | "
+              f"{100*rows.get('no_red_evidence',0)/max(green,1):.1f}% of green rows |")
+        print(f"\n> The first block is **provenance**; `red arrival` is the "
+              f"**independent** test-strength axis and is the one to compare across "
+              f"arms. `red_then_green` excludes unplanned rows by construction, so "
+              f"an arm that adds many unplanned rows scores low on it while being "
+              f"stronger. `unclassified` is Status cells outside the mandated "
+              f"vocabulary.")
 
     # --- Stage 1 treatment metrics ---
     rounds = reviewer_rounds(runs)
@@ -313,6 +390,11 @@ def main():
                           "by_source": dict(staleness_from_plans(a.plans)[1]) if a.plans else {}},
             "label": a.label, "span_min": span_min, "agent_min": agent_min,
             "dispatches": len(runs), "output_tokens": out_tok,
+            "api_calls": api_tot, "assistant_events": ev_tot,
+            "cache_read": cache_tot, "tool_calls": tc_tot,
+            "tool_calls_per_api_call": tc_tot / max(api_tot, 1),
+            "single_tool_call_share": single_tot / max(api_tot, 1),
+            "ctx_per_api_call": cache_tot / max(api_tot, 1),
             "scenarios": n_scen, "rows": n_rows,
             "min_per_scenario": per(span_min, n_scen),
             "min_per_row": per(span_min, n_rows),
@@ -320,7 +402,9 @@ def main():
             "roles": {r: {"n": g["n"], "min": g["dur"]/60, "out_tok": g["out"],
                           "chars": dict(g["chars"]), "builds": g["builds"],
                           "reads": g["reads"], "models": sorted(g["models"]),
-                          "efforts": sorted(g["efforts"])}
+                          "efforts": sorted(g["efforts"]),
+                          "api_calls": g["api_calls"], "cache_read": g["cache"],
+                          "tool_calls": g["tool_calls"]}
                       for r, g in by_role.items()},
             "rows_detail": dict(rows),
         }

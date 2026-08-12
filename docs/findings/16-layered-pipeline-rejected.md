@@ -29,17 +29,26 @@ phase of `/intent-and-goal`, extracted into `spec-gap-reviewer`.
 
 ## 1. The results
 
-| arm | span | out-tok | rows | red→green | unplanned | catches | **mut-real** |
+| arm | span | out-tok | rows | red arrival | unplanned | catches | **mut-real** |
 |---|---|---|---|---|---|---|---|
-| **s1s2 (adopted)** | 104 | 440,250 | 101 | 86.1% | 3.0% | 18 | **0** |
-| layered-1 | **74** | 284,149 | 116 | 83.6% | 0.9% | 11 | 1 |
-| layered-2 | 103 | 364,545 | 126 | **71.4%** | **14.3%** | 10 | **4** |
-| layered-3 | 103 | 412,250 | 157 | 91.7% | 5.7% | 6 | 2 |
+| **s1s2 (adopted)** | 104 | 429,198 | 101 | 89.1% | 3.0% | 18 | **0** |
+| layered-1 | **74** | 280,012 | 116 | 83.6% | 0.9% | 11 | 1 |
+| layered-2 | 103 | 356,013 | 126 | **81.0%** | **14.3%** | 10 | **4** |
+| layered-3 | 103 | 401,981 | 157 | 93.6% | 4.5% | 6 | 2 |
+
+> **Corrected 2026-08-12.** Output tokens were per-log-event, not per-API-request (see
+> [finding 15](15-pipeline-cost-stage-1-and-2.md)). The test-strength column was
+> `red_then_green`, which a classifier bug made **exclusive** with `unplanned` — so an
+> arm that added unplanned rows was docked for it even when those rows had genuinely
+> gone red first. It is now **red arrival**, counted across all green rows from the
+> failure evidence in each Status cell. Layered-2's figure rises 71.4% → 81.0%, which
+> softens the instability argument; the mutation column, which is the actual grounds for
+> rejection, is untouched.
 
 Layered spans **74, 103, 103** — mean 93 against 104. The two confirmation arms finished
 **19 seconds apart** (105m28s and 105m47s), which makes 74 the outlier.
 
-Tokens are a real win: mean 353,648 vs 440,250, **−20%**, consistent in direction across
+Tokens are a real win: mean 346,002 vs 429,198, **−19%**, consistent in direction across
 all three arms.
 
 ## 2. Why it was rejected
@@ -59,8 +68,11 @@ on mutation was precisely that the test-designer's **per-scenario** mutation rea
 made the gate redundant. Coarsen that reasoning to per-layer and the justification goes
 with it.
 
-Test strength is also unstable in a way the adopted config is not: red→green 71.4% →
-91.7%, unplanned 0.9% → 14.3%, catches sliding 11 → 10 → 6 against 18.
+Test strength is also unstable in a way the adopted config is not: red arrival 81.0% →
+93.6%, unplanned 0.9% → 14.3%, catches sliding 11 → 10 → 6 against 18. (The red-arrival
+spread is narrower than first reported — see the correction above — so **the mutation
+column carries this rejection almost alone.** Stated plainly because it is the weaker
+version of the argument.)
 
 The fork would only be adoptable **with** a mutation gate feeding the fix loop — which is
 swarm-forge's bargain (generated tests plus measured falsifiability, instead of designed
@@ -74,8 +86,17 @@ falsifiability), and a bigger build than the thing it was meant to speed up.
 - **Rule 1 (unique account numbers).** *"SCENARIO-01 presupposes the account is absent,
   so nothing exercises the collision. An implementation that overwrites the existing
   account on a second open — destroying its movements — passes all nine scenarios."*
-  This is the exact defect **all four earlier arms shipped**; the baseline arm's reviewers
-  found it only after burning all three fix rounds, and then ran out of budget.
+  The baseline arm's reviewers found this only after burning all three fix rounds, and
+  then ran out of budget.
+
+  > **Corrected 2026-08-12.** This originally read "the exact defect all four earlier
+  > arms shipped." Checked directly against every arm's source: the guard is **absent in
+  > two of eight** — `baseline` and `treatment-s1s2` — and **present in the other six**,
+  > including both Stage 3 arms and all three layered arms. So the pipeline usually
+  > guards the rule unprompted; it is the **adopted config** that happens not to, which
+  > is worse news than the original claim, not better. The gap in the *specification* is
+  > real and unchanged — no scenario drives the rule — which is why the review is still
+  > worth its two minutes; but it is a coin-flip defect, not a universal one.
 - **Rule 8 (a failed store is reported and applies nothing).** The spec's own notes claim
   the refusal scenarios carry it. They don't: scenarios 03 and 05 are refused *before* any
   store is attempted, so no scenario ever reaches a failing store.
