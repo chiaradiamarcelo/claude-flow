@@ -57,11 +57,14 @@ CRAP, DRY, catches, staleness. Both findings' *conclusions* stand; several of th
 
 ---
 
-## 2. Corrected result for PR #17 (`turn-economy`, closes #13/#14)
+## 2. Corrected result for the COMBINED #13+#14 arm (`turn-economy`)
 
 The only prompt delta between these two arms is the developer's `## Turn economy`
-section — clean single-variable comparison. (`spec-gap-reviewer` does not run in a
-`/run-pipeline` arm; verified zero dispatches.)
+section. (`spec-gap-reviewer` does not run in a `/run-pipeline` arm; verified zero
+dispatches.) **But that section carried BOTH #13 and #14**, so nothing below is
+attributable to either alone — which is exactly why #17 was split and why arm
+`batching-only-*` exists. Read this table as the ceiling for the pair, not as evidence
+for the batching instruction.
 
 | | s1s2 (adopted) | turn-economy | |
 |---|---|---|---|
@@ -121,9 +124,10 @@ breaking the pipeline's core discipline. Now says the opposite, explicitly.
 
 **Adopted** (PR #18, `pipeline-scorecard-baseline`): Stage 1 + Stage 2 — **−18% span,
 −24% output tokens**, mutation candidate-real **0**, red arrival 89.1%, catches 18. Plus
-`spec-gap-reviewer` at `/intent-and-goal` Phase 2b. **PR #17 is a strict superset of #18**
-(`git merge-base --is-ancestor pipeline-scorecard-baseline turn-economy` passes), so
-merging #17 subsumes it — close #18 rather than merging both.
+`spec-gap-reviewer` at `/intent-and-goal` Phase 2b.
+
+Merge order is a chain, base-first: **#18 → #19 → #20**. Each is based on the previous,
+so merging out of order will show spurious diffs. #17 is closed; do not resurrect it.
 
 **Rejected with evidence:**
 - Stage 3 planning lookahead, 2-deep and 1-deep (finding 15). Red arrival collapses:
