@@ -1,0 +1,12 @@
+methods=147  over_30=0  total_crap=185.0  mean_crap=1.26
+    CRAP  comp    cov  method
+     3.0     3    1.0  Account.creditMovement-OBQ5d1U
+     3.0     3    1.0  Account.debitMovement-OBQ5d1U
+     3.0     3    1.0  Account.equals
+     3.0     3    1.0  AccountEntityMapper.toDomain
+     2.0     2    1.0  StatementController.statementOf-Qm_Hh88
+     2.0     1    0.0  BankApplicationKt.main
+     2.0     2    1.0  OpenAccountUseCase.refuseTakenAccountNumber-Qm_Hh88
+     2.0     2    1.0  TransferUseCase.refuseTransferToItself-0rwI3z8
+     2.0     1    0.0  UseCaseConfiguration.<init>
+     2.0     1    0.0  UseCaseConfiguration.openAccountUseCase

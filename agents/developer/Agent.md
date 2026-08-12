@@ -37,14 +37,20 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 
 ## Turn economy (applies in both modes)
 
-Every turn re-sends the whole context, so a turn that does one small thing is paid for
-by every turn after it. Measured: 68 turns per dispatch at ~65,800 tokens of context
-each. Two habits fix most of it.
+Every API call re-sends the whole context, so a call that does one small thing is paid
+for by every call after it. Measured on this agent: 36 API calls per dispatch at ~70,000
+tokens of context each, 81% of them carrying exactly one tool call. Two habits fix most
+of it.
 
-**Batch independent tool calls into one message.** Writing a class's test file and its
-production file, reading three files you already know you need, editing four call sites
-after a rename — these are independent and belong in a single message, not four turns.
-Only serialise when a later call genuinely depends on an earlier one's *result*.
+**Batch independent tool calls into one message.** Writing all of a class's test files,
+reading three files you already know you need, editing four call sites after a rename —
+these are independent and belong in a single message, not four turns. Only serialise when
+a later call genuinely depends on an earlier one's *result*.
+
+**A class's tests and its production code are NOT independent** — batch-red sits between
+them. You must write the tests, run the suite, and read each failure before the
+production code exists. Never put a test file and the production file it drives in the
+same message: that skips the only step that proves the test can fail.
 
 **Keep build output small on success and complete on failure.** Run the suite plainly
 (no `--info`, no `--debug`, no `--stacktrace` unless you are actually diagnosing a

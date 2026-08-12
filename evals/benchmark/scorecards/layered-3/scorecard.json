@@ -26,10 +26,10 @@
   "fix_rounds": {
     "n": 2,
     "min": 11.912550000000001,
-    "out_tok": 37795
+    "out_tok": 37096
   },
   "commits": 0,
-  "catches_note_to_architect": 0,
+  "catches_note_to_architect": 6,
   "staleness": {
     "events": [],
     "by_source": {}
@@ -38,17 +38,24 @@
   "span_min": 103.39036666666667,
   "agent_min": 166.14163333333332,
   "dispatches": 17,
-  "output_tokens": 412250,
+  "output_tokens": 401981,
+  "api_calls": 510,
+  "assistant_events": 1079,
+  "cache_read": 42489985,
+  "tool_calls": 739,
+  "tool_calls_per_api_call": 1.4490196078431372,
+  "single_tool_call_share": 0.7352941176470589,
+  "ctx_per_api_call": 83313.69607843137,
   "scenarios": 9,
-  "rows": 0,
+  "rows": 157,
   "min_per_scenario": 11.487818518518518,
-  "min_per_row": NaN,
-  "out_tok_per_row": NaN,
+  "min_per_row": 0.6585373673036093,
+  "out_tok_per_row": 2560.388535031847,
   "roles": {
     "test-reviewer": {
       "n": 2,
       "min": 4.77285,
-      "out_tok": 19257,
+      "out_tok": 18277,
       "chars": {},
       "builds": 0,
       "reads": 48,
@@ -57,12 +64,15 @@
       ],
       "efforts": [
         "medium"
-      ]
+      ],
+      "api_calls": 29,
+      "cache_read": 1292368,
+      "tool_calls": 65
     },
     "refactor-advisor": {
       "n": 1,
       "min": 1.3515666666666666,
-      "out_tok": 5990,
+      "out_tok": 5553,
       "chars": {},
       "builds": 0,
       "reads": 42,
@@ -71,12 +81,15 @@
       ],
       "efforts": [
         "medium"
-      ]
+      ],
+      "api_calls": 12,
+      "cache_read": 360427,
+      "tool_calls": 45
     },
     "arch-reviewer": {
       "n": 2,
       "min": 3.4739166666666668,
-      "out_tok": 17351,
+      "out_tok": 16253,
       "chars": {},
       "builds": 0,
       "reads": 69,
@@ -85,12 +98,15 @@
       ],
       "efforts": [
         "medium"
-      ]
+      ],
+      "api_calls": 25,
+      "cache_read": 754643,
+      "tool_calls": 79
     },
     "developer": {
       "n": 6,
       "min": 57.85241666666666,
-      "out_tok": 231511,
+      "out_tok": 225709,
       "chars": {
         "code_test": 91355,
         "code_prod": 41524,
@@ -103,12 +119,15 @@
       ],
       "efforts": [
         "medium"
-      ]
+      ],
+      "api_calls": 328,
+      "cache_read": 33548225,
+      "tool_calls": 391
     },
     "test-designer": {
       "n": 4,
       "min": 26.79971666666667,
-      "out_tok": 96719,
+      "out_tok": 95332,
       "chars": {
         "other_md": 67064
       },
@@ -119,12 +138,15 @@
       ],
       "efforts": [
         "medium"
-      ]
+      ],
+      "api_calls": 53,
+      "cache_read": 3012583,
+      "tool_calls": 78
     },
     "api-reviewer": {
       "n": 1,
       "min": 1.9152166666666666,
-      "out_tok": 8269,
+      "out_tok": 7773,
       "chars": {},
       "builds": 0,
       "reads": 28,
@@ -133,12 +155,15 @@
       ],
       "efforts": [
         "medium"
-      ]
+      ],
+      "api_calls": 11,
+      "cache_read": 305464,
+      "tool_calls": 33
     },
     "system-architect": {
       "n": 1,
       "min": 69.97595,
-      "out_tok": 33153,
+      "out_tok": 33084,
       "chars": {
         "other_md": 33335
       },
@@ -149,8 +174,19 @@
       ],
       "efforts": [
         "medium"
-      ]
+      ],
+      "api_calls": 52,
+      "cache_read": 3216275,
+      "tool_calls": 48
     }
   },
-  "rows_detail": {}
+  "rows_detail": {
+    "total": 157,
+    "red_then_green": 144,
+    "green": 157,
+    "red_arrival": 147,
+    "unplanned": 9,
+    "no_red_evidence": 6,
+    "early_green": 4
+  }
 }

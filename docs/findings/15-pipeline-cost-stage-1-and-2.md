@@ -12,7 +12,7 @@ method) and [finding 14](14-mutation-gate-spike.md) (the survivor filter).
 Measurement infrastructure for the pipeline, plus the first two optimisation stages —
 adopted on the strength of two full A/B arms rather than argument.
 
-**Headline: 18% faster, 30% fewer output tokens, quality equal or better on every oracle.**
+**Headline: 18% faster, 24% fewer output tokens, quality equal or better on every oracle.**
 
 The trigger was a real run: `gym-walls` on the Android project took **5h09** for 13
 scenarios. The code was good. Nobody could say where the time went.
@@ -79,11 +79,19 @@ account's history). Not a slow gate — a misallocating one.
 | | baseline | treatment | Δ |
 |---|---|---|---|
 | Span | 127 min | **104 min** | **−18%** |
-| Output tokens | 633,728 | **440,250** | **−30.5%** |
+| Output tokens | 564,943 | **429,198** | **−24.0%** |
 | Plan-file bytes | 217,274 | **75,437** | **−65%** |
-| architect tokens | 98,949 | 45,377 | −54% |
-| test-designer tokens | 151,833 | 74,846 | −51% |
+| architect tokens | 77,607 | 43,739 | −44% |
+| test-designer tokens | 121,620 | 72,781 | −40% |
 | Fix rounds | 3 (the cap) | 2 | −29% time |
+
+> **Token figures corrected 2026-08-12.** They were first reported as −30.5%
+> (633,728 → 440,250) by an extractor that summed `usage` per assistant *log event*
+> rather than per API *request*; Claude Code emits several events per response, each
+> repeating the same usage block. The inflation was not uniform — 10.9% on the
+> baseline against 2.5% on the treatment — so the *ratio* moved too. Direction and
+> significance are unchanged. Every other number in this finding was independent of
+> the bug.
 
 | quality | baseline | treatment |
 |---|---|---|

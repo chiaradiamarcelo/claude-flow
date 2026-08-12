@@ -1,0 +1,25 @@
+Pipeline complete.
+
+## No unfixed violations
+
+Both VIOLATIONS raised by the reviewers were fixed in the first fix round, and the re-review confirmed it. All four fired reviewers end at PASS on violations; `arch-reviewer` and `refactor-advisor` are clean outright.
+
+## What ran
+
+All 9 scenarios, one at a time, architect → test-designer → developer, each committed as its own checkpoint. **111 tests, 0 failures.**
+
+Both red-arrival chains held: SCENARIO-02 and -04 were deliberately built without their guards, so -03 and -05 arrived genuinely red.
+
+## The three findings that mattered
+
+- **A re-opened account number silently destroyed its own history.** `save` is an upsert, so opening `ACC-001` a second time overwrote the account and discarded every movement — and its balance with them. Rule 1 was in the spec but unenforced; no scenario covered it. Now refused with 409, pinned by a test that proves the existing balance survives the attempt.
+- **Rule 8 was invisible at the boundary.** A storage failure escaped the exception handler and returned the framework's default page. Now 500 in the shared error shape. A second pass found clients were still seeing two different error envelopes — framework-detected 4xx returned RFC 7807 while domain refusals returned the project shape; unified.
+- **The statement read went through the write-side repository**, which also meant SCENARIO-08's legacy-row exclusion applied only to the write path. Moving to a read-side query port closed a real hole, not just a naming one.
+
+Reviewers also caught the two structural violations: that repository misuse, and the "most recent first" ordering rule living in an API DTO mapper with only a controller test pinning it.
+
+## Deferred, on the record
+
+The fix budget (2 rounds) is spent. Seven items are recorded in the specification's new `## Follow-ups` with reasons — the substantive ones are **no idempotency strategy on the money-moving endpoints** (a real gap, but it needs a request-key store the spec doesn't describe) and **asymmetric controller-slice coverage** (the behaviours are pinned; what's missing is per-controller repetition of assertions that already hold).
+
+One thing I did outside the plan: the developers appended prose to the frozen spec's checklist twice; I trimmed both back to bare ticks so the file stays comparable across arms. `.arm.pid` and `.skill-invocations.log` are harness artifacts and were left uncommitted.
