@@ -214,14 +214,35 @@ cd runs/<arm> && nohup claude -p "/run-pipeline bank-accounts" --dangerously-ski
 # then: ./run-arm.sh <arm> --score
 ```
 
-**Use `nohup … &` exactly as written. Do not launch an arm through an agent harness's
-background-task wrapper.** Cost of learning this: two arms, ~2h20 of runtime. Seven arms
-launched with `nohup` ran to completion; two launched through the harness's background
-Bash task were both killed mid-run — at 82 and 57 minutes, so not a fixed timeout — with
-`[Request interrupted by user]` recorded in a headless run that has no user. The
-mechanism was never proven from inside the session, but 7-for-7 against 0-for-2 settles
-which method to use. `setsid` does not exist on macOS; `nohup` with `< /dev/null` is the
-portable form.
+**Run every arm under `caffeinate`, and launch it with `nohup … &`:**
+
+```bash
+cd runs/<arm> && nohup caffeinate -i -s -m \
+  claude -p "/run-pipeline bank-accounts" --dangerously-skip-permissions \
+  > ../../<arm>-run.log 2>&1 < /dev/null &
+# verify: pmset -g assertions | grep PreventUserIdleSystemSleep   -> must be 1
+```
+
+**Machine sleep silently destroys arms.** An arm at 2/9 died 11 minutes in when the Mac
+took an `Idle Sleep` (confirmed in `pmset -g log`, and the orchestrator itself reported
+"the SCENARIO-02 developer agent was killed mid-task by a machine sleep"). A ~100-minute
+unattended run will always outlast the idle timer. `caffeinate -i -s -m` holds
+`PreventUserIdleSystemSleep` and `PreventSystemSleep` for the life of the child.
+
+**An arm the orchestrator repaired is not admissible.** That same run had its
+orchestrator hand-verify a killed developer's work and finish the plan bookkeeping the
+agent never reached. The numbers may look complete; the run was attended. Discard it.
+
+**Honest state of the launch-mechanism question.** Two arms died at 16:25:03 and 17:25:04
+— exactly an hour apart, with no sleep event in `pmset -g log` at either time — after
+being launched through an agent harness's background-task wrapper rather than `nohup`.
+A third, launched with `nohup`, then died of sleep instead. So sleep is proven for the
+third and **not** established for the first two; the earlier version of this note claimed
+"7-for-7 against 0-for-2 settles which method to use", which overstated a correlation as
+a mechanism. Use `nohup` because it is the documented path and costs nothing, not because
+the wrapper is proven guilty. Total cost of these three failures: ~3h of runtime.
+
+`setsid` does not exist on macOS; `nohup` with `< /dev/null` is the portable form.
 
 To watch a running arm, poll the spec file's `- [x]` count from a monitor that does **not**
 own the arm process. Count with `awk`, not `grep -c` — the `rtk-rewrite.sh` PreToolUse
