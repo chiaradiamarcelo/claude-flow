@@ -1,0 +1,32 @@
+## Pipeline complete — `bank-accounts`
+
+**No unfixed violations.** Round 2 of reviewers returned zero VIOLATIONs; the fix budget was not exhausted by them.
+
+### Scenarios
+All 9 implemented one at a time (architect → test-designer → developer), each committed as its own checkpoint. 106 tests green.
+
+The two red-arrival chains — the benchmark's load-bearing part — held genuinely. SCENARIO-03's rows 26–28 and SCENARIO-05's rows 40/41/43 arrived red **at runtime** (`Expected NonPositiveAmountException … nothing was thrown`), not as unresolved-symbol compile errors, because 02 and 04 deliberately shipped without the guards.
+
+Mutant-killing claims were verified empirically rather than asserted, in the three places the spec singled out:
+
+| Claim | Observed |
+|---|---|
+| SCENARIO-06 identity (Rule 6) | Reconstructing fresh `Account`s reddens rows 49/50 (`expected [Deposit(100), TransferOut(40)] but was [TransferOut(40)]`) |
+| SCENARIO-06 atomicity (Rule 5) | Splitting `saveAll` into two independent saves reddens row 57, and only row 57 |
+| SCENARIO-08 decode seam | Propagating the undecodable row reddens row 73 — the exact defect shape the prior run found |
+
+Two findings worth surfacing, both caught by developers mid-flight: MockMvc's `content { json(...) }` runs JSONAssert in LENIENT mode, which **ignores array order** — the statement's ordering row would have been vacuous as a body assertion, so it asserts by `jsonPath` position. And a contract spec inheriting tests from an abstract class does not get `@DataJpaTest`'s transaction, since Spring resolves `@Transactional` from the declaring class.
+
+### Reviewers
+Exactly the four the spec predicted fired (`arch`, `api`, `refactor`, `test`); the two Android reviewers and `ui-test-reviewer` had no path match.
+
+**Round 1** — 1 violation, 6 warnings. Fixed the violation (read path injecting the write-side repository → a real `AccountsQuery` read side, which also gave SCENARIO-08's orphaned `findAll` a delivery path via `GET /accounts`), then the two findings touching named invariants: Rule 3's guard was bypassable from outside `Account`, and Rule 8 had no HTTP mapping at all.
+
+**Round 2** — 0 violations. Fixed three cheap, real warnings: `AccountNumber` lacked its own invariant, the 500 message lied on read paths, and the 409 row was the one error path not pinning its body.
+
+One thing I declined to do: `arch-reviewer` in round 2 said `AccountsQuery.findStatement` should *not* be a query port — directly reversing the round-1 `api-reviewer` violation that created it. Two reviewers genuinely disagree; reversing the architecture on the final fix round would be churn, so it's the first entry in `## Follow-ups` with the disagreement documented rather than silently resolved.
+
+13 deferred findings are on the record with a reason each — idempotency is the most substantive (out of scope for a spec silent on retries).
+
+### Spec integrity
+The frozen region (lines 1–136) is byte-identical to the fixture commit — verified by direct diff. Only the progress checkboxes and an appended `## Follow-ups` section changed. No worktree was created, and no coverage/mutation/duplication build plugins were added.

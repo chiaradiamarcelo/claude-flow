@@ -1,0 +1,12 @@
+methods=175  over_30=0  total_crap=214.0  mean_crap=1.22
+    CRAP  comp    cov  method
+     4.0     4    1.0  AccountJpaMapper.movementTypeOf
+     4.0     4    1.0  AccountJpaMapper.toDomain
+     3.0     3    1.0  AccountJpaMapper.predatesMovementTracking
+     3.0     3    1.0  Account.equals
+     2.0     2    1.0  StatementController.statement
+     2.0     1    0.0  BankApplicationKt.main
+     2.0     2    1.0  DepositMoneyUseCase.deposit
+     2.0     2    1.0  OpenAccountUseCase.open
+     2.0     2    1.0  OpenAccountUseCase.isAlreadyHeld
+     2.0     2    1.0  WithdrawMoneyUseCase.withdraw
