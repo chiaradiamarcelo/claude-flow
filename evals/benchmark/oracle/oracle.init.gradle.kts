@@ -43,8 +43,8 @@ allprojects {
             }
 
             extensions.configure<info.solidsoft.gradle.pitest.PitestPluginExtension>("pitest") {
-                pitestVersion.set("1.19.1")
-                junit5PluginVersion.set("1.2.2")
+                pitestVersion.set("1.20.4")
+                junit5PluginVersion.set("1.2.3")
                 // Framework-free business logic only. Mutating controllers and JPA
                 // adapters is slow and low-value (finding 14) and would flood the
                 // survivor list with wiring noise.
