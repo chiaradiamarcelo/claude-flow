@@ -55,6 +55,27 @@ Append a single new section to `<scenario-id>.md`:
 | ... | ... | n/a | ... | ☐ |
 ```
 
+## Budget: the tables ARE the deliverable
+
+- **No prose sections before the first table.** Analysis of which seam proves what,
+  why a cheaper seam was rejected, or how a rule is split across scenarios does not
+  belong in the file. Decide it in your reasoning; write down the conclusion.
+- **Each `Contradiction` cell is at most 120 characters** — the seed shape and what
+  it forces, nothing else.
+- **Candidates you deleted get one line each** under a single `### Deleted` heading:
+  `<name> — <why, one clause>`. Not a paragraph each.
+- Everything outside the tables, the `### Deleted` list, and any
+  `> Note to architect:` lines should be nothing at all.
+
+The plan file is read by the developer on every invocation and re-read as the
+scenario proceeds, so prose here is paid for repeatedly. Measured: test-designers
+have been emitting ~12k characters per scenario against ~1.5k of actual table.
+
+This caps **what you write**, never how hard you think. The redundancy gate, the
+mutation lens and the falsifiability judgement below are exactly what make this
+agent worth its cost — five architect errors in one measured run were caught by
+them. Keep all of that; just stop narrating it.
+
 ## Rules
 
 Apply the `testing` skill's **"Ordering & justifying the list (FLFI · TPP · Contradiction)"** procedure to every row — FLFI names, TPP ordering, the Contradiction/mutation lens, minimal-seed derivation, the redundancy gate, mechanism isolation, and TPP `n/a` for contract/equality rows. Run **ZOMBIES** first to surface candidates. Don't restate those principles; this agent adds only the artifact contract and a few hard gates:

@@ -53,11 +53,17 @@ Read `docs/specifications/<feature-slug>/specification.md`. If it doesn't exist
 2. Run **`test-designer`** to append the `## Ordered Test List (FLFI · TPP · Contradiction)` section to that file.
 3. Run **`developer`** to implement it (executes the ordered test list red-green; honors any `> Note to architect:` lines).
 4. Check its box.
+5. **Commit the scenario's work** (`git add -A && git commit`) with the scenario ID in the message. A green scenario is a checkpoint; leaving a whole feature uncommitted across hours puts every earlier scenario at the mercy of the next agent's `git` command.
 
 **After all scenarios are implemented:**
-4. Run **`/run-reviewers`** (no arguments).
-5. If **FAIL**: run **`developer`** in fix mode with the consolidated VIOLATION + WARNING findings.
-6. Run **`/run-reviewers`** again; repeat until PASS or 3 fix rounds.
+1. Run **`/run-reviewers`** (no arguments).
+2. **Triage the findings before dispatching any fix**, in this order:
+   - **Every VIOLATION is fixed.** No exceptions, no deferrals.
+   - **Then warnings and suggestions, most-consequential first** — anything that can lose or corrupt stored data, break an invariant the specification names, or mislead a reader about what the code does, ranks above style and structure.
+   - **Then stop at the budget: at most 2 fix rounds.** Everything not fixed is recorded in the specification's `## Follow-ups` with the reason it was deferred. A deferral on the record is a decision; an unfixed finding that was simply never reached is an accident.
+3. Run **`developer`** in fix mode with the triaged findings, highest severity first.
+4. Re-run **`/run-reviewers`**; repeat until PASS or the budget is spent.
+5. **If any VIOLATION remains unfixed when the budget is spent, say so as the headline of your final report** — not as a footnote. An unfixed violation is the single most important thing the run has to tell the reader.
 
 **Rules:**
 - One scenario at a time. Never run architect / test-designer / developer in parallel or batched, and always in that order — the test-designer needs the architect's `## Structure & Contracts` section, and the developer needs the test-designer's ordered list.

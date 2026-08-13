@@ -45,6 +45,18 @@ This command is interactive:
 
 Then it **hands off automatically**: once `specification.md` is written it runs `/run-pipeline <feature-slug>`. You don't trigger the rest by hand.
 
+### Phase 1b: Gap review (`spec-gap-reviewer`)
+
+Once you are happy with the scenarios and **before** the spec is written, one agent asks
+of every business rule: *is there a scenario that would fail if this rule were violated?*
+It reports; you decide which gaps to close with a new scenario and which to accept. An
+accepted gap gets labelled on the rule, so the next reader finds the hole named instead
+of discovering it in production.
+
+Costs ~2 minutes. It found a rule stating account numbers were unique that no scenario
+exercised — and pipeline runs against that spec produced code where re-opening an account
+silently destroyed its movement history (finding 16).
+
 ### Phase 2: Execution — `/run-pipeline` (sequential)
 
 `/run-pipeline <feature-slug>` is the execution orchestrator. It first reads the approved `specification.md`; **if no approved spec exists it STOPs and writes no code**. (It knows nothing about how the spec was produced — its only precondition is "an approved spec exists," so it works equally well when run by hand.)
@@ -208,6 +220,7 @@ Available templates:
 | [agents/architect/](agents/architect/Agent.md) | Plans the scenario's **Structure & Contracts** (layers/ports/adapters); writes no tests or code (invokes `clean-architecture`, `cqrs`) |
 | [agents/test-designer/](agents/test-designer/Agent.md) | Appends the **Ordered Test List** (FLFI · TPP · Contradiction) — the justified test order that drives the slice; writes no code (invokes `testing`) |
 | [agents/developer/](agents/developer/Agent.md) | Implements the plan (batch-red-per-class TDD, batch-red-verified; invokes `clean-architecture`, `testing`) |
+| [agents/spec-gap-reviewer/](agents/spec-gap-reviewer/Agent.md) | Reads the approved scenarios against their own business rules and reports every rule **no scenario would falsify**. Runs once at `/intent-and-goal` Phase 2b; reports only, never edits (see finding 16) |
 | **Agents — reviewers** | |
 | [agents/test-reviewer/](agents/test-reviewer/Agent.md) | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
 | [agents/arch-reviewer/](agents/arch-reviewer/Agent.md) | Reviews Clean Architecture structural compliance |
@@ -243,7 +256,7 @@ Available templates:
 | [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — routing parser (finding-01), choreography/refusal graders, workspace setup, and a runner wiring scan that asserts every fixture's `when.do`/`then.grader` is registered. Run via `evals/run_tests.sh` |
 | [evals/check_choreography.py](evals/check_choreography.py) | Grader for the **choreography** test — asserts the real `/run-pipeline` command's call log (real session + fake workers) follows plan→implement→review→fix→re-review as an ordered subsequence |
 | [evals/orchestration/](evals/orchestration/) | Choreography fixture — an approved spec + **fake worker agent definitions** that self-log, for testing the real `/run-pipeline` command's dance (opt-in: `run_all.sh orchestration`) |
-| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 14 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), the v2 Spring/JPA vertical-slice integration (12), the strict-vs-batch-red TDD experiment (13), and the mutation-gate spike (14) |
+| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 16 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), the v2 Spring/JPA vertical-slice integration (12), the strict-vs-batch-red TDD experiment (13), the mutation-gate spike (14), the pipeline cost programme (15), and the rejected layered pipeline (16) |
 | **Other** | |
 | [tools/mutation/](tools/mutation/) | Support scripts for `/mutation-audit` — `classify-survivors.py` (the mandatory junk-vs-real survivor filter) + `crap.py` (JaCoCo XML → CRAP) |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |

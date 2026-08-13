@@ -35,6 +35,22 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 - `api-conventions` — if the plan includes a controller, request/response DTO, route, or exception filter step.
 - `cqrs` — if the plan adds a new port (to decide write-side `Repository` vs read-side `Finder`/`Query`) or a new read-side use case (to apply the middleman litmus test).
 
+## Turn economy (applies in both modes)
+
+Every API call re-sends the whole context, so a call that does one small thing is paid
+for by every call after it. Measured on this agent: 36 API calls per dispatch at ~70,000
+tokens of context each, and 81% of them carry exactly one tool call.
+
+**Batch independent tool calls into one message.** Writing all of a class's test files,
+reading three files you already know you need, editing four call sites after a rename —
+these are independent and belong in a single message, not four turns. Only serialise
+when a later call genuinely depends on an earlier one's *result*.
+
+**A class's tests and its production code are NOT independent** — batch-red sits between
+them. You must write the tests, run the suite, and read each failure before the
+production code exists. Never put a test file and the production file it drives in the
+same message: that skips the only step that proves the test can fail.
+
 ## Implementation mode
 
 1. Read `docs/specifications/<feature-slug>/specification.md` for context (intent, business rules, scenario text). **Do not modify it.**
@@ -47,18 +63,44 @@ Additionally, invoke conditionally based on what the scenario plan touches:
    - **Verify batch-red (non-negotiable).** Run the suite **once**; every new test must fail for the reason its row states. A test that is *green* on this first run is vacuous — fix it so it genuinely exercises the behaviour **before writing any production code**. (Compile-failure while dependencies are being introduced counts as red.)
    - **Write the class's production code (GREEN)** — the smallest code that forces each row's TPP transformation and makes all of the class's tests pass. Run the suite once and confirm green.
    - Refactor if useful; everything so far stays green (REFACTOR).
-   - Flip each row's Status `☐ → ✅` as its test passes.
-   - If a row turns out already-green or genuinely redundant when you reach it, mark it `✅ early-green, kept — <why>` rather than forcing a false red — or drop it only if truly vacuous. Never silently skip it.
-   - **Plan↔code fidelity.** If TDD forces you to write a test that is *not* a planned row — a supporting behaviour a row depends on (a constructor guard, a value-object query, a mapper) — you MUST append it to the appropriate table as a new row (FLFI name · TPP · Contradiction · `✅ — unplanned, added during impl`). When the scenario is done, the Ordered Test List must be a **complete inventory**: every test method that exists maps to a row, and every row maps to a test method. Never leave a test with no row.
+   - Flip each row's Status as its test passes, using the **status vocabulary** below.
+   - If a row turns out already-green or genuinely redundant when you reach it, mark it `✅ EARLY-GREEN` rather than forcing a false red — or drop it only if truly vacuous. Never silently skip it.
+   - **Plan↔code fidelity.** If TDD forces you to write a test that is *not* a planned row — a supporting behaviour a row depends on (a constructor guard, a value-object query, a mapper) — you MUST append it to the appropriate table as a new row (FLFI name · TPP · Contradiction · `✅ UNPLANNED`). When the scenario is done, the Ordered Test List must be a **complete inventory**: every test method that exists maps to a row, and every row maps to a test method. Never leave a test with no row.
+
+### Status vocabulary (mandatory)
+
+A Status cell MUST begin with exactly one of these tokens, followed by ` — ` and your prose. The
+token is machine-read to score the run, so a cell starting any other way makes its row invisible to
+measurement. The prose after the token is unchanged in kind and length from what you would have
+written anyway — this fixes the *first* few characters of the cell, nothing else.
+
+| Token | Means |
+|---|---|
+| `☐` | not yet reached (the test-designer's initial state; no prose) |
+| `✅ RED→GREEN` | failed first for the reason its Contradiction states, then passed |
+| `✅ EARLY-GREEN` | passed on its batch-red run — say why it is kept, and name the mutant that shows it is not vacuous |
+| `✅ UNPLANNED` | not in the plan; TDD forced it — say what it supports |
+| `✅ DEFERRED` | written but not executed here — say where it will execute |
+| `❌ BLOCKED` | could not be made to pass — say why, and stop, per the failure rule below |
+
+Example: `✅ RED→GREEN — red with expected:<50> but was:<0> before the deposit was applied`
 5. When every row is `✅`, run the full test suite for the affected module and confirm green.
-6. Mark the scenario as `- [x]` in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`.
+6. Mark the scenario as `- [x]` in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`. **One line.** What was built, and any defect found — nothing else. The checklist is a checklist.
+7. If the scenario is worth a narrative record — a defect witnessed by a red state, a deviation from the plan, a mutant applied — write it to `docs/specifications/<feature-slug>/<scenario-id>.record.md`, **never** into the plan file or the specification.
+
+   The record is written **once, at the end, for a human reading later**. No agent
+   reads it: the architect, test-designer and developer that follow all read the
+   plan and the specification, which is exactly why those two must stay small. A
+   narrative appended to the plan is re-read on every subsequent invocation for the
+   rest of the feature.
 
 ## Fix mode
 
 1. Read the findings. Each finding identifies a file, a rule, and a required change.
-2. Address every VIOLATION, WARNING, and SUGGESTION on files in your scope. All are mandatory.
+2. Address every finding you were given. The orchestrator has already triaged them — anything it chose to defer is not in your prompt, so do not re-litigate the list, and do not go looking for more.
 3. Run the test suite. All tests must stay green.
-4. Do not touch checkboxes in the plan or specification files — progress was recorded in implementation mode.
+4. **If you added or renamed a test, record it in the plan's Ordered Test List** — a new row (`✅ UNPLANNED — <what it supports>`), or an updated name on the existing row. The Ordered Test List must remain a complete inventory of the suite: every test maps to a row and every row to a test. A fix round that adds tests without rows silently breaks that, and the plan stops describing the code.
+5. Do not touch **progress checkboxes** in the plan or the specification — the `- [x]` marks and scenario status were recorded in implementation mode and are not yours to change here. Keeping the inventory current (step 4) is not the same thing as re-reporting progress.
 
 ## Notes
 
