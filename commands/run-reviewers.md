@@ -51,7 +51,7 @@ Check if `.claude/pipeline.json` exists in the project root. If it does, read it
 
 ## Step 3b: Resolve project skill injection
 
-From the same `.claude/pipeline.json`, read its optional `agentSkills` object (a map of agent `name` → array of skill names). For each reviewer that has a non-empty entry, remember its extra skills — you will inject them at dispatch (Step 5). These are **additive**: a reviewer always loads its own core skills, plus any listed here. If the file or the `agentSkills` key is absent, no skills are injected. (The write-side agents are injected by `/run-pipeline`; here you handle only the reviewers you dispatch.)
+From the same `.claude/pipeline.json`, read its optional `agentSkills` object (a map of agent `name` → array of skill names). For each reviewer that has a non-empty entry, remember its extra skills — you will inject them at dispatch (Step 5). These are **additive**: a reviewer always loads its own core skills, plus any listed here. If the file or the `agentSkills` key is absent, no skills are injected. (Handle only the reviewers you dispatch — entries for any other agent are not yours to apply.)
 
 ## Step 4: Filter by relevance
 
@@ -128,5 +128,7 @@ Consolidate all findings into a single report:
 <positive notes>
 
 ### Verdict: PASS | FAIL
-FAIL if any VIOLATIONS, WARNINGS, or SUGGESTIONS exist. PASS only when all sections are empty.
+**FAIL if and only if there is at least one VIOLATION.** Warnings and suggestions are
+reported in full and do **not** fail the review — whoever ran this command decides
+which of them to act on.
 ```

@@ -23,6 +23,16 @@ Your only job is to describe the **structure and contracts** for the given scena
 
 The plan is a **declarative skeleton** — not a checklist, not a test list, no method names, no assertions. Describe the artifacts to create or modify and the contracts they must satisfy. The `test-designer` appends the ordered test list next; the `developer` then executes it.
 
+### Budget: `## Structure & Contracts` is at most 40 lines
+
+One bullet per artifact. No rationale paragraphs, no alternatives-considered, no
+narration of what you read on the way. Where a choice genuinely needs defending,
+defend it in one clause inside the bullet — not a paragraph beneath it.
+
+Think as hard as the scenario deserves — the cap is on **what you write down**,
+not on how carefully you decide it. Deliberation belongs in your reasoning; the
+file is a contract, not a transcript.
+
 ```markdown
 # SCENARIO-01: Successful withdrawal from existing account
 

@@ -40,10 +40,16 @@ Start any new feature or use case with:
 This command is interactive:
 
 1. **Intent refinement** — clarifying questions to define the primary goal, secondary goals, and constraints.
-2. **Scenario generation** — first reads existing domain models and use cases to reuse the project's ubiquitous language, then proposes Gherkin scenarios (happy path, empty state, edge cases, errors) with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …). Iterate until you approve.
+2. **Scenario generation** — reads existing domain models and use cases to reuse the project's ubiquitous language, grills you with clarifying questions, then proposes Gherkin scenarios (happy path, empty state, edge cases, errors) with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …). It then checks every business rule against the scenarios — *would any scenario fail if this rule were violated?* — and comes back with a question wherever none would. Iterate until you approve.
 3. **Specification creation** — on approval, writes the Source-of-Truth `docs/specifications/<feature-slug>/specification.md` (intent, business rules, scenarios, and a `## BDD Acceptance Progress` checklist). Scenario plan files are written later, by the architect.
 
 Then it **hands off automatically**: once `specification.md` is written it runs `/run-pipeline <feature-slug>`. You don't trigger the rest by hand.
+
+The coverage check in step 2 is not the same as asking whether a rule is *ambiguous*. A rule
+can be perfectly clear and still have nothing that falsifies it — which is how a spec
+stating that account numbers were unique reached implementation with no scenario exercising
+a collision, and why an uncovered rule becomes a question to you rather than a note in the
+margin (finding 16).
 
 ### Phase 2: Execution — `/run-pipeline` (sequential)
 
@@ -90,15 +96,17 @@ Built-in reviewers (defined in agent frontmatter):
 
 The verdict gates on **VIOLATIONs** (an advisory reviewer always emits a SUGGESTION, so gating on those would never pass):
 
-- **FAIL** (one or more VIOLATIONs) → the `developer` runs in fix mode with the consolidated VIOLATION + WARNING findings, then `/run-reviewers` runs again. Repeat until **PASS or 3 fix rounds**.
+- **FAIL** (one or more VIOLATIONs) → the orchestrator triages the findings by severity — every VIOLATION, then warnings and suggestions most-consequential first — and the `developer` runs in fix mode on that list, then `/run-reviewers` runs again. Repeat until **PASS or 2 fix rounds**.
 - **PASS** → done.
+
+Anything still unfixed when the budget is spent is recorded in the specification's `## Follow-ups` with its reason — including a defect the developer reported rather than fixed. A remaining VIOLATION headlines the final report rather than sitting in a footnote.
 
 ```
 Step 0:   EnterWorktree         (fresh branch off origin/<default>)
 Phase 1:  /intent-and-goal      → scenarios approved → writes specification.md
 Phase 2:  /run-pipeline         architect → test-designer → developer, per scenario, ONE AT A TIME
 Phase 3:  /run-reviewers        (once, all changed files; relevant reviewers in parallel)
-Phase 4:  developer fix → /run-reviewers again, until PASS or 3 rounds
+Phase 4:  triage by severity → developer fix → /run-reviewers again, until PASS or 2 rounds
 ```
 
 ## Ad-hoc reviews
@@ -243,7 +251,7 @@ Available templates:
 | [evals/tests/](evals/tests/) | **Harness self-tests** (stdlib `unittest`, model-free, $0) — routing parser (finding-01), choreography/refusal graders, workspace setup, and a runner wiring scan that asserts every fixture's `when.do`/`then.grader` is registered. Run via `evals/run_tests.sh` |
 | [evals/check_choreography.py](evals/check_choreography.py) | Grader for the **choreography** test — asserts the real `/run-pipeline` command's call log (real session + fake workers) follows plan→implement→review→fix→re-review as an ordered subsequence |
 | [evals/orchestration/](evals/orchestration/) | Choreography fixture — an approved spec + **fake worker agent definitions** that self-log, for testing the real `/run-pipeline` command's dance (opt-in: `run_all.sh orchestration`) |
-| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 14 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), the v2 Spring/JPA vertical-slice integration (12), the strict-vs-batch-red TDD experiment (13), and the mutation-gate spike (14) |
+| [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 16 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), the v2 Spring/JPA vertical-slice integration (12), the strict-vs-batch-red TDD experiment (13), the mutation-gate spike (14), the pipeline cost programme (15), and the rejected layered pipeline (16) |
 | **Other** | |
 | [tools/mutation/](tools/mutation/) | Support scripts for `/mutation-audit` — `classify-survivors.py` (the mandatory junk-vs-real survivor filter) + `crap.py` (JaCoCo XML → CRAP) |
 | [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |

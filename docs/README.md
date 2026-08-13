@@ -87,6 +87,24 @@ the eval suite (`evals/run_all.sh`).
     *filtered* gate is silent on good output but caught a genuine test regression.
     CRAP/CPD produced 0 findings. Recommend filtered mutation as an **optional
     safety-net** gate only; skip CRAP/DRY. Not wired.
+15. [Pipeline cost programme — Stage 1 and Stage 2](findings/15-pipeline-cost-stage-1-and-2.md)
+    — the plan files were the cost. Capping the architect's `Structure & Contracts`,
+    making the test-designer's tables *be* the deliverable, moving the developer's
+    narrative out of the plan, and fixing the reviewer gate to fail only on VIOLATIONs:
+    **−18% wall-clock, −24% output tokens**, filtered mutation survivors **2 → 0**.
+    Also rejects Stage 3 (planning scenarios ahead) at both depths — red arrival collapses
+    89% → 64%, because a scenario is only red thanks to what its predecessor deliberately
+    left out.
+16. [The layered pipeline is rejected; its specification review is kept](findings/16-layered-pipeline-rejected.md)
+    — changing the unit of work from the scenario to the **layer** saved ~10% time and 20%
+    tokens and cost **2.3 candidate-real mutation survivors against 0**, across four arms.
+    Coarsen the test-designer's per-scenario mutation reasoning and finding 14's reason for
+    *not* gating on mutation goes with it. One idea was kept and is worth more
+    than the fork it came from: checking each business rule against the scenarios, now
+    folded into `/intent-and-goal` Phase 2's own iteration. The agent extracted to hold it
+    was dropped — measured against a plain review pass it added nothing and mis-certified a
+    rule as covered — and so was the separate review phase, whose disposition step was
+    wrong: an uncovered rule has to become a question to the user, not a labelled note.
 
 ## Conventions used across these notes
 
