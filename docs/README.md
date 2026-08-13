@@ -99,8 +99,11 @@ the eval suite (`evals/run_all.sh`).
     — changing the unit of work from the scenario to the **layer** saved ~10% time and 20%
     tokens and cost **2.3 candidate-real mutation survivors against 0**, across four arms.
     Coarsen the test-designer's per-scenario mutation reasoning and finding 14's reason for
-    *not* gating on mutation goes with it. One piece was extracted and kept —
-    `spec-gap-reviewer` — and is worth more than the fork it came from.
+    *not* gating on mutation goes with it. One piece was kept and is worth
+    more than the fork it came from: the adversarial specification-gap review, now a step
+    of `/intent-and-goal` Phase 2b. The agent that was extracted to hold it was later
+    dropped — measured against a plain review pass, it added nothing and mis-certified a
+    rule as covered.
 
 ## Conventions used across these notes
 

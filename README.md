@@ -45,17 +45,18 @@ This command is interactive:
 
 Then it **hands off automatically**: once `specification.md` is written it runs `/run-pipeline <feature-slug>`. You don't trigger the rest by hand.
 
-### Phase 1b: Gap review (`spec-gap-reviewer`)
+### Phase 1b: Gap review
 
-Once you are happy with the scenarios and **before** the spec is written, one agent asks
-of every business rule: *is there a scenario that would fail if this rule were violated?*
-It reports; you decide which gaps to close with a new scenario and which to accept. An
-accepted gap gets labelled on the rule, so the next reader finds the hole named instead
-of discovering it in production.
+Once you are happy with the scenarios and **before** the spec is written, the flow stops
+generating and reviews the rules adversarially: for every rule, *what is the laziest
+implementation that passes all these scenarios while violating it?* Anything it can name
+is an undriven rule, reported with the smallest scenario that would go red against it.
+You decide which gaps to close and which to accept; an accepted gap gets labelled on the
+rule, so the next reader finds the hole named rather than discovering it in production.
 
-Costs ~2 minutes. It found a rule stating account numbers were unique that no scenario
-exercised — and pipeline runs against that spec produced code where re-opening an account
-silently destroyed its movement history (finding 16).
+This is a review **step**, not an agent — a dedicated `spec-gap-reviewer` was measured
+against a plain review pass on the same spec, found the same three undriven rules, missed
+two the plain pass caught, and wrongly certified a fourth as covered. See finding 16.
 
 ### Phase 2: Execution — `/run-pipeline` (sequential)
 
@@ -220,7 +221,6 @@ Available templates:
 | [agents/architect/](agents/architect/Agent.md) | Plans the scenario's **Structure & Contracts** (layers/ports/adapters); writes no tests or code (invokes `clean-architecture`, `cqrs`) |
 | [agents/test-designer/](agents/test-designer/Agent.md) | Appends the **Ordered Test List** (FLFI · TPP · Contradiction) — the justified test order that drives the slice; writes no code (invokes `testing`) |
 | [agents/developer/](agents/developer/Agent.md) | Implements the plan (batch-red-per-class TDD, batch-red-verified; invokes `clean-architecture`, `testing`) |
-| [agents/spec-gap-reviewer/](agents/spec-gap-reviewer/Agent.md) | Reads the approved scenarios against their own business rules and reports every rule **no scenario would falsify**. Runs once at `/intent-and-goal` Phase 2b; reports only, never edits (see finding 16) |
 | **Agents — reviewers** | |
 | [agents/test-reviewer/](agents/test-reviewer/Agent.md) | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
 | [agents/arch-reviewer/](agents/arch-reviewer/Agent.md) | Reviews Clean Architecture structural compliance |

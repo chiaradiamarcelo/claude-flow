@@ -1,6 +1,6 @@
 # Finding 16 — The layered pipeline is rejected; its specification review is kept
 
-**Date:** 2026-08 · **Area:** `commands/run-pipeline-layered` (rejected), `agents/system-architect` (rejected), `agents/spec-gap-reviewer` (adopted), `commands/intent-and-goal`
+**Date:** 2026-08 · **Area:** `commands/run-pipeline-layered` (rejected), `agents/system-architect` (rejected), `commands/intent-and-goal` Phase 2b (adopted as a step)
 **Status:** decided on four arms. `/run-pipeline` remains the pipeline. Continues
 [finding 15](15-pipeline-cost-stage-1-and-2.md); the experimental method is
 [finding 13](13-batch-vs-strict-tdd.md)'s and the mutation oracle is
@@ -23,7 +23,8 @@ strength that swung wildly run to run.
 agent, asked to check each business rule for a scenario that would falsify it, found an
 undriven uniqueness invariant that had silently produced a data-destroying defect in
 **all four** previous arms. It cost 2.2 minutes and 10,500 tokens. That review is now a
-phase of `/intent-and-goal`, extracted into `spec-gap-reviewer`.
+phase of `/intent-and-goal`. It was first extracted into a `spec-gap-reviewer` agent;
+that agent was later **dropped** and the review kept as an instruction — see §3.
 
 ---
 
@@ -109,14 +110,48 @@ money precision, whether a legacy record blocks reuse of its number).
 Two of those three gaps were in a specification **I wrote and reviewed**, and I missed
 them. Cost: 2.2 min, 10,500 tokens.
 
-It is now `spec-gap-reviewer`, run at `/intent-and-goal` **Phase 2b** — after the user is
-happy with the scenarios, before the SoT is written. It reports; the user decides what to
-close; accepted gaps are labelled on the rule so the next reader finds the hole named.
+It is now **Phase 2b of `/intent-and-goal`** — after the user is happy with the scenarios,
+before the SoT is written. It reports; the user decides what to close; accepted gaps are
+labelled on the rule so the next reader finds the hole named.
 
-**Unmeasured, and flagged as such:** the adopted agent is an extraction. The gaps were found
-by an agent that was also designing, and the extraction keeps the design *reasoning* while
-dropping the design *artifact*. Whether the reasoning survives without the artifact is
-untested.
+### The agent this was extracted into has since been dropped (2026-08-13)
+
+The review was first packaged as a `spec-gap-reviewer` agent. This finding flagged the
+extraction as **unmeasured** — the gaps had been found by an agent that was also
+*designing*, and whether the reasoning survived without the design artifact was untested.
+It was then tested, on this same frozen spec, against a plain review pass as the control:
+
+| ground-truth gap | `spec-gap-reviewer` | plain review pass |
+|---|---|---|
+| Rule 1, uniqueness (the data-loss one) | found | found |
+| Rule 8, a failed store | found | found |
+| Rule 5, atomicity | found | found |
+| **Rule 4 boundary** — withdrawing *exactly* the balance | **missed, and listed Rule 4 as "verified as driven"** | found |
+| **Self-transfer** — same account twice, destroys or creates money | **not mentioned** | found |
+
+Both gaps the agent missed are real: all three scored arms independently guarded
+self-transfer and wrote an exact-balance withdrawal test, so the pipeline had to discover
+them unaided. The agent also produced ~2× the output (10.7KB vs 5.8KB).
+
+The decisive part is not that it tied on the three known gaps — it is that its one
+distinctive feature, a per-rule "verified as driven" sweep, is where it produced a **false
+all-clear**. Certifying coverage that does not exist is worse than saying nothing.
+
+So the agent was deleted and Phase 2b became an instruction, keeping the two things that
+demonstrably worked in both runs: enumerate every rule and name the laziest implementation
+that passes while violating it, and propose the smallest scenario that would go red.
+
+**What this does not show.** The control was a *dedicated review prompt*, not the real
+Phase 2 flow, where the model is generating scenarios and motivated to feel finished. The
+result therefore supports "the dedicated review **step** earns its place, the separate
+**agent** does not" — it does not support removing the phase.
+
+**And it corrects the case for the phase downward.** This finding originally claimed the
+undriven Rule 1 produced the data-loss defect in "all four earlier arms". Checked against
+every arm's source: the guard is absent in **two of eight** and present in the other six.
+The pipeline usually guards an undriven rule unprompted, so this phase is insurance
+against a coin flip, not a systematic failure — cheap insurance, but not the certainty
+first reported.
 
 ## 4. What this cost, and the mistake worth remembering
 
