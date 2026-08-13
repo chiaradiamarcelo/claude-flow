@@ -96,15 +96,17 @@ Built-in reviewers (defined in agent frontmatter):
 
 The verdict gates on **VIOLATIONs** (an advisory reviewer always emits a SUGGESTION, so gating on those would never pass):
 
-- **FAIL** (one or more VIOLATIONs) → the `developer` runs in fix mode with the consolidated VIOLATION + WARNING findings, then `/run-reviewers` runs again. Repeat until **PASS or 3 fix rounds**.
+- **FAIL** (one or more VIOLATIONs) → the orchestrator triages the findings by severity — every VIOLATION, then warnings and suggestions most-consequential first — and the `developer` runs in fix mode on that list, then `/run-reviewers` runs again. Repeat until **PASS or 2 fix rounds**.
 - **PASS** → done.
+
+Anything still unfixed when the budget is spent is recorded in the specification's `## Follow-ups` with its reason — including a defect the developer reported rather than fixed. A remaining VIOLATION headlines the final report rather than sitting in a footnote.
 
 ```
 Step 0:   EnterWorktree         (fresh branch off origin/<default>)
 Phase 1:  /intent-and-goal      → scenarios approved → writes specification.md
 Phase 2:  /run-pipeline         architect → test-designer → developer, per scenario, ONE AT A TIME
 Phase 3:  /run-reviewers        (once, all changed files; relevant reviewers in parallel)
-Phase 4:  developer fix → /run-reviewers again, until PASS or 3 rounds
+Phase 4:  triage by severity → developer fix → /run-reviewers again, until PASS or 2 rounds
 ```
 
 ## Ad-hoc reviews
