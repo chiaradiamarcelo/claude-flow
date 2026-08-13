@@ -146,7 +146,51 @@ implementation that passes while violating it, and propose the smallest scenario
 go red. A fourth trap was added from the agent's own failure — never call a rule covered
 without naming the mutant the scenarios kill.
 
-**What this does not show.** The control was a *dedicated review prompt*, not the real
+### And then the step itself was tested against no step (2026-08-13)
+
+Keeping a review step on the argument that it *ought* to help is the same mistake this
+programme keeps correcting, so it was measured too. Two arms, same model, same day, given
+the frozen spec's intent and rules with **the scenarios removed**, each running one version
+of Phase 2:
+
+- **control** — Phase 2 exactly as it stood on `main`: draft scenarios, ask clarifying
+  questions if a rule is ambiguous, cover happy/empty/edge/error.
+- **treatment** — the same, plus the gap check on the draft before presenting it.
+
+Scored on the three rules the frozen spec left undriven, pre-registered before reading the
+output:
+
+| | control (27 scenarios) | treatment (30 scenarios) |
+|---|---|---|
+| **Rule 1, duplicate open** | **fails — presupposition trap** | passes |
+| Rule 5, failed transfer leg | passes | passes |
+| Rule 8, store failure | passes | passes |
+
+The control's Rule 1 scenario reads:
+
+```gherkin
+Given the bank has an account with account number "N"
+When another account is opened
+Then its account number is not "N"
+```
+
+It never attempts a duplicate. It asserts the bank *generates* distinct numbers, so an
+unconditional `save` that overwrites on a second open passes it. That is the data-loss
+defect, presented as coverage — and it is the first trap the gap check names. The treatment
+instead opened the same number against a seeded account and asserted its movements
+survived.
+
+So the step is kept on one differentiating rule out of three, and it is the rule that
+actually shipped the defect. Scenario counts are comparable, so this is not the treatment
+simply being more thorough.
+
+**A caution about scoring, not the result.** An automated keyword pass scored the control as
+*covering* Rule 1 — "share an account number" matches. Only reading the scenario body
+caught it. Same lesson as the mutation oracle: the metric said covered, the source said
+otherwise.
+
+**What this does not show.** n=1 per arm, and the *agent* comparison above used a dedicated
+review prompt, not the real
 Phase 2 flow, where the model is generating scenarios and motivated to feel finished. The
 result therefore supports "the dedicated review **step** earns its place, the separate
 **agent** does not" — it does not support removing the phase.
