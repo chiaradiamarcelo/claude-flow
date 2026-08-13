@@ -40,29 +40,40 @@ Append a single new section to `<scenario-id>.md`:
 ## Ordered Test List (FLFI · TPP · Contradiction)
 
 ### Unit — DepositMoneyUseCaseTest
-| # | Test Name (FLFI) | TPP | Contradiction | Status |
-|---|------------------|-----|---------------|--------|
-| 1 | `credits the deposited amount to the account` | constant → variable (3) | balance starts 0, deposit 50 → forces the amount to be added, not returned | ☐ |
-| 2 | `refuses a deposit that is not positive` | unconditional → if (5) | 0 and −1 alongside row 1's 50 → forces the guard | ☐ |
+| # | Test Name (FLFI) | TPP | Contradiction (what the code-so-far wrongly assumes) | Status |
+|---|------------------|-----|------------------------------------------------------|--------|
+| 1 | returns_the_deposited_amount_as_the_new_balance | nil → constant (2) | No code stores or returns a balance at all. | ☐ |
+| 2 | credits_the_amount_that_was_deposited_rather_than_a_fixed_one | constant → scalar (4) | The new balance is the same whatever amount was deposited. | ☐ |
+| 3 | adds_the_deposit_to_the_movements_the_account_already_had | statement → statements (5) | Depositing replaces the movement list instead of appending to it. | ☐ |
+| 4 | fails_when_the_deposited_amount_is_not_positive | unconditional → conditional (6) | Any amount is a deposit, so 0 and -10 are accepted and -10 shrinks the balance. | ☐ |
 
 ### Contract — AccountRepositoryContractTest
-| # | Test Name (FLFI) | TPP | Contradiction | Status |
-|---|------------------|-----|---------------|--------|
-| 3 | `reloads a stored account with its movements` | n/a | save then find → forces movements to round-trip, not be dropped | ☐ |
+| # | Test Name (FLFI) | TPP | Contradiction (what the code-so-far wrongly assumes) | Status |
+|---|------------------|-----|------------------------------------------------------|--------|
+| 5 | returns_a_saved_account_with_every_movement_it_was_stored_with | n/a | The round trip preserves the account, so dropping or reordering movements is invisible. | ☐ |
 
 ### Controller — DepositMoneyControllerIT
-| # | Test Name (FLFI) | TPP | Contradiction | Status |
-|---|------------------|-----|---------------|--------|
-| 4 | `answers 201 when the deposit is accepted` | n/a | mocked use case returns → pins the status and body shape | ☐ |
-| 5 | `answers 400 when the body is malformed` | n/a | unparseable JSON → forces the parse-error mapping | ☐ |
+| # | Test Name (FLFI) | TPP | Contradiction (what the code-so-far wrongly assumes) | Status |
+|---|------------------|-----|------------------------------------------------------|--------|
+| 6 | returns_201_and_the_new_balance_when_the_deposit_is_accepted | n/a | No route exists at all. | ☐ |
+| 7 | returns_400_when_the_deposited_amount_is_missing | n/a | Any request body is a valid deposit. | ☐ |
 
 ### Deleted
-- `returns the new balance from the controller` — no discriminating power over row 4 under a mocked use case.
+- `returns_the_balance_in_the_response` — no discriminating power over row 6 under a mocked use case.
 ```
 
-That example is the whole shape and roughly the whole length: terse cells, one
-continuous `#`, a one-line `### Deleted` entry. A real scenario has more rows, not
-longer ones.
+**Every cell in the Contradiction column names a false belief the code currently
+holds** — never the seed, never what the row "pins" or "forces". If you cannot state
+what the code-so-far believes that this row proves wrong, the row is vacuous: delete
+it. That column is the reason each test exists.
+
+**Names are snake_case and state the complete rule including its condition** (FLFI),
+from the first write. **TPP cells cite a transformation from the canonical list by
+name, with its rank** — never an invented name or a guessed number; `n/a` where no
+transformation is forced (contract, equality, controller-status and ordering rows).
+
+The example is the whole shape and roughly the whole length. A real scenario has more
+rows, not longer ones.
 
 ## Budget: the tables ARE the deliverable
 
