@@ -60,10 +60,10 @@ Read `docs/specifications/<feature-slug>/specification.md`. If it doesn't exist
 2. **Triage the findings before dispatching any fix**, in this order:
    - **Every VIOLATION is fixed.** No exceptions, no deferrals.
    - **Then warnings and suggestions, most-consequential first** — anything that can lose or corrupt stored data, break an invariant the specification names, or mislead a reader about what the code does, ranks above style and structure.
-   - **Then stop at the budget: at most 2 fix rounds.** Everything not fixed is recorded in the specification's `## Follow-ups` with the reason it was deferred. A deferral on the record is a decision; an unfixed finding that was simply never reached is an accident.
 3. Run **`developer`** in fix mode with the triaged findings, highest severity first.
-4. Re-run **`/run-reviewers`**; repeat until PASS or the budget is spent.
-5. **If any VIOLATION remains unfixed when the budget is spent, say so as the headline of your final report** — not as a footnote. An unfixed violation is the single most important thing the run has to tell the reader.
+4. Re-run **`/run-reviewers`**. Repeat from step 2 — **at most 2 fix rounds in total**.
+5. **Record everything still unfixed** in the specification's `## Follow-ups`, each with the reason it was deferred. Include any defect a `developer` *reported rather than fixed*, in either mode — those arrive in its final message and are lost when the session ends unless you write them down. A deferral on the record is a decision; an unfixed finding that was never reached is an accident.
+6. **If any VIOLATION remains unfixed, say so as the headline of your final report** — not as a footnote. An unfixed violation is the single most important thing the run has to tell the reader.
 
 **Rules:**
 - One scenario at a time. Never run architect / test-designer / developer in parallel or batched, and always in that order — the test-designer needs the architect's `## Structure & Contracts` section, and the developer needs the test-designer's ordered list.

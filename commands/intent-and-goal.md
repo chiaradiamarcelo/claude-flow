@@ -115,4 +115,10 @@ Do not implement anything yourself.
 ## BDD Acceptance Progress
 - [ ] SCENARIO-01: <Title>
 - [ ] SCENARIO-02: <Title>
+
+---
+
+## Follow-ups
+<Empty at creation. `/run-pipeline` records here anything it left unfixed — a deferred
+review finding, or a defect a developer reported rather than fixed — each with its reason.>
 ```

@@ -37,9 +37,6 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 
 ## Turn economy (applies in both modes)
 
-Every API call re-sends the whole context, so a call that does one small thing is paid
-for by every call after it.
-
 **Batch independent tool calls into one message.** Writing all of a class's test files,
 reading three files you already know you need, editing four call sites after a rename —
 these are independent and belong in a single message, not four turns. Only serialise

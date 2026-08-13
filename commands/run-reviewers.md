@@ -129,13 +129,6 @@ Consolidate all findings into a single report:
 
 ### Verdict: PASS | FAIL
 **FAIL if and only if there is at least one VIOLATION.** Warnings and suggestions are
-reported in full and do **not** fail the review — the orchestrator triages them
-(see `/run-pipeline`'s fix-loop).
-
-Rationale, measured rather than assumed: failing on every severity spends the fix
-budget in *discovery* order rather than *severity* order. In the `bank-accounts`
-baseline arm that gate consumed all three fix rounds on warnings and suggestions
-and then ran out before reaching a defect that silently destroyed stored data.
-Reporting everything and blocking on violations keeps the signal and spends the
-budget where the damage is.
+reported in full and do **not** fail the review — whoever ran this command decides
+which of them to act on.
 ```
