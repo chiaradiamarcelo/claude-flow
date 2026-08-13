@@ -1,0 +1,12 @@
+arm                    mutants killed surv junk real
+-------------------------------------------------------
+layered-3                   71     53   18   16    2
+-------------------------------------------------------
+TOTAL                       71     53   18   16    2
+
+Surviving mutants: 18  |  junk (noise): 16 (89%)  |  candidate-real: 2 (11%)
+=> naive-gate false-positive rate ≈ 89% of emitted findings would be junk
+
+--- CANDIDATE-REAL survivors (inspect each: genuine gap vs equivalent) ---
+  [layered-3] Money$Companion.isNegative:17 — ConditionalsBoundaryMutator (SURVIVED) :: business-logic survivor in `isNegative` (SURVIVED)
+  [layered-3] AccountNumber.constructor-impl:7 — EmptyObjectReturnValsMutator (SURVIVED) :: business-logic survivor in `constructor-impl` (SURVIVED)

@@ -81,3 +81,13 @@ evals/**/__pycache__/
 
 # macOS junk — re-ignore everywhere (the broad !dir/** whitelists re-include it)
 **/.DS_Store
+
+# Experimental arm workspaces: each is a measurement record, kept out of the
+# config repo. Scorecards under evals/benchmark/scorecards/ ARE committed.
+evals/benchmark/runs/
+
+# An arm's stdout. The scorecard is the record; this is a transcript of one run and
+# is not reproducible from the repo. Note the '!evals/**' rule above un-ignores
+# everything under evals/, so without this a 'git add -A' sweeps these in.
+evals/benchmark/*-run.log
+evals/benchmark/confirmation-driver.log

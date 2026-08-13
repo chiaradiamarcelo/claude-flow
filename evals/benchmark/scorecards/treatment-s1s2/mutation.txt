@@ -1,0 +1,11 @@
+arm                    mutants killed surv junk real
+-------------------------------------------------------
+treatment-s1s2              32     24    8    8    0
+-------------------------------------------------------
+TOTAL                       32     24    8    8    0
+
+Surviving mutants: 8  |  junk (noise): 8 (100%)  |  candidate-real: 0 (0%)
+=> naive-gate false-positive rate ≈ 100% of emitted findings would be junk
+
+--- CANDIDATE-REAL survivors (inspect each: genuine gap vs equivalent) ---
+  (none)

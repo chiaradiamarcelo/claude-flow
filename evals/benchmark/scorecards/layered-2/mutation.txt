@@ -1,0 +1,14 @@
+arm                    mutants killed surv junk real
+-------------------------------------------------------
+layered-2                   62     38   24   20    4
+-------------------------------------------------------
+TOTAL                       62     38   24   20    4
+
+Surviving mutants: 24  |  junk (noise): 20 (83%)  |  candidate-real: 4 (17%)
+=> naive-gate false-positive rate ≈ 83% of emitted findings would be junk
+
+--- CANDIDATE-REAL survivors (inspect each: genuine gap vs equivalent) ---
+  [layered-2] TransferMoneyUseCase.settleWithinOneAccount:34 — VoidMethodCallMutator (SURVIVED) :: business-logic survivor in `settleWithinOneAccount` (SURVIVED)
+  [layered-2] TransferMoneyUseCase.settleWithinOneAccount:35 — NullReturnValsMutator (SURVIVED) :: business-logic survivor in `settleWithinOneAccount` (SURVIVED)
+  [layered-2] AccountNumber.constructor-impl:6 — EmptyObjectReturnValsMutator (SURVIVED) :: business-logic survivor in `constructor-impl` (SURVIVED)
+  [layered-2] Account$newestFirstBreakingTiesByLatestRecorded$$inlined$sortedByDescending$1.compare:121 — PrimitiveReturnsMutator (SURVIVED) :: business-logic survivor in `compare` (SURVIVED)

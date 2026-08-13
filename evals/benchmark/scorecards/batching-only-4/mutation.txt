@@ -1,0 +1,11 @@
+arm                    mutants killed surv junk real
+-------------------------------------------------------
+batching-only-4             44     32   12   12    0
+-------------------------------------------------------
+TOTAL                       44     32   12   12    0
+
+Surviving mutants: 12  |  junk (noise): 12 (100%)  |  candidate-real: 0 (0%)
+=> naive-gate false-positive rate ≈ 100% of emitted findings would be junk
+
+--- CANDIDATE-REAL survivors (inspect each: genuine gap vs equivalent) ---
+  (none)

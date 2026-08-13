@@ -10,6 +10,22 @@ Inspired by `bdfinst/agentic-dev-team`'s eval corpus: a **deterministic,
 model-free grader** checks *coarse, non-determinism-tolerant* properties of a
 lightly-structured agent output — not exact wording.
 
+## Two layers, two questions
+
+This corpus answers **"did this prompt edit break an agent?"** — one behaviour, one frozen
+input, a model-free grader. It is fast, cheap and per-agent.
+
+It cannot answer **"what did this change cost, and did quality hold?"** Cost lives in the
+interaction between agents: a plan file is re-read by every later agent on every dispatch,
+and a developer's turn count multiplies its context by every turn after it. For that there
+is a second layer — [`benchmark/`](benchmark/README.md) — which runs the *whole*
+`/run-pipeline` on a frozen 9-scenario spec and scores the finished run against mutation,
+CRAP and DRY oracles applied out of band. One such run is an **arm**; arms are unattended,
+never re-run in place, and cost ~100 minutes each.
+
+Use this corpus while editing a prompt. Use the benchmark before claiming a change made
+the pipeline cheaper or better.
+
 ## Every fixture is a test.json (given / when / then)
 
 A fixture is **data**. One manifest, `test.json`, expresses the whole test:
