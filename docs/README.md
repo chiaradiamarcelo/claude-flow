@@ -99,12 +99,12 @@ the eval suite (`evals/run_all.sh`).
     — changing the unit of work from the scenario to the **layer** saved ~10% time and 20%
     tokens and cost **2.3 candidate-real mutation survivors against 0**, across four arms.
     Coarsen the test-designer's per-scenario mutation reasoning and finding 14's reason for
-    *not* gating on mutation goes with it. One piece was kept and is worth
-    more than the fork it came from: the adversarial specification-gap review, now a step
-    of `/intent-and-goal` Phase 2, run on the draft before the scenarios are shown for
-    approval. The agent that was extracted to hold it was later
-    dropped — measured against a plain review pass, it added nothing and mis-certified a
-    rule as covered.
+    *not* gating on mutation goes with it. One idea was kept and is worth more
+    than the fork it came from: checking each business rule against the scenarios, now
+    folded into `/intent-and-goal` Phase 2's own iteration. The agent extracted to hold it
+    was dropped — measured against a plain review pass it added nothing and mis-certified a
+    rule as covered — and so was the separate review phase, whose disposition step was
+    wrong: an uncovered rule has to become a question to the user, not a labelled note.
 
 ## Conventions used across these notes
 

@@ -1,6 +1,6 @@
 # Finding 16 — The layered pipeline is rejected; its specification review is kept
 
-**Date:** 2026-08 · **Area:** `commands/run-pipeline-layered` (rejected), `agents/system-architect` (rejected), `commands/intent-and-goal` Phase 2 gap check (adopted as a step)
+**Date:** 2026-08 · **Area:** `commands/run-pipeline-layered` (rejected), `agents/system-architect` (rejected), `commands/intent-and-goal` Phase 2 (rule-coverage check folded into its iteration)
 **Status:** decided on four arms. `/run-pipeline` remains the pipeline. Continues
 [finding 15](15-pipeline-cost-stage-1-and-2.md); the experimental method is
 [finding 13](13-batch-vs-strict-tdd.md)'s and the mutation oracle is
@@ -110,11 +110,25 @@ money precision, whether a legacy record blocks reuse of its number).
 Two of those three gaps were in a specification **I wrote and reviewed**, and I missed
 them. Cost: 2.2 min, 10,500 tokens.
 
-It is now a **step inside `/intent-and-goal` Phase 2** — run on the draft scenarios
-*before* they are shown for approval, so gaps feed the same iteration the user is already
-having rather than reopening a set they have already blessed. It was briefly a separate
-"Phase 2b" that ran once the user was happy with the scenarios; that ordering made the
-first approval premature. It reports; the user decides what to close; accepted gaps are
+It survives as **two of Phase 2's own steps**, not as a phase or an agent: grill the user
+with clarifying questions before drafting, then check every rule against the drafted
+scenarios and go back with a question wherever none would fail if the rule were violated.
+
+Getting there took three wrong shapes, each rejected for a different reason:
+
+1. **A `spec-gap-reviewer` agent.** Measured against a plain review pass (below) — it tied
+   on the three known gaps, missed two the control found, and mis-certified a rule as
+   covered. Deleted.
+2. **A separate "Phase 2b" after the user was happy with the scenarios.** Wrong ordering: a
+   review that can change the scenario set has to run before the set is blessed, or the
+   first approval is premature and the user re-approves a different set.
+3. **A phase that let a gap be "accepted and labelled"** on the rule. Wrong disposition, and
+   the most instructive of the three. A rule listed under `## Business Rules & Invariants`
+   is a claim about the system; if nothing drives it, the specification is asserting
+   something nothing enforces, and a marginal note does not change that. Two of eight arms
+   guessed at exactly such a rule and destroyed stored data — a label would have saved
+   neither. An uncovered rule has to become **a question to the user**, resolved before the
+   SoT is written. It reports; the user decides what to close; accepted gaps are
 labelled on the rule so the next reader finds the hole named.
 
 ### The agent this was extracted into has since been dropped (2026-08-13)
@@ -140,11 +154,9 @@ The decisive part is not that it tied on the three known gaps — it is that its
 distinctive feature, a per-rule "verified as driven" sweep, is where it produced a **false
 all-clear**. Certifying coverage that does not exist is worse than saying nothing.
 
-So the agent was deleted and the review became an instruction inside Phase 2, keeping the
-two things that demonstrably worked in both runs: enumerate every rule and name the laziest
-implementation that passes while violating it, and propose the smallest scenario that would
-go red. A fourth trap was added from the agent's own failure — never call a rule covered
-without naming the mutant the scenarios kill.
+So the agent was deleted. What was kept is the question itself, and the three trap shapes
+that have each shipped a defect: a scenario presupposing its own rule, a rule whose failure
+path is never reached, and half a rule no happy path can falsify.
 
 ### And then the step itself was tested against no step (2026-08-13)
 

@@ -40,22 +40,16 @@ Start any new feature or use case with:
 This command is interactive:
 
 1. **Intent refinement** — clarifying questions to define the primary goal, secondary goals, and constraints.
-2. **Scenario generation** — first reads existing domain models and use cases to reuse the project's ubiquitous language, then proposes Gherkin scenarios (happy path, empty state, edge cases, errors) with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …). Iterate until you approve.
+2. **Scenario generation** — reads existing domain models and use cases to reuse the project's ubiquitous language, grills you with clarifying questions, then proposes Gherkin scenarios (happy path, empty state, edge cases, errors) with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …). It then checks every business rule against the scenarios — *would any scenario fail if this rule were violated?* — and comes back with a question wherever none would. Iterate until you approve.
 3. **Specification creation** — on approval, writes the Source-of-Truth `docs/specifications/<feature-slug>/specification.md` (intent, business rules, scenarios, and a `## BDD Acceptance Progress` checklist). Scenario plan files are written later, by the architect.
 
 Then it **hands off automatically**: once `specification.md` is written it runs `/run-pipeline <feature-slug>`. You don't trigger the rest by hand.
 
-Before the scenarios are shown for approval, the flow reads its own draft **against the
-rules** — for each rule, *what is the laziest implementation that passes every scenario
-while violating it?* Anything it can name is an undriven rule, presented alongside the
-scenarios with the smallest `Given/When/Then` that would close it. You decide which gaps
-to close and which to accept; an accepted gap is labelled on the rule, so the next reader
-finds the hole named rather than discovering it in production.
-
-Note this is *not* the same as asking whether a rule is ambiguous. A rule can be perfectly
-clear and still have nothing that falsifies it — which is how a spec stating account
-numbers were unique reached implementation with no scenario exercising a collision
-(finding 16).
+The coverage check in step 2 is not the same as asking whether a rule is *ambiguous*. A rule
+can be perfectly clear and still have nothing that falsifies it — which is how a spec
+stating that account numbers were unique reached implementation with no scenario exercising
+a collision, and why an uncovered rule becomes a question to you rather than a note in the
+margin (finding 16).
 
 ### Phase 2: Execution — `/run-pipeline` (sequential)
 

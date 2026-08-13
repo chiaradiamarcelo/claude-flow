@@ -19,49 +19,23 @@ Once the intent is confirmed, automatically:
 
 1. Read any existing domain models and use cases to reuse the project's
    ubiquitous language and avoid duplicating behavior that already exists.
-2. Draft Gherkin scenarios with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …).
-3. **Check the draft against every rule before showing it** — see *Gap check* below.
-4. Present the scenarios **together with** anything the check turned up: each undriven
-   rule, each ambiguity, and for a gap the smallest scenario that would close it.
-5. Ask which gaps to close and which to accept as-is. Don't add scenarios yourself — a
-   gap the user knowingly accepts is a decision; one nobody mentioned is an accident.
-6. Iterate — add, remove, or refine scenarios as needed.
-7. Wait for explicit user approval before proceeding to Phase 3.
-
-### Gap check (step 3)
-
-Stop generating and read what you drafted **adversarially, against the rules rather than
-the scenarios**. Take every rule in turn, including the ones that look obviously covered:
-
-> **What is the laziest implementation that passes all of these scenarios while
-> violating this rule?**
-
-Name one and the rule is undriven. Propose the smallest scenario that would go red
-against it — a concrete `Given/When/Then`, not a description of one.
-
-This is **not** the same as asking whether a rule is *ambiguous*. A rule can be perfectly
-clear and still have nothing that falsifies it: *"no two accounts share one"* is
-unmistakable, and a scenario set can leave it entirely undriven. Flag ambiguities too —
-places the rules permit two readings and an implementer will silently pick one (status
-codes, precision, ordering ties, an operation naming the same entity twice) — but count
-them separately.
-
-Four traps, each of which has produced a shipped defect:
-
-- **A `Given` that presupposes its own rule** — "Given the bank has no account ACC-001"
-  asserts uniqueness instead of exercising a collision.
-- **A refusal that happens before the mechanism** — scenarios refused on their merits
-  never reach the store, so they cannot carry a rule about the store failing.
-- **Half a rule** — "as one change, *or not at all*" needs a scenario where the second leg
-  fails; no happy path falsifies the second clause, however many `Then`s it has.
-- **A false all-clear.** Never write that a rule is covered without naming the mutant the
-  scenarios kill. Certifying absent coverage is worse than silence. Boundaries are where
-  it happens: "refused when the balance is insufficient" does not cover withdrawing
-  *exactly* the balance, and `<` versus `<=` survives.
-
-Record each accepted gap in the specification's `## Business Rules & Invariants` as a note
-on the rule — *"no scenario drives this; accepted at refinement"* — so the next reader
-finds the hole labelled rather than discovering it in production.
+2. **Ask clarifying questions — a lot of them.** Grill the user: every rule that admits two
+   readings, every condition with an unstated boundary, every outcome that is only implied.
+   This is the cheapest point in the flow to be wrong, and the only one where asking costs
+   nothing.
+3. Propose Gherkin scenarios with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …).
+4. **Then check every business rule against the scenarios.** For each rule ask: *would any
+   scenario fail if this rule were violated?* If none would, the rule is uncovered — go
+   back to the user with a question. Three shapes to watch for, each of which has shipped
+   a defect:
+   - a scenario that **presupposes its own rule** — "Given the bank has no account ACC-001"
+     asserts uniqueness instead of exercising a collision, so nothing enforces it;
+   - a rule whose **failure path is never reached** — scenarios refused on their merits
+     never reach the store, so they cannot carry a rule about the store failing;
+   - **half a rule** — "as one change, *or not at all*" needs a scenario where the second
+     leg fails; no happy path falsifies the second clause, however many `Then`s it has.
+5. Iterate with the user — add, remove, or refine scenarios as needed.
+6. Wait for explicit user approval before proceeding to Phase 3.
 
 ### Scenario format
 
