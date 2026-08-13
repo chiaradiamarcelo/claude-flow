@@ -1,6 +1,6 @@
 # Finding 16 — The layered pipeline is rejected; its specification review is kept
 
-**Date:** 2026-08 · **Area:** `commands/run-pipeline-layered` (rejected), `agents/system-architect` (rejected), `commands/intent-and-goal` Phase 2b (adopted as a step)
+**Date:** 2026-08 · **Area:** `commands/run-pipeline-layered` (rejected), `agents/system-architect` (rejected), `commands/intent-and-goal` Phase 2 gap check (adopted as a step)
 **Status:** decided on four arms. `/run-pipeline` remains the pipeline. Continues
 [finding 15](15-pipeline-cost-stage-1-and-2.md); the experimental method is
 [finding 13](13-batch-vs-strict-tdd.md)'s and the mutation oracle is
@@ -110,8 +110,11 @@ money precision, whether a legacy record blocks reuse of its number).
 Two of those three gaps were in a specification **I wrote and reviewed**, and I missed
 them. Cost: 2.2 min, 10,500 tokens.
 
-It is now **Phase 2b of `/intent-and-goal`** — after the user is happy with the scenarios,
-before the SoT is written. It reports; the user decides what to close; accepted gaps are
+It is now a **step inside `/intent-and-goal` Phase 2** — run on the draft scenarios
+*before* they are shown for approval, so gaps feed the same iteration the user is already
+having rather than reopening a set they have already blessed. It was briefly a separate
+"Phase 2b" that ran once the user was happy with the scenarios; that ordering made the
+first approval premature. It reports; the user decides what to close; accepted gaps are
 labelled on the rule so the next reader finds the hole named.
 
 ### The agent this was extracted into has since been dropped (2026-08-13)
@@ -137,9 +140,11 @@ The decisive part is not that it tied on the three known gaps — it is that its
 distinctive feature, a per-rule "verified as driven" sweep, is where it produced a **false
 all-clear**. Certifying coverage that does not exist is worse than saying nothing.
 
-So the agent was deleted and Phase 2b became an instruction, keeping the two things that
-demonstrably worked in both runs: enumerate every rule and name the laziest implementation
-that passes while violating it, and propose the smallest scenario that would go red.
+So the agent was deleted and the review became an instruction inside Phase 2, keeping the
+two things that demonstrably worked in both runs: enumerate every rule and name the laziest
+implementation that passes while violating it, and propose the smallest scenario that would
+go red. A fourth trap was added from the agent's own failure — never call a rule covered
+without naming the mutant the scenarios kill.
 
 **What this does not show.** The control was a *dedicated review prompt*, not the real
 Phase 2 flow, where the model is generating scenarios and motivated to feel finished. The

@@ -19,10 +19,49 @@ Once the intent is confirmed, automatically:
 
 1. Read any existing domain models and use cases to reuse the project's
    ubiquitous language and avoid duplicating behavior that already exists.
-2. Propose Gherkin scenarios with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …).
-3. Ask clarifying questions if business rules are ambiguous.
-4. Iterate with the user — add, remove, or refine scenarios as needed.
-5. Wait for explicit user approval before proceeding to Phase 3.
+2. Draft Gherkin scenarios with unique IDs (`SCENARIO-01`, `SCENARIO-02`, …).
+3. **Check the draft against every rule before showing it** — see *Gap check* below.
+4. Present the scenarios **together with** anything the check turned up: each undriven
+   rule, each ambiguity, and for a gap the smallest scenario that would close it.
+5. Ask which gaps to close and which to accept as-is. Don't add scenarios yourself — a
+   gap the user knowingly accepts is a decision; one nobody mentioned is an accident.
+6. Iterate — add, remove, or refine scenarios as needed.
+7. Wait for explicit user approval before proceeding to Phase 3.
+
+### Gap check (step 3)
+
+Stop generating and read what you drafted **adversarially, against the rules rather than
+the scenarios**. Take every rule in turn, including the ones that look obviously covered:
+
+> **What is the laziest implementation that passes all of these scenarios while
+> violating this rule?**
+
+Name one and the rule is undriven. Propose the smallest scenario that would go red
+against it — a concrete `Given/When/Then`, not a description of one.
+
+This is **not** the same as asking whether a rule is *ambiguous*. A rule can be perfectly
+clear and still have nothing that falsifies it: *"no two accounts share one"* is
+unmistakable, and a scenario set can leave it entirely undriven. Flag ambiguities too —
+places the rules permit two readings and an implementer will silently pick one (status
+codes, precision, ordering ties, an operation naming the same entity twice) — but count
+them separately.
+
+Four traps, each of which has produced a shipped defect:
+
+- **A `Given` that presupposes its own rule** — "Given the bank has no account ACC-001"
+  asserts uniqueness instead of exercising a collision.
+- **A refusal that happens before the mechanism** — scenarios refused on their merits
+  never reach the store, so they cannot carry a rule about the store failing.
+- **Half a rule** — "as one change, *or not at all*" needs a scenario where the second leg
+  fails; no happy path falsifies the second clause, however many `Then`s it has.
+- **A false all-clear.** Never write that a rule is covered without naming the mutant the
+  scenarios kill. Certifying absent coverage is worse than silence. Boundaries are where
+  it happens: "refused when the balance is insufficient" does not cover withdrawing
+  *exactly* the balance, and `<` versus `<=` survives.
+
+Record each accepted gap in the specification's `## Business Rules & Invariants` as a note
+on the rule — *"no scenario drives this; accepted at refinement"* — so the next reader
+finds the hole labelled rather than discovering it in production.
 
 ### Scenario format
 
@@ -46,48 +85,6 @@ Scenario: <clear description>
 - One behavior per scenario.
 - Reuse existing domain objects when possible.
 - Do not suggest implementation details or architecture in this phase.
-
-## Phase 2b: Gap review (before the SoT is written)
-
-Once the user is happy with the scenarios, stop generating and review what you have —
-adversarially, against the rules rather than the scenarios. Take **every** rule in turn,
-including the ones that look obviously covered, and answer one question:
-
-> **What is the laziest implementation that passes all of these scenarios while
-> violating this rule?**
-
-If you can name one, the rule is undriven. Say so, and propose the **smallest scenario**
-that would go red against that implementation — a concrete `Given/When/Then`, not a
-description of one.
-
-Three traps, each of which has produced a shipped defect:
-
-- **A rule whose `Given` presupposes it.** "Given the bank has no account ACC-001" *asserts*
-  uniqueness instead of exercising a collision, so an unconditional save passes.
-- **A refusal that happens before the mechanism.** A rule about a failing store is not
-  carried by scenarios refused on their merits — those never reach the store at all.
-- **Half a rule.** "Moves money as one change, **or not at all**" needs a scenario where the
-  second leg fails. A happy-path scenario cannot falsify the second clause, however many
-  `Then`s it has.
-
-**Do not write "verified as driven" against a rule unless you have named the mutant the
-scenarios kill.** A false all-clear is worse than silence: it certifies coverage that
-does not exist, and it is the failure mode this phase most often produces. Boundaries are
-where it happens — "refused when the balance is insufficient" does not cover withdrawing
-*exactly* the balance, and `<` versus `<=` survives.
-
-Also flag genuine **ambiguities** — cases the rules permit two readings of, where an
-implementer will silently pick one (status codes, precision, ordering ties, an operation
-on the same account twice).
-
-Report all of it to the user, then ask which gaps they want to close with a new scenario
-and which they accept as-is. **Do not add scenarios yourself, and do not proceed to
-Phase 3 until they have answered.** A gap the user knowingly accepts is a decision; one
-nobody mentioned is an accident.
-
-Record every accepted gap in the specification's `## Business Rules & Invariants` as a
-note on the rule — *"no scenario drives this; accepted at refinement"* — so the next
-reader finds the hole labelled rather than discovering it in production.
 
 ## Phase 3: SoT Creation
 

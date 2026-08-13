@@ -45,18 +45,17 @@ This command is interactive:
 
 Then it **hands off automatically**: once `specification.md` is written it runs `/run-pipeline <feature-slug>`. You don't trigger the rest by hand.
 
-### Phase 1b: Gap review
+Before the scenarios are shown for approval, the flow reads its own draft **against the
+rules** — for each rule, *what is the laziest implementation that passes every scenario
+while violating it?* Anything it can name is an undriven rule, presented alongside the
+scenarios with the smallest `Given/When/Then` that would close it. You decide which gaps
+to close and which to accept; an accepted gap is labelled on the rule, so the next reader
+finds the hole named rather than discovering it in production.
 
-Once you are happy with the scenarios and **before** the spec is written, the flow stops
-generating and reviews the rules adversarially: for every rule, *what is the laziest
-implementation that passes all these scenarios while violating it?* Anything it can name
-is an undriven rule, reported with the smallest scenario that would go red against it.
-You decide which gaps to close and which to accept; an accepted gap gets labelled on the
-rule, so the next reader finds the hole named rather than discovering it in production.
-
-This is a review **step**, not an agent — a dedicated `spec-gap-reviewer` was measured
-against a plain review pass on the same spec, found the same three undriven rules, missed
-two the plain pass caught, and wrongly certified a fourth as covered. See finding 16.
+Note this is *not* the same as asking whether a rule is ambiguous. A rule can be perfectly
+clear and still have nothing that falsifies it — which is how a spec stating account
+numbers were unique reached implementation with no scenario exercising a collision
+(finding 16).
 
 ### Phase 2: Execution — `/run-pipeline` (sequential)
 

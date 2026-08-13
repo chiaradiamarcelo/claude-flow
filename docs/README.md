@@ -101,7 +101,8 @@ the eval suite (`evals/run_all.sh`).
     Coarsen the test-designer's per-scenario mutation reasoning and finding 14's reason for
     *not* gating on mutation goes with it. One piece was kept and is worth
     more than the fork it came from: the adversarial specification-gap review, now a step
-    of `/intent-and-goal` Phase 2b. The agent that was extracted to hold it was later
+    of `/intent-and-goal` Phase 2, run on the draft before the scenarios are shown for
+    approval. The agent that was extracted to hold it was later
     dropped — measured against a plain review pass, it added nothing and mis-certified a
     rule as covered.
 
