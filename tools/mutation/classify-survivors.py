@@ -14,8 +14,24 @@ JUNK_DESC_MARKERS = ("Intrinsics", "checkNotNull", "requireNotNull", "checkNotNu
                      "checkNotNullParameter", "$default")
 
 
+def is_property_accessor(method):
+    """Kotlin compiles `val x` into a synthetic getX()/setX() that contains no
+    behaviour of its own. PIT will happily mutate the return of one and report a
+    survivor, but there is no test anyone could write that kills it other than a
+    test of the property's initialiser — which lives elsewhere. Treated as junk
+    for the same reason equals/hashCode are: it is generated, not authored."""
+    return (
+        (method.startswith("get") or method.startswith("set"))
+        and len(method) > 3
+        and method[3].isupper()
+    )
+
+
 def is_boilerplate_method(method):
-    return method in BOILERPLATE_METHODS or method.startswith("component") or method.endswith("$default")
+    return (method in BOILERPLATE_METHODS
+            or method.startswith("component")
+            or method.endswith("$default")
+            or is_property_accessor(method))
 
 
 def classify(m):

@@ -1,0 +1,192 @@
+{
+  "reviewer_rounds": [
+    {
+      "n": 5,
+      "span_min": 12.65,
+      "sum_min": 11.086216666666667,
+      "ratio": 0.8763807641633728,
+      "names": [
+        "arch-reviewer",
+        "test-reviewer",
+        "android-ui-test-reviewer",
+        "android-presentation-reviewer",
+        "refactor-advisor"
+      ]
+    },
+    {
+      "n": 4,
+      "span_min": 7.3898166666666665,
+      "sum_min": 6.304833333333334,
+      "ratio": 0.8531785858467396,
+      "names": [
+        "arch-reviewer",
+        "android-presentation-reviewer",
+        "android-ui-test-reviewer",
+        "refactor-advisor"
+      ]
+    }
+  ],
+  "fix_rounds": {
+    "n": 2,
+    "min": 24.357633333333336,
+    "out_tok": 81244
+  },
+  "commits": 0,
+  "catches_note_to_architect": 40,
+  "label": "gym-walls (Android/KMP, baseline config, 2026-08-07)",
+  "span_min": 308.71126666666663,
+  "agent_min": 282.4436166666666,
+  "dispatches": 51,
+  "output_tokens": 1014690,
+  "scenarios": 13,
+  "rows": 95,
+  "min_per_scenario": 23.74702051282051,
+  "min_per_row": 3.249592280701754,
+  "out_tok_per_row": 10680.947368421053,
+  "roles": {
+    "architect": {
+      "n": 13,
+      "min": 33.69473333333334,
+      "out_tok": 169411,
+      "chars": {
+        "spec_plan": 147689
+      },
+      "builds": 0,
+      "reads": 189,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "android-ui-test-reviewer": {
+      "n": 2,
+      "min": 4.717833333333333,
+      "out_tok": 23664,
+      "chars": {},
+      "builds": 0,
+      "reads": 40,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "developer": {
+      "n": 15,
+      "min": 147.18436666666668,
+      "out_tok": 446060,
+      "chars": {
+        "code_test": 146917,
+        "code_prod": 128668,
+        "spec_plan": 38578,
+        "spec_sot": 34650,
+        "other": 1388,
+        "other_md": 11172
+      },
+      "builds": 151,
+      "reads": 253,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "test-designer": {
+      "n": 13,
+      "min": 81.71614999999998,
+      "out_tok": 308871,
+      "chars": {
+        "spec_plan": 321479
+      },
+      "builds": 0,
+      "reads": 206,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "refactor-advisor": {
+      "n": 2,
+      "min": 2.7645999999999997,
+      "out_tok": 12924,
+      "chars": {},
+      "builds": 0,
+      "reads": 35,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "android-presentation-reviewer": {
+      "n": 2,
+      "min": 4.032016666666666,
+      "out_tok": 18513,
+      "chars": {},
+      "builds": 0,
+      "reads": 55,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "test-reviewer": {
+      "n": 1,
+      "min": 2.6982166666666667,
+      "out_tok": 11964,
+      "chars": {},
+      "builds": 0,
+      "reads": 29,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "general-purpose": {
+      "n": 1,
+      "min": 2.4573166666666664,
+      "out_tok": 9679,
+      "chars": {},
+      "builds": 0,
+      "reads": 7,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    },
+    "arch-reviewer": {
+      "n": 2,
+      "min": 3.1783833333333336,
+      "out_tok": 13604,
+      "chars": {},
+      "builds": 0,
+      "reads": 47,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ]
+    }
+  },
+  "rows_detail": {
+    "total": 95,
+    "unclassified": 35,
+    "early_green": 9,
+    "red_then_green": 30,
+    "deferred_blind": 21
+  }
+}

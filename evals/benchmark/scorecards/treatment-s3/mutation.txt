@@ -1,0 +1,11 @@
+arm                    mutants killed surv junk real
+-------------------------------------------------------
+treatment-s3                35     28    7    6    1
+-------------------------------------------------------
+TOTAL                       35     28    7    6    1
+
+Surviving mutants: 7  |  junk (noise): 6 (86%)  |  candidate-real: 1 (14%)
+=> naive-gate false-positive rate ≈ 86% of emitted findings would be junk
+
+--- CANDIDATE-REAL survivors (inspect each: genuine gap vs equivalent) ---
+  [treatment-s3] Account.movementsMostRecentFirst:11 — EmptyObjectReturnValsMutator (NO_COVERAGE) :: business-logic survivor in `movementsMostRecentFirst` (NO_COVERAGE)

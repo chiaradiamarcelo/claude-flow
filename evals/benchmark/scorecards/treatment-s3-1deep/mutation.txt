@@ -1,0 +1,11 @@
+arm                    mutants killed surv junk real
+-------------------------------------------------------
+treatment-s3-1deep          49     40    9    8    1
+-------------------------------------------------------
+TOTAL                       49     40    9    8    1
+
+Surviving mutants: 9  |  junk (noise): 8 (89%)  |  candidate-real: 1 (11%)
+=> naive-gate false-positive rate ≈ 89% of emitted findings would be junk
+
+--- CANDIDATE-REAL survivors (inspect each: genuine gap vs equivalent) ---
+  [treatment-s3-1deep] TransferMoneyUseCase.transfer:29 — NegateConditionalsMutator (NO_COVERAGE) :: business-logic survivor in `transfer` (NO_COVERAGE)

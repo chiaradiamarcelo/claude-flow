@@ -1,0 +1,11 @@
+arm                    mutants killed surv junk real
+-------------------------------------------------------
+layered-seq                 55     41   14   13    1
+-------------------------------------------------------
+TOTAL                       55     41   14   13    1
+
+Surviving mutants: 14  |  junk (noise): 13 (93%)  |  candidate-real: 1 (7%)
+=> naive-gate false-positive rate ≈ 93% of emitted findings would be junk
+
+--- CANDIDATE-REAL survivors (inspect each: genuine gap vs equivalent) ---
+  [layered-seq] Money.compareTo-ibqu0wA:23 — PrimitiveReturnsMutator (NO_COVERAGE) :: business-logic survivor in `compareTo-ibqu0wA` (NO_COVERAGE)
