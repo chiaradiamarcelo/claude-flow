@@ -38,8 +38,7 @@ Additionally, invoke conditionally based on what the scenario plan touches:
 ## Turn economy (applies in both modes)
 
 Every API call re-sends the whole context, so a call that does one small thing is paid
-for by every call after it. Measured on this agent: 36 API calls per dispatch at ~70,000
-tokens of context each, and 81% of them carry exactly one tool call.
+for by every call after it.
 
 **Batch independent tool calls into one message.** Writing all of a class's test files,
 reading three files you already know you need, editing four call sites after a rename —
@@ -65,7 +64,7 @@ same message: that skips the only step that proves the test can fail.
    - Refactor if useful; everything so far stays green (REFACTOR).
    - Flip each row's Status as its test passes, using the **status vocabulary** below.
    - If a row turns out already-green or genuinely redundant when you reach it, mark it `✅ EARLY-GREEN` rather than forcing a false red — or drop it only if truly vacuous. Never silently skip it.
-   - **Plan↔code fidelity.** If TDD forces you to write a test that is *not* a planned row — a supporting behaviour a row depends on (a constructor guard, a value-object query, a mapper) — you MUST append it to the appropriate table as a new row (FLFI name · TPP · Contradiction · `✅ UNPLANNED`). When the scenario is done, the Ordered Test List must be a **complete inventory**: every test method that exists maps to a row, and every row maps to a test method. Never leave a test with no row.
+   - **Plan↔code fidelity.** If implementing the plan forces you to write a test that is *not* a planned row — a supporting behaviour a row depends on (a constructor guard, a value-object query, a mapper) — you MUST append it to the appropriate table as a new row (FLFI name · TPP · Contradiction · `✅ UNPLANNED`). When the scenario is done, the Ordered Test List must be a **complete inventory**: every test method that exists maps to a row, and every row maps to a test method. Never leave a test with no row.
 
 ### Status vocabulary (mandatory)
 
@@ -97,7 +96,9 @@ Example: `✅ RED→GREEN — red with expected:<50> but was:<0> before the depo
 ## Fix mode
 
 1. Read the findings. Each finding identifies a file, a rule, and a required change.
-2. Address every finding you were given. The orchestrator has already triaged them — anything it chose to defer is not in your prompt, so do not re-litigate the list, and do not go looking for more.
+2. Address every finding you were given, and only those. The orchestrator has already triaged them against a bounded fix budget; anything it deferred is deliberately absent from your prompt, so do not argue the triage or widen the round to findings you were not given.
+
+   **This bounds what you fix, never what you report.** If you notice a genuine defect while fixing — a broken invariant, a data-loss path, a test that cannot fail — say so plainly in your final report and leave it unfixed. Silence is the one wrong answer: an unreported defect is indistinguishable from an absent one, and the orchestrator can only budget for what it knows about.
 3. Run the test suite. All tests must stay green.
 4. **If you added or renamed a test, record it in the plan's Ordered Test List** — a new row (`✅ UNPLANNED — <what it supports>`), or an updated name on the existing row. The Ordered Test List must remain a complete inventory of the suite: every test maps to a row and every row to a test. A fix round that adds tests without rows silently breaks that, and the plan stops describing the code.
 5. Do not touch **progress checkboxes** in the plan or the specification — the `- [x]` marks and scenario status were recorded in implementation mode and are not yours to change here. Keeping the inventory current (step 4) is not the same thing as re-reporting progress.

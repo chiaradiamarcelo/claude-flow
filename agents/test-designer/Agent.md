@@ -39,42 +39,41 @@ Append a single new section to `<scenario-id>.md`:
 ```markdown
 ## Ordered Test List (FLFI · TPP · Contradiction)
 
-### Unit — <UseCaseName>Test
+### Unit — DepositMoneyUseCaseTest
 | # | Test Name (FLFI) | TPP | Contradiction | Status |
 |---|------------------|-----|---------------|--------|
-| 1 | ... | constant → variable (3) | ... | ☐ |
+| 1 | `credits the deposited amount to the account` | constant → variable (3) | balance starts 0, deposit 50 → forces the amount to be added, not returned | ☐ |
+| 2 | `refuses a deposit that is not positive` | unconditional → if (5) | 0 and −1 alongside row 1's 50 → forces the guard | ☐ |
 
-### Contract — <PortName>ContractTest
+### Contract — AccountRepositoryContractTest
 | # | Test Name (FLFI) | TPP | Contradiction | Status |
 |---|------------------|-----|---------------|--------|
-| ... | ... | n/a | ... | ☐ |
+| 3 | `reloads a stored account with its movements` | n/a | save then find → forces movements to round-trip, not be dropped | ☐ |
 
-### Controller — <ControllerName>IT
+### Controller — DepositMoneyControllerIT
 | # | Test Name (FLFI) | TPP | Contradiction | Status |
 |---|------------------|-----|---------------|--------|
-| ... | ... | n/a | ... | ☐ |
+| 4 | `answers 201 when the deposit is accepted` | n/a | mocked use case returns → pins the status and body shape | ☐ |
+| 5 | `answers 400 when the body is malformed` | n/a | unparseable JSON → forces the parse-error mapping | ☐ |
+
+### Deleted
+- `returns the new balance from the controller` — no discriminating power over row 4 under a mocked use case.
 ```
+
+That example is the whole shape and roughly the whole length: terse cells, one
+continuous `#`, a one-line `### Deleted` entry. A real scenario has more rows, not
+longer ones.
 
 ## Budget: the tables ARE the deliverable
 
-- **No prose sections before the first table.** Analysis of which seam proves what,
-  why a cheaper seam was rejected, or how a rule is split across scenarios does not
-  belong in the file. Decide it in your reasoning; write down the conclusion.
-- **Each `Contradiction` cell is at most 120 characters** — the seed shape and what
-  it forces, nothing else.
-- **Candidates you deleted get one line each** under a single `### Deleted` heading:
-  `<name> — <why, one clause>`. Not a paragraph each.
-- Everything outside the tables, the `### Deleted` list, and any
-  `> Note to architect:` lines should be nothing at all.
+The file contains the tables, a `### Deleted` list, and any `> Note to architect:`
+lines. **Nothing else** — no prose before the first table, no analysis of which seam
+proves what or why a cheaper one was rejected. Decide that in your reasoning; write
+down only the conclusion. Each `Contradiction` cell is **at most 120 characters**, and
+each deleted candidate is **one line**.
 
-The plan file is read by the developer on every invocation and re-read as the
-scenario proceeds, so prose here is paid for repeatedly. Measured: test-designers
-have been emitting ~12k characters per scenario against ~1.5k of actual table.
-
-This caps **what you write**, never how hard you think. The redundancy gate, the
-mutation lens and the falsifiability judgement below are exactly what make this
-agent worth its cost — five architect errors in one measured run were caught by
-them. Keep all of that; just stop narrating it.
+This caps what you *write*, never how hard you think. The redundancy gate, the mutation
+lens and the falsifiability judgement below are what make this agent worth its cost.
 
 ## Rules
 

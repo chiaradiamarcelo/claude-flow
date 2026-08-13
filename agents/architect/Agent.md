@@ -29,11 +29,6 @@ One bullet per artifact. No rationale paragraphs, no alternatives-considered, no
 narration of what you read on the way. Where a choice genuinely needs defending,
 defend it in one clause inside the bullet — not a paragraph beneath it.
 
-This is a hard cap because the section is **read by two later agents on every
-invocation**, so every line is paid for three times: once to write, twice to read.
-Measured: architects have been emitting 130–285 line "skeletons" against the ~10
-bullet example below, which is the single largest unforced cost in the pipeline.
-
 Think as hard as the scenario deserves — the cap is on **what you write down**,
 not on how carefully you decide it. Deliberation belongs in your reasoning; the
 file is a contract, not a transcript.
