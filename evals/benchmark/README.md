@@ -81,6 +81,39 @@ tokens, cache-read, context per call, and generated characters bucketed by desti
 Metrics are **per unit** (per scenario, per row) because arms are compared across
 features, where totals are meaningless and rates are not.
 
+## Arms on record
+
+Each `scorecards/<arm>/` is committed so the numbers quoted in findings 15 and 16 can be
+checked. **Only `batching-only-4` measures the configuration that shipped** — the rest are
+history, and several measure configurations that were rejected. Read the *what it tested*
+column before citing any row.
+
+| arm | what it tested | span | out-tok | API calls | tool/call | cache-read | **mut-real** | red arrival |
+|---|---|---|---|---|---|---|---|---|
+| `baseline` | pre-programme control | 127 | 564,943 | 787 | 1.69 | 48.0M | **2** | 80.5% |
+| `treatment-s1s2` | plan-file caps + reviewer gate (Stage 1+2) | 104 | 429,198 | 669 | 1.66 | 36.7M | **0** | 89.1% |
+| `treatment-s3` | + planning 2 scenarios ahead — **rejected** | 75 | 390,762 | 680 | 1.66 | 40.4M | **1** | 64.0% |
+| `treatment-s3-1deep` | + planning 1 ahead — **rejected** | 106 | 450,950 | 716 | 1.55 | 47.1M | **1** | 67.7% |
+| `layered-seq` | layer as unit of work — **rejected** | 74 | 280,012 | 324 | 1.47 | 25.6M | **1** | 83.6% |
+| `layered-2` | layered, confirmation — **rejected** | 103 | 356,013 | 493 | 1.45 | 45.5M | **4** | 81.0% |
+| `layered-3` | layered, confirmation — **rejected** | 103 | 401,981 | 510 | 1.45 | 42.5M | **2** | 93.6% |
+| `turn-economy` | batching **and** Bash quieting together — unattributable | 95 | 439,306 | 476 | 2.31 | 23.2M | **3** | 86.0% |
+| **`batching-only-4`** | **batching alone — the shipped config** | 103 | 451,859 | 555 | 1.93 | 32.6M | **0** | 78.7% |
+
+Two rows deserve a warning.
+
+**`turn-economy` changed two things at once** — tool-call batching and quieting Bash output
+— so none of its numbers belong to either. Splitting them halved the saving credited to
+batching (API calls −29% → −17%, cache-read −37% → −11%) and showed its 3 mutation
+survivors were not batching's doing. Quieting Bash output is still unshipped and unmeasured
+for exactly this reason. It is the cautionary row: an arm that moves two levers measures
+neither.
+
+**`batching-only-4`'s red arrival of 78.7% is not comparable** to the rows above it. All 14
+of its no-evidence rows were added during *fix* rounds, where batch-red is not required, and
+the metric cannot currently tell those from a row that skipped verification. Its mutation
+score — the gate — is 0.
+
 ## Rules earned the hard way
 
 1. **No wall-clock claim from fewer than three arms.** Span has ranged 74–127 minutes.
