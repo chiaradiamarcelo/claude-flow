@@ -98,7 +98,9 @@ column before citing any row.
 | `layered-2` | layered, confirmation — **rejected** | 103 | 356,013 | 493 | 1.45 | 45.5M | **4** | 81.0% |
 | `layered-3` | layered, confirmation — **rejected** | 103 | 401,981 | 510 | 1.45 | 42.5M | **2** | 93.6% |
 | `turn-economy` | batching **and** Bash quieting together — unattributable | 95 | 439,306 | 476 | 2.31 | 23.2M | **3** | 86.0% |
-| **`batching-only-4`** | **batching alone — the shipped config** | 103 | 451,859 | 555 | 1.93 | 32.6M | **0** | 78.7% |
+| `batching-only-4` | batching alone — shipped (finding 15) | 103 | 451,859 | 555 | 1.93 | 32.6M | **0** | 78.7% |
+| **`main-control`** | **current `main` — the control for everything after** | 102 | 473,784 | 618 | 1.75 | 36.0M | **3** | 84.1% |
+| `quiet-bash-2` | + quieten Bash output — **rejected** (finding 17) | 97 | 472,770 | 621 | 1.84 | 36.4M | **0** | 83.0% |
 
 Two rows deserve a warning.
 
@@ -113,6 +115,17 @@ neither.
 of its no-evidence rows were added during *fix* rounds, where batch-red is not required, and
 the metric cannot currently tell those from a row that skipped verification. Its mutation
 score — the gate — is 0.
+
+**Read `main-control` and `quiet-bash-2` as a pair, and read the mutation column with
+suspicion.** They differ only by the rejected Bash rule, yet score 3 and 0 candidate-real.
+Across all eleven arms the figure has ranged 0–4 with no treatment explaining the spread, so
+a single-arm move inside that band is noise (finding 17). The column catches gross failure —
+the layered fork's 4 — not small regressions.
+
+**Artifact convention:** an arm's directory holds everything the scoring step produces except
+the `jscpd` JSON, which `dry.txt` already summarises in 15 lines instead of 800. Arms scored
+before that convention settled keep only `scorecard.md`, `mutation.txt` and the mutation XML;
+their CRAP and DRY figures live in findings 15 and 16 rather than in the repo.
 
 ## Rules earned the hard way
 
