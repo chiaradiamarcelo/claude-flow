@@ -1,0 +1,195 @@
+{
+  "reviewer_rounds": [
+    {
+      "n": 4,
+      "span_min": 3.2363,
+      "sum_min": 7.6652499999999995,
+      "ratio": 2.368522695670982,
+      "names": [
+        "arch-reviewer",
+        "api-reviewer",
+        "refactor-advisor",
+        "test-reviewer"
+      ]
+    },
+    {
+      "n": 4,
+      "span_min": 4.034366666666667,
+      "sum_min": 8.733766666666668,
+      "ratio": 2.1648420652560088,
+      "names": [
+        "arch-reviewer",
+        "api-reviewer",
+        "refactor-advisor",
+        "test-reviewer"
+      ]
+    }
+  ],
+  "fix_rounds": {
+    "n": 2,
+    "min": 17.6389,
+    "out_tok": 70085
+  },
+  "commits": 0,
+  "catches_note_to_architect": 4,
+  "staleness": {
+    "events": [],
+    "by_source": {}
+  },
+  "label": "main-control",
+  "span_min": 102.33243333333333,
+  "agent_min": 105.7518,
+  "dispatches": 37,
+  "output_tokens": 473784,
+  "api_calls": 618,
+  "assistant_events": 1583,
+  "cache_read": 35985926,
+  "tool_calls": 1080,
+  "tool_calls_per_api_call": 1.7475728155339805,
+  "single_tool_call_share": 0.5744336569579288,
+  "ctx_per_api_call": 58229.65372168285,
+  "scenarios": 9,
+  "rows": 82,
+  "min_per_scenario": 11.37027037037037,
+  "min_per_row": 1.2479565040650407,
+  "out_tok_per_row": 5777.8536585365855,
+  "roles": {
+    "developer": {
+      "n": 11,
+      "min": 63.553599999999996,
+      "out_tok": 270633,
+      "chars": {
+        "code_test": 72149,
+        "code_prod": 37938,
+        "spec_plan": 51285,
+        "spec_sot": 3319
+      },
+      "builds": 110,
+      "reads": 122,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 389,
+      "cache_read": 28441633,
+      "tool_calls": 567
+    },
+    "architect": {
+      "n": 9,
+      "min": 10.547599999999997,
+      "out_tok": 53001,
+      "chars": {
+        "spec_plan": 26427
+      },
+      "builds": 0,
+      "reads": 78,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 62,
+      "cache_read": 1614017,
+      "tool_calls": 124
+    },
+    "refactor-advisor": {
+      "n": 2,
+      "min": 3.2599666666666667,
+      "out_tok": 15580,
+      "chars": {},
+      "builds": 0,
+      "reads": 69,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 25,
+      "cache_read": 675578,
+      "tool_calls": 78
+    },
+    "test-designer": {
+      "n": 9,
+      "min": 15.251583333333334,
+      "out_tok": 67304,
+      "chars": {
+        "spec_plan": 32252
+      },
+      "builds": 0,
+      "reads": 52,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 61,
+      "cache_read": 2029170,
+      "tool_calls": 95
+    },
+    "test-reviewer": {
+      "n": 2,
+      "min": 6.996166666666666,
+      "out_tok": 36104,
+      "chars": {},
+      "builds": 0,
+      "reads": 61,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 38,
+      "cache_read": 2150506,
+      "tool_calls": 74
+    },
+    "arch-reviewer": {
+      "n": 2,
+      "min": 3.1863333333333332,
+      "out_tok": 14513,
+      "chars": {},
+      "builds": 0,
+      "reads": 80,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 28,
+      "cache_read": 775928,
+      "tool_calls": 90
+    },
+    "api-reviewer": {
+      "n": 2,
+      "min": 2.95655,
+      "out_tok": 16649,
+      "chars": {},
+      "builds": 0,
+      "reads": 43,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 15,
+      "cache_read": 299094,
+      "tool_calls": 52
+    }
+  },
+  "rows_detail": {
+    "total": 82,
+    "red_then_green": 63,
+    "green": 82,
+    "red_arrival": 69,
+    "early_green": 10,
+    "unplanned": 9,
+    "no_red_evidence": 3
+  }
+}

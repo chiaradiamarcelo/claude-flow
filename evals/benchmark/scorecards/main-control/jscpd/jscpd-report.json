@@ -1,0 +1,717 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 13,
+        "endLoc": {
+          "column": 5,
+          "line": 13,
+          "position": 475
+        },
+        "name": "main/kotlin/com/example/bank/api/DepositMoneyController.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 181
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import jakarta.validation.Valid\nimport org.springframework.web.bind.annotation.PathVariable\nimport org.springframework.web.bind.annotation.PostMapping\nimport org.springframework.web.bind.annotation.RequestBody\nimport org.springframework.web.bind.annotation.RestController\n\n@RestController\nclass DepositMoneyController(private val depositMoney: DepositMoneyUseCase) {",
+      "lines": 8,
+      "secondFile": {
+        "end": 13,
+        "endLoc": {
+          "column": 5,
+          "line": 13,
+          "position": 478
+        },
+        "name": "main/kotlin/com/example/bank/api/TransferMoneyController.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 184
+        }
+      },
+      "tokens": 57
+    },
+    {
+      "firstFile": {
+        "end": 13,
+        "endLoc": {
+          "column": 5,
+          "line": 13,
+          "position": 475
+        },
+        "name": "main/kotlin/com/example/bank/api/DepositMoneyController.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 181
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import jakarta.validation.Valid\nimport org.springframework.web.bind.annotation.PathVariable\nimport org.springframework.web.bind.annotation.PostMapping\nimport org.springframework.web.bind.annotation.RequestBody\nimport org.springframework.web.bind.annotation.RestController\n\n@RestController\nclass DepositMoneyController(private val depositMoney: DepositMoneyUseCase) {",
+      "lines": 8,
+      "secondFile": {
+        "end": 13,
+        "endLoc": {
+          "column": 5,
+          "line": 13,
+          "position": 477
+        },
+        "name": "main/kotlin/com/example/bank/api/WithdrawMoneyController.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 183
+        }
+      },
+      "tokens": 57
+    },
+    {
+      "firstFile": {
+        "end": 14,
+        "endLoc": {
+          "column": 73,
+          "line": 14,
+          "position": 732
+        },
+        "name": "test/kotlin/com/example/bank/api/AccountsControllerIT.kt",
+        "start": 5,
+        "startLoc": {
+          "column": 0,
+          "line": 5,
+          "position": 103
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import com.example.bank.domain.models.account.AccountRepository\nimport org.junit.jupiter.api.Test\nimport org.mockito.BDDMockito.given\nimport org.springframework.beans.factory.annotation.Autowired\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest\nimport org.springframework.test.context.bean.override.mockito.MockitoBean\nimport org.springframework.test.web.servlet.MockMvc\nimport org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get\nimport org.springframework.test.web.servlet.result.MockMvcResultMatchers.content\nimport org.springframework.test.web.servlet.result.MockMvcResultMatchers.status",
+      "lines": 10,
+      "secondFile": {
+        "end": 17,
+        "endLoc": {
+          "column": 73,
+          "line": 17,
+          "position": 895
+        },
+        "name": "test/kotlin/com/example/bank/api/StatementControllerIT.kt",
+        "start": 8,
+        "startLoc": {
+          "column": 0,
+          "line": 8,
+          "position": 266
+        }
+      },
+      "tokens": 135
+    },
+    {
+      "firstFile": {
+        "end": 19,
+        "endLoc": {
+          "column": 73,
+          "line": 19,
+          "position": 1006
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 9,
+        "startLoc": {
+          "column": 0,
+          "line": 9,
+          "position": 350
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import org.junit.jupiter.api.Test\nimport org.mockito.BDDMockito.given\nimport org.mockito.Mockito.verifyNoInteractions\nimport org.springframework.beans.factory.annotation.Autowired\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest\nimport org.springframework.http.MediaType\nimport org.springframework.test.context.bean.override.mockito.MockitoBean\nimport org.springframework.test.web.servlet.MockMvc\nimport org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post\nimport org.springframework.test.web.servlet.result.MockMvcResultMatchers.content\nimport org.springframework.test.web.servlet.result.MockMvcResultMatchers.status",
+      "lines": 11,
+      "secondFile": {
+        "end": 16,
+        "endLoc": {
+          "column": 73,
+          "line": 16,
+          "position": 814
+        },
+        "name": "test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 158
+        }
+      },
+      "tokens": 137
+    },
+    {
+      "firstFile": {
+        "end": 22,
+        "endLoc": {
+          "column": 12,
+          "line": 22,
+          "position": 1054
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 9,
+        "startLoc": {
+          "column": 0,
+          "line": 9,
+          "position": 350
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import org.junit.jupiter.api.Test\nimport org.mockito.BDDMockito.given\nimport org.mockito.Mockito.verifyNoInteractions\nimport org.springframework.beans.factory.annotation.Autowired\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest\nimport org.springframework.http.MediaType\nimport org.springframework.test.context.bean.override.mockito.MockitoBean\nimport org.springframework.test.web.servlet.MockMvc\nimport org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post\nimport org.springframework.test.web.servlet.result.MockMvcResultMatchers.content\nimport org.springframework.test.web.servlet.result.MockMvcResultMatchers.status\nimport java.math.BigDecimal\n\n@WebMvcTest(DepositMoneyController::class)",
+      "lines": 14,
+      "secondFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 12,
+          "line": 23,
+          "position": 1105
+        },
+        "name": "test/kotlin/com/example/bank/api/TransferMoneyControllerIT.kt",
+        "start": 10,
+        "startLoc": {
+          "column": 0,
+          "line": 10,
+          "position": 401
+        }
+      },
+      "tokens": 147
+    },
+    {
+      "firstFile": {
+        "end": 56,
+        "endLoc": {
+          "column": 29,
+          "line": 56,
+          "position": 2325
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 49,
+        "startLoc": {
+          "column": 53,
+          "line": 49,
+          "position": 2055
+        }
+      },
+      "format": "kotlin",
+      "fragment": "            post(\"/accounts/$ACCOUNT_NUMBER/deposits\")\n                .contentType(MediaType.APPLICATION_JSON)\n                .content(\"{}\"),\n        )\n\n        response.andExpect(status().isBadRequest)\n            .andExpect(content().json(\"\"\"{\"message\":\"the request is invalid\"}\"\"\", true))\n        verifyNoInteractions(depositMoney)",
+      "lines": 8,
+      "secondFile": {
+        "end": 65,
+        "endLoc": {
+          "column": 29,
+          "line": 65,
+          "position": 2605
+        },
+        "name": "test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt",
+        "start": 58,
+        "startLoc": {
+          "column": 28,
+          "line": 58,
+          "position": 2335
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 56,
+        "endLoc": {
+          "column": 29,
+          "line": 56,
+          "position": 2325
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 49,
+        "startLoc": {
+          "column": 53,
+          "line": 49,
+          "position": 2055
+        }
+      },
+      "format": "kotlin",
+      "fragment": "            post(\"/accounts/$ACCOUNT_NUMBER/deposits\")\n                .contentType(MediaType.APPLICATION_JSON)\n                .content(\"{}\"),\n        )\n\n        response.andExpect(status().isBadRequest)\n            .andExpect(content().json(\"\"\"{\"message\":\"the request is invalid\"}\"\"\", true))\n        verifyNoInteractions(depositMoney)",
+      "lines": 8,
+      "secondFile": {
+        "end": 54,
+        "endLoc": {
+          "column": 29,
+          "line": 54,
+          "position": 2251
+        },
+        "name": "test/kotlin/com/example/bank/api/WithdrawMoneyControllerIT.kt",
+        "start": 47,
+        "startLoc": {
+          "column": 56,
+          "line": 47,
+          "position": 1981
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 97,
+        "endLoc": {
+          "column": 95,
+          "line": 97,
+          "position": 4002
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 91,
+        "startLoc": {
+          "column": 53,
+          "line": 91,
+          "position": 3748
+        }
+      },
+      "format": "kotlin",
+      "fragment": "            post(\"/accounts/$ACCOUNT_NUMBER/deposits\")\n                .contentType(MediaType.APPLICATION_JSON)\n                .content(\"{not json\"),\n        )\n\n        response.andExpect(status().isBadRequest)\n            .andExpect(content().json(\"\"\"{\"message\":\"the request could not be read\"}\"\"\", true))",
+      "lines": 7,
+      "secondFile": {
+        "end": 77,
+        "endLoc": {
+          "column": 95,
+          "line": 77,
+          "position": 3067
+        },
+        "name": "test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt",
+        "start": 71,
+        "startLoc": {
+          "column": 28,
+          "line": 71,
+          "position": 2813
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 100,
+        "endLoc": {
+          "column": 5,
+          "line": 100,
+          "position": 4015
+        },
+        "name": "test/kotlin/com/example/bank/api/DepositMoneyControllerIT.kt",
+        "start": 91,
+        "startLoc": {
+          "column": 53,
+          "line": 91,
+          "position": 3748
+        }
+      },
+      "format": "kotlin",
+      "fragment": "            post(\"/accounts/$ACCOUNT_NUMBER/deposits\")\n                .contentType(MediaType.APPLICATION_JSON)\n                .content(\"{not json\"),\n        )\n\n        response.andExpect(status().isBadRequest)\n            .andExpect(content().json(\"\"\"{\"message\":\"the request could not be read\"}\"\"\", true))\n    }\n\n    @Test",
+      "lines": 10,
+      "secondFile": {
+        "end": 67,
+        "endLoc": {
+          "column": 29,
+          "line": 67,
+          "position": 2773
+        },
+        "name": "test/kotlin/com/example/bank/api/WithdrawMoneyControllerIT.kt",
+        "start": 60,
+        "startLoc": {
+          "column": 56,
+          "line": 60,
+          "position": 2489
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 38,
+        "endLoc": {
+          "column": 27,
+          "line": 38,
+          "position": 1547
+        },
+        "name": "test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt",
+        "start": 29,
+        "startLoc": {
+          "column": 86,
+          "line": 29,
+          "position": 1206
+        }
+      },
+      "format": "kotlin",
+      "fragment": "    fun returns_201_and_the_opened_account_with_its_balance_when_the_account_is_opened() {\n        given(openAccount.run(ACCOUNT_NUMBER)).willReturn(anAccount(accountNumber = ACCOUNT_NUMBER))\n\n        val response = mockMvc.perform(\n            post(\"/accounts\")\n                .contentType(MediaType.APPLICATION_JSON)\n                .content(\"\"\"{\"accountNumber\":\"$ACCOUNT_NUMBER\"}\"\"\"),\n        )\n\n        response.andExpect(status().isCreated)",
+      "lines": 10,
+      "secondFile": {
+        "end": 52,
+        "endLoc": {
+          "column": 27,
+          "line": 52,
+          "position": 2089
+        },
+        "name": "test/kotlin/com/example/bank/api/OpenAccountControllerIT.kt",
+        "start": 43,
+        "startLoc": {
+          "column": 64,
+          "line": 43,
+          "position": 1748
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 46,
+          "line": 8,
+          "position": 312
+        },
+        "name": "test/kotlin/com/example/bank/api/StatementControllerIT.kt",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 30
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import com.example.bank.ACCOUNT_NUMBER\nimport com.example.bank.OTHER_ACCOUNT_NUMBER\nimport com.example.bank.UNKNOWN_ACCOUNT_NUMBER\nimport com.example.bank.anAccount\nimport com.example.bank.domain.models.account.AccountNotFoundException\nimport com.example.bank.domain.models.account.AccountRepository",
+      "lines": 6,
+      "secondFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 46,
+          "line": 8,
+          "position": 320
+        },
+        "name": "test/kotlin/com/example/bank/application/TransferMoneyUseCaseTest.kt",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 38
+        }
+      },
+      "tokens": 59
+    },
+    {
+      "firstFile": {
+        "end": 64,
+        "endLoc": {
+          "column": 32,
+          "line": 64,
+          "position": 2577
+        },
+        "name": "test/kotlin/com/example/bank/api/StatementControllerIT.kt",
+        "start": 56,
+        "startLoc": {
+          "column": 41,
+          "line": 56,
+          "position": 2257
+        }
+      },
+      "format": "kotlin",
+      "fragment": "                .withdraw(BigDecimal(\"30\"))\n                .transferOut(BigDecimal(\"40\"), OTHER_ACCOUNT_NUMBER),\n        )\n\n        val response = mockMvc.perform(get(\"/accounts/$ACCOUNT_NUMBER/statement\"))\n\n        response.andExpect(status().isOk)\n            .andExpect(jsonPath(\"$.movements[0].kind\").value(\"TRANSFER_OUT\"))\n            .andExpect(jsonPath(\"$.movements[1].kind\").value(\"WITHDRAWAL\"))",
+      "lines": 9,
+      "secondFile": {
+        "end": 90,
+        "endLoc": {
+          "column": 32,
+          "line": 90,
+          "position": 3689
+        },
+        "name": "test/kotlin/com/example/bank/api/StatementControllerIT.kt",
+        "start": 82,
+        "startLoc": {
+          "column": 41,
+          "line": 82,
+          "position": 3369
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 12,
+          "line": 23,
+          "position": 1105
+        },
+        "name": "test/kotlin/com/example/bank/api/TransferMoneyControllerIT.kt",
+        "start": 9,
+        "startLoc": {
+          "column": 0,
+          "line": 9,
+          "position": 326
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import com.example.bank.domain.models.account.InsufficientBalanceException\nimport org.junit.jupiter.api.Test\nimport org.mockito.BDDMockito.given\nimport org.mockito.Mockito.verifyNoInteractions\nimport org.springframework.beans.factory.annotation.Autowired\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest\nimport org.springframework.http.MediaType\nimport org.springframework.test.context.bean.override.mockito.MockitoBean\nimport org.springframework.test.web.servlet.MockMvc\nimport org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post\nimport org.springframework.test.web.servlet.result.MockMvcResultMatchers.content\nimport org.springframework.test.web.servlet.result.MockMvcResultMatchers.status\nimport java.math.BigDecimal\n\n@WebMvcTest(TransferMoneyController::class)",
+      "lines": 15,
+      "secondFile": {
+        "end": 20,
+        "endLoc": {
+          "column": 12,
+          "line": 20,
+          "position": 939
+        },
+        "name": "test/kotlin/com/example/bank/api/WithdrawMoneyControllerIT.kt",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 160
+        }
+      },
+      "tokens": 161
+    },
+    {
+      "firstFile": {
+        "end": 7,
+        "endLoc": {
+          "column": 46,
+          "line": 7,
+          "position": 275
+        },
+        "name": "test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "format": "kotlin",
+      "fragment": "package com.example.bank.application\n\nimport com.example.bank.ACCOUNT_NUMBER\nimport com.example.bank.UNKNOWN_ACCOUNT_NUMBER\nimport com.example.bank.anAccount\nimport com.example.bank.domain.models.account.AccountNotFoundException\nimport com.example.bank.domain.models.account.NonPositiveAmountException",
+      "lines": 7,
+      "secondFile": {
+        "end": 7,
+        "endLoc": {
+          "column": 46,
+          "line": 7,
+          "position": 275
+        },
+        "name": "test/kotlin/com/example/bank/application/WithdrawMoneyUseCaseTest.kt",
+        "start": 1,
+        "startLoc": {
+          "column": 0,
+          "line": 1,
+          "position": 0
+        }
+      },
+      "tokens": 59
+    },
+    {
+      "firstFile": {
+        "end": 15,
+        "endLoc": {
+          "column": 5,
+          "line": 15,
+          "position": 588
+        },
+        "name": "test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt",
+        "start": 7,
+        "startLoc": {
+          "column": 0,
+          "line": 7,
+          "position": 229
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import com.example.bank.domain.models.account.NonPositiveAmountException\nimport com.example.bank.domain.models.account.fakes.FakeAccountRepository\nimport org.assertj.core.api.Assertions.assertThat\nimport org.assertj.core.api.Assertions.catchThrowable\nimport org.junit.jupiter.api.BeforeEach\nimport org.junit.jupiter.api.Test\nimport java.math.BigDecimal\n\nclass DepositMoneyUseCaseTest {",
+      "lines": 9,
+      "secondFile": {
+        "end": 20,
+        "endLoc": {
+          "column": 5,
+          "line": 20,
+          "position": 892
+        },
+        "name": "test/kotlin/com/example/bank/application/TransferMoneyUseCaseTest.kt",
+        "start": 12,
+        "startLoc": {
+          "column": 0,
+          "line": 12,
+          "position": 533
+        }
+      },
+      "tokens": 81
+    },
+    {
+      "firstFile": {
+        "end": 15,
+        "endLoc": {
+          "column": 5,
+          "line": 15,
+          "position": 588
+        },
+        "name": "test/kotlin/com/example/bank/application/DepositMoneyUseCaseTest.kt",
+        "start": 7,
+        "startLoc": {
+          "column": 0,
+          "line": 7,
+          "position": 229
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import com.example.bank.domain.models.account.NonPositiveAmountException\nimport com.example.bank.domain.models.account.fakes.FakeAccountRepository\nimport org.assertj.core.api.Assertions.assertThat\nimport org.assertj.core.api.Assertions.catchThrowable\nimport org.junit.jupiter.api.BeforeEach\nimport org.junit.jupiter.api.Test\nimport java.math.BigDecimal\n\nclass DepositMoneyUseCaseTest {",
+      "lines": 9,
+      "secondFile": {
+        "end": 16,
+        "endLoc": {
+          "column": 5,
+          "line": 16,
+          "position": 663
+        },
+        "name": "test/kotlin/com/example/bank/application/WithdrawMoneyUseCaseTest.kt",
+        "start": 8,
+        "startLoc": {
+          "column": 0,
+          "line": 8,
+          "position": 304
+        }
+      },
+      "tokens": 81
+    },
+    {
+      "firstFile": {
+        "end": 38,
+        "endLoc": {
+          "column": 33,
+          "line": 38,
+          "position": 1551
+        },
+        "name": "test/kotlin/com/example/bank/application/TransferMoneyUseCaseTest.kt",
+        "start": 32,
+        "startLoc": {
+          "column": 62,
+          "line": 32,
+          "position": 1251
+        }
+      },
+      "format": "kotlin",
+      "fragment": "    fun moves_the_transferred_amount_out_of_the_source_account() {\n        accounts.save(anAccount(accountNumber = ACCOUNT_NUMBER).deposit(BigDecimal(\"100\")))\n        accounts.save(anAccount(accountNumber = OTHER_ACCOUNT_NUMBER))\n\n        val transfer = transferMoney.run(ACCOUNT_NUMBER, OTHER_ACCOUNT_NUMBER, BigDecimal(\"40\"))\n\n        assertThat(transfer.from.balance()).isEqualByComparingTo(BigDecimal(\"60\"))",
+      "lines": 7,
+      "secondFile": {
+        "end": 69,
+        "endLoc": {
+          "column": 33,
+          "line": 69,
+          "position": 3009
+        },
+        "name": "test/kotlin/com/example/bank/application/TransferMoneyUseCaseTest.kt",
+        "start": 63,
+        "startLoc": {
+          "column": 88,
+          "line": 63,
+          "position": 2709
+        }
+      },
+      "tokens": 55
+    },
+    {
+      "firstFile": {
+        "end": 70,
+        "endLoc": {
+          "column": 42,
+          "line": 70,
+          "position": 2915
+        },
+        "name": "test/kotlin/com/example/bank/domain/models/account/AccountRepository.contract.kt",
+        "start": 59,
+        "startLoc": {
+          "column": 41,
+          "line": 59,
+          "position": 2497
+        }
+      },
+      "format": "kotlin",
+      "fragment": "                .deposit(BigDecimal(\"30\")),\n        )\n\n        val found = accounts.findById(ACCOUNT_NUMBER)\n\n        assertThat(found?.movements)\n            .usingRecursiveComparison()\n            .withComparatorForType(Comparator.naturalOrder<BigDecimal>(), BigDecimal::class.java)\n            .isEqualTo(\n                listOf(\n                    Movement(MovementKind.DEPOSIT, BigDecimal(\"20\"), sequence = 1),\n                    Movement(MovementKind.DEPOSIT, BigDecimal(\"30\"), sequence = 2),",
+      "lines": 12,
+      "secondFile": {
+        "end": 176,
+        "endLoc": {
+          "column": 37,
+          "line": 176,
+          "position": 7081
+        },
+        "name": "test/kotlin/com/example/bank/domain/models/account/AccountRepository.contract.kt",
+        "start": 164,
+        "startLoc": {
+          "column": 12,
+          "line": 164,
+          "position": 6638
+        }
+      },
+      "tokens": 67
+    },
+    {
+      "firstFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 39,
+          "line": 8,
+          "position": 362
+        },
+        "name": "test/kotlin/com/example/bank/domain/models/account/fakes/FakeAccountRepositoryTest.kt",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 54
+        }
+      },
+      "format": "kotlin",
+      "fragment": "import com.example.bank.OTHER_ACCOUNT_NUMBER\nimport com.example.bank.anAccount\nimport com.example.bank.domain.models.account.Account\nimport com.example.bank.domain.models.account.AccountRepository\nimport com.example.bank.domain.models.account.AccountRepositoryContract\nimport org.junit.jupiter.api.BeforeEach",
+      "lines": 6,
+      "secondFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 39,
+          "line": 8,
+          "position": 349
+        },
+        "name": "test/kotlin/com/example/bank/infrastructure/AccountJpaAdapterIT.kt",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 41
+        }
+      },
+      "tokens": 68
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-08-14T08:25:35.366Z",
+    "formats": {
+      "kotlin": {
+        "clones": 19,
+        "duplicatedLines": 155,
+        "duplicatedTokens": 1478,
+        "lines": 2151,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 7.205950720595072,
+        "percentageTokens": 8.605030274802049,
+        "sources": 40,
+        "tokens": 17176
+      }
+    },
+    "total": {
+      "clones": 19,
+      "duplicatedLines": 155,
+      "duplicatedTokens": 1478,
+      "lines": 2151,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 7.205950720595072,
+      "percentageTokens": 8.605030274802049,
+      "sources": 40,
+      "tokens": 17176
+    }
+  }
+}

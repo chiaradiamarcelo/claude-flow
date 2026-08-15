@@ -1,0 +1,13 @@
+arm                    mutants killed surv junk real
+-------------------------------------------------------
+main-control                40     30   10    7    3
+-------------------------------------------------------
+TOTAL                       40     30   10    7    3
+
+Surviving mutants: 10  |  junk (noise): 7 (70%)  |  candidate-real: 3 (30%)
+=> naive-gate false-positive rate ≈ 70% of emitted findings would be junk
+
+--- CANDIDATE-REAL survivors (inspect each: genuine gap vs equivalent) ---
+  [main-control] Account.transferIn:33 — VoidMethodCallMutator (SURVIVED) :: business-logic survivor in `transferIn` (SURVIVED)
+  [main-control] Account.transferOut:26 — VoidMethodCallMutator (SURVIVED) :: business-logic survivor in `transferOut` (SURVIVED)
+  [main-control] AccountRepositoryKt.canStore:10 — ConditionalsBoundaryMutator (SURVIVED) :: business-logic survivor in `canStore` (SURVIVED)

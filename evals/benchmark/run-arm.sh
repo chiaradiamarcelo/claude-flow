@@ -33,8 +33,14 @@ if [ "$MODE" != "--score" ]; then
   # The arm is a git repo so /run-pipeline's changed-file detection and the WIP
   # commit treatment behave as they do in a real project.
   git -C "$WS" init -q
+  # Pin a neutral identity in the ARM's OWN config, not just on this one commit.
+  # /run-pipeline commits after each green scenario, and those commits would
+  # otherwise fall through to the machine's global user.email — which is a
+  # personal/work identity that has no business in a throwaway measurement repo.
+  git -C "$WS" config user.email eval@local
+  git -C "$WS" config user.name  eval
   git -C "$WS" add -A
-  git -C "$WS" -c user.email=eval@local -c user.name=eval commit -qm "arm $ARM: fixture + frozen spec"
+  git -C "$WS" commit -qm "arm $ARM: fixture + frozen spec"
 
   cat >"$WS/NOTES.md" <<EOF
 # Arm: $ARM
