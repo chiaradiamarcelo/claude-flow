@@ -96,3 +96,8 @@ external ClickHouse behavior the reader cannot infer from the code.
 
 See also *Compose method* for the case where the smell is a single long function with multiple
 phases that each deserve their own extracted helper.
+
+The full doctrine — the falsifiability test, the four kinds of comment, and the production/test
+carve-out — is in the `comments` skill (`~/.claude/skills/comments/SKILL.md`). This entry covers
+kind 2. See *Comment that argues the design* for kind 4, which sits on a declaration and reads
+like a legitimate *why*, so neither this entry nor the restates-a-test entry catches it.
