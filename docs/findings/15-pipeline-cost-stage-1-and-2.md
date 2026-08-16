@@ -64,7 +64,7 @@ account's history). Not a slow gate — a misallocating one.
 - FAIL on **VIOLATION only**; warnings and suggestions reported, not gating
 - `/run-pipeline` triages by severity, caps at 2 rounds, records every deferral, and
   **headlines any unfixed violation**
-- commit after each green scenario
+- commit after each green scenario *(since removed — see the note below)*
 
 ## Stage 2 — cap what gets written, not how hard agents think
 
@@ -84,6 +84,13 @@ account's history). Not a slow gate — a misallocating one.
 | architect tokens | 77,607 | 43,739 | −44% |
 | test-designer tokens | 121,620 | 72,781 | −40% |
 | Fix rounds | 3 (the cap) | 2 | −29% time |
+
+> **Per-scenario commits removed 2026-08-16.** They were part of this measured bundle, so
+> the −18%/−24% headline was produced by a configuration that included them. Removing one
+> element of a bundle that was never measured element-by-element leaves the remaining
+> figures unverified for the current configuration; nothing here was re-run. The rule also
+> had a side effect worth recording: because an arm is its own git repo, those commits took
+> whatever identity the machine's global git config held.
 
 > **Token figures corrected 2026-08-12.** They were first reported as −30.5%
 > (633,728 → 440,250) by an extractor that summed `usage` per assistant *log event*
