@@ -154,9 +154,3 @@ Given/When/Then, and anything explaining what a helper or robot method mechanica
 - **No commented-out code.** Version control holds it.
 - **A file where comments outnumber code is a design signal**, not a documentation
   achievement — the names are not carrying their weight.
-
-## Reviewing
-
-When you find a comment that fails the test, say which kind it is (2, 3 or 4) and what
-replaces it — a name, a test, or a line in the plan file. "Delete this comment" without a
-destination for the knowledge is how the argument gets lost.

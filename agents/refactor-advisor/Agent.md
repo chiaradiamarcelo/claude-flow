@@ -22,9 +22,6 @@ This reviewer checks **code quality within layers** — is the code well-designe
 
 @skills/comments/SKILL.md
 
-This is the **same file the developer loads while writing**, so what you flag and what it was
-told cannot drift. Judge every comment by the falsifiability test it defines.
-
 ## Process
 
 1. Read the catalog **index** — `~/.claude/knowledge/refactor-catalog/index.md` (global),
@@ -86,23 +83,23 @@ Apply all design and code conventions from the `clean-architecture` skill, plus 
 
 ### Readability — comments and function length
 
-Apply the falsifiability test from the `comments` skill to **every** comment in the diff, on
-declarations as well as inside bodies. Report each failure as its kind, with a destination for
-the knowledge — a name, a test, or the scenario plan file.
+Apply the falsifiability test to **every** comment in the diff — in tests as well as production,
+on declarations as well as inside bodies.
 
-The kinds, and what replaces each, are defined in the skill above — do not re-derive them here.
-Three things are yours alone:
+The kinds, and what replaces each, are defined in the @skills/comments/SKILL.md. Four things are
+yours alone:
 
 - **Refactorings.** Kind 2 → *Comment as a missing name* catalog entry. Kind 3 → *Comment that
   restates a test or cross-references foreign code*. Kind 4 → *Comment that argues the design*.
+- **Reporting.** Name the kind, and name what replaces the comment — a name, a test, or a line
+  in the scenario plan file. "Delete this comment" with no destination for the knowledge is how
+  the reasoning gets lost.
 - **Severity.** A comment that is **already false**, and an orphaned doc block, are `WARNING` —
   not `SUGGESTION`. Neither is merely redundant: the first misleads, and the second does not
   exist where its author believes it does. Everything else is `SUGGESTION`.
 - **File-level signals** no single comment shows: the same explanation duplicated on two
   declarations, and a file whose comment lines outnumber its code lines. Report the ratio as a
   design signal — the names are not carrying their weight.
-
-Test files are in scope on the same terms as production.
 
 - **Long functions.** Flag any function that exceeds ~15 lines or visibly contains 2+
   distinct phases. Recommend *Compose method*: extract each phase into a named helper so the

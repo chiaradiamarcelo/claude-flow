@@ -1,11 +1,5 @@
 ## Comment that argues the design
 
-> **Doctrine lives in the `comments` skill (`~/.claude/skills/comments/SKILL.md`)**, which is
-> the same file the `developer` loads while writing and the `refactor-advisor` includes while
-> reviewing. This entry is the catalog's pointer to it plus the refactoring shape; do not
-> restate the rules here, or the two copies will drift — which is the very failure this
-> pattern is about.
-
 ### Smell
 
 A doc block on a **declaration** — a class, a property, a function — that re-derives the design
@@ -20,7 +14,7 @@ mechanics) and *Comment that restates a test* (it is not asserting a rule a test
 is not a *why* about a fact outside the code's reach. It is a **transcript of the reasoning that
 produced the code**, addressed to a reviewer who is no longer in the room.
 
-Apply the skill's test: *could this become false without a test going red?* It always can —
+Apply the `comments` skill's test: *could this become false without a test going red?* It always can —
 refactor the code and the argument is stale, silently.
 
 This is the dominant shape produced by an agent pipeline, because the agent has just spent a
