@@ -17,6 +17,10 @@
     },
     "mustMention": [
       "throw"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture",
+      "comments"
     ]
   }
 }

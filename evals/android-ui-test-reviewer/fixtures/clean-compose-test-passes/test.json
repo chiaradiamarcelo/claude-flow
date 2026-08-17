@@ -1,5 +1,5 @@
 {
-  "description": "A PASS control: two screen-state tests of a pure content composable with injected prepared SearchUiState (no real ViewModel), tags from the shared SearchTags constants, and Compose assertions. Each test is a single interaction, so no robot is required. Loaded and Empty variants are both covered. There is nothing to flag — the reviewer must return PASS with no issues; over-triggering here is itself a finding.",
+  "description": "A PASS control: two screen-state tests of a pure content composable with injected prepared SearchUiState (no real ViewModel), tags from the shared SearchTags constants, and Compose assertions. Each test is a single interaction, so no robot is required. Loaded and Empty variants are both covered. There is nothing to flag \u2014 the reviewer must return PASS with no issues; over-triggering here is itself a finding.",
   "given": {
     "files": "input/"
   },
@@ -9,6 +9,10 @@
   },
   "then": {
     "grader": "verdict",
-    "expectedStatus": "PASS"
+    "expectedStatus": "PASS",
+    "mustInvokeSkills": [
+      "android-ui-testing",
+      "testing"
+    ]
   }
 }

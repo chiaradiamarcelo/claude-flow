@@ -21,11 +21,10 @@ Compose UI test, skip it silently (no findings).
 
 ## Compose UI test rules (source of truth)
 
-@skills/android-ui-testing/SKILL.md
-
-The `android-ui-testing` skill supplements the base `@skills/testing/SKILL.md`
-(naming, GWT structure, one-behavior-per-test, data minimality, behavior-over-
-implementation, delete-vacuous-tests) — all of those still apply. Reference both.
+**Invoke both with the `Skill` tool before reading any test:** `android-ui-testing`, and
+the base `testing` skill it supplements (naming, GWT structure, one-behavior-per-test,
+data minimality, behavior-over-implementation, delete-vacuous-tests). All of those still
+apply.
 
 ## Review procedure
 

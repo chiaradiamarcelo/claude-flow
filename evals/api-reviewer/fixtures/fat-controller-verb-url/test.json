@@ -17,6 +17,10 @@
     },
     "mustMention": [
       "URL"
+    ],
+    "mustInvokeSkills": [
+      "api-conventions",
+      "clean-architecture"
     ]
   }
 }

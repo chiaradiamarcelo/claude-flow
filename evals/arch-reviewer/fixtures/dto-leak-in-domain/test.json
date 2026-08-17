@@ -17,6 +17,9 @@
     },
     "mustMention": [
       "DTO"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture"
     ]
   }
 }

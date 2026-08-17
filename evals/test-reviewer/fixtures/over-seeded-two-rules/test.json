@@ -1,6 +1,8 @@
 {
-  "description": "Regression fixture for the over-seeding / two-rules-in-one-test lesson (the failure that motivated the ordered-test-list work). One test named for a single rule (distinct user ids) but seeded with THREE rows for USER_A and one for USER_B, so its `hasSize(2)` does work for two rules at once — deduplication (multiple rows per user collapse) AND multi-user enumeration. The minimal seed for the named rule is one row each for two users; the extra duplicate rows are over-specification exercising a second rule. The test-reviewer must flag it (split / one-behavior-per-test / over-specified seed). We assert FAIL coarsely.",
-  "given": { "files": "input/" },
+  "description": "Regression fixture for the over-seeding / two-rules-in-one-test lesson (the failure that motivated the ordered-test-list work). One test named for a single rule (distinct user ids) but seeded with THREE rows for USER_A and one for USER_B, so its `hasSize(2)` does work for two rules at once \u2014 deduplication (multiple rows per user collapse) AND multi-user enumeration. The minimal seed for the named rule is one row each for two users; the extra duplicate rows are over-specification exercising a second rule. The test-reviewer must flag it (split / one-behavior-per-test / over-specified seed). We assert FAIL coarsely.",
+  "given": {
+    "files": "input/"
+  },
   "when": {
     "do": "agent",
     "agent": "test-reviewer"
@@ -8,7 +10,16 @@
   "then": {
     "grader": "verdict",
     "expectedStatus": "FAIL",
-    "severities": { "VIOLATION": { "min": 1 } },
-    "mustMention": ["seed"]
+    "severities": {
+      "VIOLATION": {
+        "min": 1
+      }
+    },
+    "mustMention": [
+      "seed"
+    ],
+    "mustInvokeSkills": [
+      "testing"
+    ]
   }
 }

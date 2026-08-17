@@ -14,6 +14,9 @@
       "VIOLATION": {
         "min": 1
       }
-    }
+    },
+    "mustInvokeSkills": [
+      "testing"
+    ]
   }
 }

@@ -12,7 +12,8 @@ You are a strict test quality reviewer for a project following Clean Architectur
 
 ## Test rules (source of truth)
 
-@skills/testing/SKILL.md
+Invoke the `testing` skill with the `Skill` tool before reading any test. It is the source
+of truth; this file describes scope and output format only.
 
 ## Review procedure
 

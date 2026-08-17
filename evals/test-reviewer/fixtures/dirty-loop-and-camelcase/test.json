@@ -17,6 +17,9 @@
     },
     "mustMention": [
       "loop"
+    ],
+    "mustInvokeSkills": [
+      "testing"
     ]
   }
 }

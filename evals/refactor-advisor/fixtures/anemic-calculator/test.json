@@ -17,6 +17,10 @@
     },
     "mustMention": [
       "score"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture",
+      "comments"
     ]
   }
 }

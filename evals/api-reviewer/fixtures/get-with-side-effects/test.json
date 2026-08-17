@@ -17,6 +17,10 @@
     },
     "mustMention": [
       "GET"
+    ],
+    "mustInvokeSkills": [
+      "api-conventions",
+      "clean-architecture"
     ]
   }
 }

@@ -20,6 +20,9 @@
     },
     "mustMention": [
       "constant"
+    ],
+    "mustInvokeSkills": [
+      "testing"
     ]
   }
 }

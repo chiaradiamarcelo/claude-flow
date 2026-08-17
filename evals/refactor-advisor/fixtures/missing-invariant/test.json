@@ -12,6 +12,10 @@
     "expectedStatus": "FAIL",
     "mustMention": [
       "invariant"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture",
+      "comments"
     ]
   }
 }

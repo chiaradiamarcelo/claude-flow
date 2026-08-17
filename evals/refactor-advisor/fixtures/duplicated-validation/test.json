@@ -12,6 +12,10 @@
     "expectedStatus": "FAIL",
     "mustMention": [
       "duplicat"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture",
+      "comments"
     ]
   }
 }

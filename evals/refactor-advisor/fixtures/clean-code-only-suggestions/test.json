@@ -17,6 +17,10 @@
       "SUGGESTION": {
         "min": 1
       }
-    }
+    },
+    "mustInvokeSkills": [
+      "clean-architecture",
+      "comments"
+    ]
   }
 }

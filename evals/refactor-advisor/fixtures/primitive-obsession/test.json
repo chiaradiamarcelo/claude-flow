@@ -12,6 +12,10 @@
     "expectedStatus": "FAIL",
     "mustMention": [
       "primitive"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture",
+      "comments"
     ]
   }
 }

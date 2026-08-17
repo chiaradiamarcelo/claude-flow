@@ -17,6 +17,10 @@
     },
     "mustMention": [
       "controller"
+    ],
+    "mustInvokeSkills": [
+      "api-conventions",
+      "clean-architecture"
     ]
   }
 }

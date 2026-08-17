@@ -73,10 +73,11 @@ if [ "$do_agents" = 1 ]; then
     runs="$(python3 evals/eval_grade.py --evals-dir "$adir" --plan | awk '/^- RUN/{print $3}')"
     for pair in $runs; do
       stem="${pair%%::*}"
+      # stream-json so the invoked skills are observable: `mustInvokeSkills` grades
+      # wiring off the tool calls, which prose keyword matching cannot see.
       claude -p "Review the file(s) under $ROOT/${adir}fixtures/$stem/input/. Read them directly with the Read tool. Return ONLY your machine-first JSON verdict." \
-        --agent "$agent" "${AGENT_TOOLS[@]}" </dev/null 2>/dev/null \
-        | python3 -c 'import sys,re; t=sys.stdin.read(); m=re.search(r"\{.*\}",t,re.S); print(m.group(0) if m else "{}")' \
-        > "$vd/$stem.json"
+        --agent "$agent" "${AGENT_TOOLS[@]}" --output-format stream-json --verbose </dev/null 2>/dev/null \
+        | python3 evals/extract_verdict.py > "$vd/$stem.json"
     done
     actuals="$(mktemp)"
     python3 - "$agent" "$vd" "$actuals" <<'PY'

@@ -12,6 +12,9 @@
     "expectedStatus": "FAIL",
     "mustMention": [
       "infrastructure"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture"
     ]
   }
 }

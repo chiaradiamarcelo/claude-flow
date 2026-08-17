@@ -1,5 +1,5 @@
 {
-  "description": "A composable test that stands up a real SearchViewModel (with a fake repository and a SavedStateHandle) and renders the full SearchScreen, instead of testing the pure content composable with injected prepared state. The android-ui-testing skill's screen-state rule says composable tests must NOT require a real ViewModel — inject the state instead. The reviewer must FAIL it and point at the real ViewModel.",
+  "description": "A composable test that stands up a real SearchViewModel (with a fake repository and a SavedStateHandle) and renders the full SearchScreen, instead of testing the pure content composable with injected prepared state. The android-ui-testing skill's screen-state rule says composable tests must NOT require a real ViewModel \u2014 inject the state instead. The reviewer must FAIL it and point at the real ViewModel.",
   "given": {
     "files": "input/"
   },
@@ -12,6 +12,10 @@
     "expectedStatus": "FAIL",
     "mustMention": [
       "ViewModel"
+    ],
+    "mustInvokeSkills": [
+      "android-ui-testing",
+      "testing"
     ]
   }
 }
