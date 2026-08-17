@@ -5,7 +5,11 @@ CANDIDATE-REAL (business-logic survivors = actionable weak-test gaps).
 Purpose: measure PIT's false-positive rate as a *gate* signal on Kotlin. If most
 survivors are junk, a naive gate would spam the fix-loop; a filter is needed first.
 
-Reads every *.mutations.xml in a directory. Usage: classify-survivors.py <dir>
+Usage: classify-survivors.py <dir | mutations.xml>
+
+Given a directory, reads every `*.mutations.xml` (the benchmark rig's per-arm
+copies) **and** a plain `mutations.xml` — which is what PIT itself writes, under
+`build/reports/pitest/` (Gradle) or `target/pit-reports/<timestamp>/` (Maven).
 """
 import sys, glob, os, xml.etree.ElementTree as ET
 
@@ -47,18 +51,25 @@ def classify(m):
     return "real", f"business-logic survivor in `{method}` ({status})"
 
 
+def report_files(target):
+    if os.path.isfile(target):
+        return [target]
+    return sorted(set(glob.glob(os.path.join(target, "*.mutations.xml")))
+                  | set(glob.glob(os.path.join(target, "mutations.xml"))))
+
+
 def main(argv):
     if len(argv) < 2:
         print(__doc__); return 2
-    files = sorted(glob.glob(os.path.join(argv[1], "*.mutations.xml")))
+    files = report_files(argv[1])
     if not files:
-        print("no *.mutations.xml found"); return 1
+        print(f"no mutations.xml found in {argv[1]}"); return 1
     grand = {"total": 0, "killed": 0, "survived": 0, "junk": 0, "real": 0}
     real_list = []
     print(f"{'arm':<22} {'mutants':>7} {'killed':>6} {'surv':>4} {'junk':>4} {'real':>4}")
     print("-" * 55)
     for f in files:
-        name = os.path.basename(f).replace(".mutations.xml", "")
+        name = os.path.basename(f).replace(".mutations.xml", "").replace("mutations.xml", "pit")
         muts = ET.parse(f).getroot().findall("mutation")
         killed = [m for m in muts if m.get("status") == "KILLED"]
         surv = [m for m in muts if m.get("status") != "KILLED"]
