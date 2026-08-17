@@ -17,7 +17,9 @@
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-AGENT_TOOLS=(--allowedTools Read Glob Grep)
+# `Skill` is required: a reviewer's rules live in a skill it must invoke. Without it the
+# eval runs the Agent.md's inline rules only, which is not what production does.
+AGENT_TOOLS=(--allowedTools Read Glob Grep Skill)
 REVIEWERS="api-reviewer arch-reviewer refactor-advisor test-reviewer ui-test-reviewer android-ui-test-reviewer"
 OPTIN=" developer pipeline orchestration "   # heavy/paid — run only when named
 fail=0

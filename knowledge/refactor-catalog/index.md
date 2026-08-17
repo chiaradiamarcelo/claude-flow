@@ -21,6 +21,7 @@ self-contained; you never need to load the whole catalog.
 | [`compose-method.md`](compose-method.md) | A long function mixes abstraction levels — low-level mechanics (parse, cast, null-check) alongside high-level decisions. |
 | [`comment-as-a-missing-name.md`](comment-as-a-missing-name.md) | A comment translates *what* the next block, boolean, or value means — the comment is standing in for a missing name. |
 | [`comment-that-restates-a-test-or-cross-references-foreign-code.md`](comment-that-restates-a-test-or-cross-references-foreign-code.md) | A comment restates a behavior already pinned by a test, or narrates how some *other* part of the codebase works. |
+| [`comment-that-argues-the-design.md`](comment-that-argues-the-design.md) | A doc block on a declaration re-derives *why* the code is shaped this way. Reads like a legitimate *why*, so the two rows above miss it. |
 | [`feature-envy-move-method.md`](feature-envy-move-method.md) | A method reads several fields of *another* type and contributes nothing of its own — `doX(other.a, other.b, other.c)`. |
 | [`verb-prefixed-query-methods-command-query-naming.md`](verb-prefixed-query-methods-command-query-naming.md) | A side-effect-free, value-returning method has a verb prefix (`calculate*`, `compute*`, `build*`, `get*`) that leaks *how* the answer is produced. |
 | [`pass-through-layer-middleman.md`](pass-through-layer-middleman.md) | A class adds no behavior — it receives a call, forwards to its single collaborator, and returns the result. |

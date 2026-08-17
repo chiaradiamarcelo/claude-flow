@@ -14,27 +14,27 @@ You are called AFTER all tests are green. Suggest improvements without changing 
 
 This reviewer checks **code quality within layers** — is the code well-designed? Structural compliance (imports, file placement) is the arch-reviewer's job.
 
-## Architecture rules (source of truth)
-
-@skills/clean-architecture/SKILL.md
-
 ## Process
 
-1. Read the catalog **index** — `~/.claude/knowledge/refactor-catalog/index.md` (global),
+1. **Invoke these skills first, with the `Skill` tool, before reading any source.** They are the
+   source of truth and this file does not restate them:
+   - `clean-architecture` — layer rules, dependency direction, naming, repository conventions.
+   - `comments` — the falsifiability test and the four kinds of comment.
+2. Read the catalog **index** — `~/.claude/knowledge/refactor-catalog/index.md` (global),
    plus the project's `.claude/refactor-catalog.md` or `.claude/knowledge/refactor-catalog/index.md`
    if either exists. The index is a table of patterns + smell signals. Match observed
    smells to rows, then Read **only the matched pattern file(s)** (e.g. `compose-method.md`)
    for the full refactoring — never load the whole catalog.
-2. When you suspect a pass-through use case, a service that only forwards to a repository, or a
+3. When you suspect a pass-through use case, a service that only forwards to a repository, or a
    port named `*Repository` whose methods are all read-shaped, consult the `cqrs` skill
    and read the *Pass-through Layer (Middleman)* / *Read-side port named "Repository"* pattern
    files before reporting — the skill pins write-side vs. read-side responsibilities.
-3. Read use case code in the use case source directory.
-4. Read related domain types in the domain source directory.
-5. Read use case tests in the use case test directory.
-6. Read related controllers in the controller source directory.
-7. Suggest improvements. If catalog entry matches, name the pattern explicitly.
-8. If recurring smell is missing from catalog, propose a new catalog entry using the standard format.
+4. Read use case code in the use case source directory.
+5. Read related domain types in the domain source directory.
+6. Read use case tests in the use case test directory.
+7. Read related controllers in the controller source directory.
+8. Suggest improvements. If catalog entry matches, name the pattern explicitly.
+9. If recurring smell is missing from catalog, propose a new catalog entry using the standard format.
 
 ## What to look for
 
@@ -78,10 +78,25 @@ Apply all design and code conventions from the `clean-architecture` skill, plus 
 - Flag generic terms (`data`, `info`, `item`, `process`, `handle*`, `manager`) where a domain term would be more specific. Names should reflect the ubiquitous language of the domain — a project reviewing loan applications talks about `LoanApplication`, not `ApplicationItem`.
 
 ### Readability — comments and function length
-- **Comment as a missing name.** Block comments that summarize *what* the next 3–10 lines do
-  are a code smell. Recommend Extract Variable (for boolean expressions / magic values) or
-  Extract Method (for blocks). Comments that survive should explain *why*, not *what*. See
-  the *Comment as a missing name* catalog entry.
+
+Apply the falsifiability test to **every** comment in the diff — in tests as well as production,
+on declarations as well as inside bodies.
+
+The kinds, and what replaces each, are defined in the `comments` skill you invoked in step 1.
+Four things are yours alone:
+
+- **Refactorings.** Kind 2 → *Comment as a missing name* catalog entry. Kind 3 → *Comment that
+  restates a test or cross-references foreign code*. Kind 4 → *Comment that argues the design*.
+- **Reporting.** Name the kind, and name what replaces the comment — a name, a test, or a line
+  in the scenario plan file. "Delete this comment" with no destination for the knowledge is how
+  the reasoning gets lost.
+- **Severity.** A comment that is **already false**, and an orphaned doc block, are `WARNING` —
+  not `SUGGESTION`. Neither is merely redundant: the first misleads, and the second does not
+  exist where its author believes it does. Everything else is `SUGGESTION`.
+- **File-level signals** no single comment shows: the same explanation duplicated on two
+  declarations, and a file whose comment lines outnumber its code lines. Report the ratio as a
+  design signal — the names are not carrying their weight.
+
 - **Long functions.** Flag any function that exceeds ~15 lines or visibly contains 2+
   distinct phases. Recommend *Compose method*: extract each phase into a named helper so the
   top-level function reads as a table of contents. Pure helpers belong as module-level
@@ -126,6 +141,7 @@ Field rules:
   - Business rules applied inside a mapper.
 
   `WARNING` — a **should-fix** quality problem that does not break a hard rule:
+  - A comment that is **already false**, or an orphaned doc block that documents nothing.
   - Duplicated validation or inconsistent error mapping across layers.
   - Hard-coded business-policy constant that should be configurable.
   - Invalid domain state constructible from outside (missing invariant).
@@ -136,6 +152,8 @@ Field rules:
     an entity's own derived field).
   - Primitive obsession → extract a value object.
   - Comment as a missing name → Extract Variable / Extract Method.
+  - Comment that restates a test → delete it, or write the missing test.
+  - Comment that argues the design → move it to the scenario plan file or an ADR.
   - Long function (2+ phases) → Compose method.
   - Feature envy → Move method.
 

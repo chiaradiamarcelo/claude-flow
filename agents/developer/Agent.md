@@ -28,6 +28,7 @@ If the slug or scenario ID is missing, stop and report it. The orchestrator pass
 Invoke these skills **once** at the start, not per step:
 - `clean-architecture` — folder structure, dependency rules, layer ordering, project-wide conventions.
 - `testing` — test structure, naming, fake usage.
+- `comments` — which comments earn their place and which are liabilities.
 
 Your red-green-refactor discipline is the batched cycle in **Implementation mode** below — the `test-designer` has already done the test *selection* (ZOMBIES/TPP/ordering) in your plan. Execute it class by class, and never write production code for a class until you have seen its whole test batch fail (batch-red-verified).
 
