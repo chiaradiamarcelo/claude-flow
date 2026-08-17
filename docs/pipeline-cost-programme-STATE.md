@@ -1,34 +1,158 @@
 # Pipeline cost programme — working state
 
-**Read this first after a compaction.** Written 2026-08-16. Live working notes, not a
+**Read this first after a compaction.** Written 2026-08-17. Live working notes, not a
 finding. Findings 15, 16 and 17 are the durable record; this file is what is *in flight*.
 
-**Immediate next action: nothing is running.** The user has a **12-scenario Android feature
-run** going in another session and will hand over its **worktree path** when it finishes.
-That is the next piece of work — see §5.
+**Nothing is running. No arm is in progress.** The Android validation run is **done** and
+analysed — see §2, which replaces the "next action" this file used to carry.
 
 ---
 
 ## 1. Where the programme stands
 
-Merged to `main`: the plan-file caps, the mandated Status vocabulary, the severity-ordered
-2-round fix loop with `## Follow-ups`, the reviewer gate on VIOLATIONs only, tool-call
-batching in the developer, the rule-coverage check inside `/intent-and-goal` Phase 2, the
-measurement rig, and findings 15 and 16.
+**Merged to `main`:** plan-file caps, mandated Status vocabulary, severity-ordered 2-round
+fix loop with `## Follow-ups`, reviewer gate on VIOLATIONs only, developer tool-call
+batching, the rule-coverage check in `/intent-and-goal` Phase 2, the measurement rig,
+findings 15 and 16, **the `comments` skill (#33)**, and **reviewer skill wiring (#36)**.
 
-**Open PR #25** (`fix-arm-identity`) — finding 17, both #14 arms' scorecards, the
-`run-arm.sh` identity fix, and the nine restored mutation XMLs. **Merge this**: until it
-lands, a new arm's per-scenario commits still take the machine's global git identity.
+**Open PRs — both mine, both worth landing:**
 
-**Open issues:** #24 (shell file-inspection — the real Bash lever), #21 (a 529 destroys an
-arm), #16 (Stage 6 deliberation budget), #15 (split the testing skill), #12 (unrelated).
+| PR | What | Why it matters |
+|---|---|---|
+| **#25** (this branch) | finding 17, both #14 arms' scorecards, `run-arm.sh` identity fix, 9 restored mutation XMLs, this file | **Closes the work-email leak at source.** Until it lands, a new arm's git commands take the machine's global identity |
+| **#37** | drops the per-scenario commit rule (closes #30) | The rule has never fired in any run on record |
 
-**Closed this round:** #13 batching, shipped and measured. #14 Bash quieting, **rejected**.
+**Open issues, in the order I would take them:**
 
-## 2. Arms on record
+1. **#28 — `classify-survivors.py` is broken on Kotlin coroutines.** The only one *blocking*
+   something: the mutation oracle cannot be pointed at a Flow-heavy codebase at all.
+2. **#27 — `red_arrival` scores mutant-proven early-green rows as the weakest category.**
+   No red-arrival figure should be quoted for a future run until this lands.
+3. **#29** reviewer parallelism ratio mislabels parallel rounds · **#34** deterministic
+   orphaned-doc-block check · **#31** no cheap exit for an untestable scenario ·
+   **#32** markdown is the largest remaining output · **#24** shell file-inspection ·
+   **#21** a 529 burns an arm · **#16** Stage 6 deliberation budget · **#15** split the
+   testing skill · **#12** unrelated.
 
-All eleven live in `evals/benchmark/scorecards/`. The table with *what each arm tested*
-lives in `evals/benchmark/README.md` — read that column before citing any row.
+A TypeScript port of everything above exists in the `prerender/monostack` repo (PR #4405).
+Out of scope here; noted only so it is not rediscovered.
+
+## 2. The Android validation run — done, and it delivered
+
+`boulder-friend` PR #19, `filter-by-grade`: **14 scenarios, 167 min, unattended**, on the
+merged `main` config. This was the external validation the whole programme was for.
+
+Against **gym-walls** (13 scenarios, pre-programme config, the only other real-Android
+datapoint):
+
+| | gym-walls | filter-by-grade | |
+|---|---|---|---|
+| wall clock / scenario | 23.7 min | **11.9 min** | **−50%** |
+| output tokens / scenario | 78,053 | **38,265** | **−51%** |
+| architect tok/dispatch | 13,031 | 5,114 | −61% |
+| test-designer tok/dispatch | 23,759 | 8,728 | **−63%** |
+| test-designer markdown chars | 321,479 | 51,975 | **−84%** |
+| reviewer round-1 span | 12.7 min (serial) | 3.4 min (parallel) | −73% |
+| fix rounds | 2 (24.4 min) | 1 (6.7 min) | |
+| unclassified / deferred-blind rows | 36.8% / 22.1% | **0% / 0%** | |
+
+Two features, n=1 each — the weakest kind of comparison. It carries weight only because the
+direction agrees with the controlled arms and the two biggest movers are exactly where the
+caps were aimed.
+
+**Quality, verified by me rather than claimed:** 365 JVM tests, 0 failures, 0 skipped.
+CRAP **0 methods over threshold** in domain / application / infrastructure (means 1.17–1.33);
+the 86 over-threshold methods are all `@Composable`s at 0% *JVM* coverage, covered by the 133
+instrumented tests JaCoCo cannot see from that task. DRY 1.85%, and every clone is an import
+block. **`CatalogFilter` — the class the feature turns on — 14 mutants, 14 killed.**
+
+**Also true and worth remembering:** the run was never blocked. Largest gap between dispatches
+3.3 min, largest stall inside one 2.2 min. A recollection of it waiting on input was not borne
+out by the transcripts.
+
+## 3. What the run taught, beyond the numbers
+
+- **PIT is unusable on this codebase, and the filter hid it.** 424 mutants on the non-UI
+  layers; `classify-survivors.py` reported **175 candidate-real (96%)**. The true figure is
+  **0**. ~103 are coroutine machinery (`invokeSuspend`, `$inlined$map`, `$$serializer`), most
+  of the rest are `VoidMethodCall`/`NullReturnVals` on suspend-function entry lines or on an
+  `internal inline fun` PIT sees as uncovered, and `TIMED_OUT` was counted as surviving when
+  PIT counts it killed. **Exactly one survivor was reproducible as a source edit** — I applied
+  it in a clean worktree and 4 tests failed. That is #28.
+- **Every early-green row was mutant-proven.** 24 of 46 rows are `EARLY-GREEN`, and all 24
+  name a mutant that was applied and confirmed to redden that row. Zero unproven. `red_arrival`
+  scored the run 60.5% and calls this the *weakest* category. That is #27.
+- **The reviewers were running without their skills.** A bare `@skills/…/SKILL.md` line in an
+  agent definition is **not expanded** — it reaches the agent as literal text. All six
+  reviewers relied on one. They compensated by reading the path *sometimes*: `test-reviewer`
+  did in round 1 and not in round 2 of the same run. Fixed in #33/#36.
+- **Comments are 39.2% of production lines added** (369 / 573), 32.1% in tests (745 / 1577),
+  and the run wrote **more markdown (2,064 lines) than Kotlin (1,581)**. One comment was
+  disproved by SCENARIO-14 *in the same run* and never updated. Three KDoc blocks in one file
+  attach to nothing. #33 is the doctrine; #32 and #34 are what remain.
+
+## 4. Standing rules, earned the hard way
+
+1. **No wall-clock claim from fewer than three arms.** Span has ranged 74–167 min.
+2. **No claim — cost *or mechanism* — from an interim or partial reading.** Four inversions.
+   The worst: #14 read −46% Bash bytes at 2 of 11 dispatches and **+31%** complete.
+3. **A metric parsed out of agent prose measures the prose.** Now five cases: usage summed per
+   log event; `red_then_green` made exclusive with `unplanned`; `red_arrival` moving because
+   Status cells got shorter; `mustMention` passing whether or not a skill loaded; and
+   `classify-survivors` on coroutines. Cross-check a behavioural counter before believing any.
+4. **Filtered mutation candidate-real has ranged 0–4 across eleven arms with no treatment
+   explaining the spread.** A "must not increase" gate is a floor against gross failure, not a
+   precision instrument — and #28 means the number itself is suspect on Kotlin.
+5. **Read the produced source, not only the oracles.** The most decision-relevant defects in
+   this programme — a use case destroying an account's history, a comment that lies — are
+   invisible to every oracle.
+6. **Verify a metric's *definition* before building on it.** Every serious error here was a
+   definition bug producing a confident, internally consistent, wrong story.
+7. **Normalise by scenario, not by row, within one frozen spec.** Row count is an *output*.
+8. **Verify wiring, not just output.** A green eval suite was fully compatible with zero skill
+   content loaded. `mustInvokeSkills` grades tool calls; Phase 0 rejects inert `@` includes.
+9. **Diff the merged PRs before porting anything.** Working from the files I happened to read
+   missed three whole changes in the monostack port.
+
+## 5. Rig operation
+
+```
+evals/benchmark/README.md      how to run an arm, what is scored, the traps
+run-arm.sh <arm>               materialise; --score runs oracles + scorecard
+rescore-cost.sh                re-derive every arm's cost side from stored transcripts
+evals/scorecard/extract_run.py transcript -> scorecard, keyed on requestId
+evals/run_all.sh <corpus>      reviewer evals (fingerprint-cached, $0 when unchanged)
+evals/run_tests.sh             72 harness self-tests, free
+```
+
+```bash
+cd runs/<arm> && nohup caffeinate -i -s -m \
+  claude -p "/run-pipeline bank-accounts" --dangerously-skip-permissions \
+  > ../../<arm>-run.log 2>&1 < /dev/null &
+pmset -g assertions | grep PreventUserIdleSystemSleep   # must be 1
+```
+
+- **`caffeinate` is not optional** — an arm died 11 minutes in to an idle sleep.
+- **Never switch branches in `~/.claude` while an arm runs.** The checkout *is* the live config
+  the arm reads on every dispatch. Use `git worktree` to edit another branch.
+- **An arm a human helped is not an arm.** Discard it however complete it looks.
+- **A 529 destroys an arm** (#21) — four instant retries, no backoff, then it proceeds as
+  though the scenario were skipped.
+- **Spend limits kill arms mid-run.** One died at 7/9. Ask before starting a paid run.
+- `gh` on this repo: `export GH_TOKEN=$(cat ~/.claude-flow-gh-token)` in the **same** command.
+  The ambient login is the work account — never author anything as it.
+
+**Reviewer evals:** 84 fixtures across six corpora, all passing, each asserting both its
+findings *and* `mustInvokeSkills`. A skill edit re-runs exactly the fixtures that depend on it.
+What they still cannot do is notice a skill's *content* degrading — `mustMention` is one
+substring, and each Agent.md restates enough to satisfy it. That is the next real
+strengthening, and it is the same weakness as #27.
+
+## 6. Arms on record
+
+All eleven live in `evals/benchmark/scorecards/`. The *what each arm tested* column is in
+`evals/benchmark/README.md` — read it before citing any row. **`main-control` is the baseline
+for everything from here**; `batching-only-4` measured a prompt set that no longer exists.
 
 | arm | what it tested | span | out-tok | api | tool/api | mut-real | red arr |
 |---|---|---|---|---|---|---|---|
@@ -41,108 +165,14 @@ lives in `evals/benchmark/README.md` — read that column before citing any row.
 | `layered-3` | layered confirmation | 103 | 401,981 | 510 | 1.45 | 2 | 93.6% |
 | `turn-economy` | #13+#14 together — unattributable | 95 | 439,306 | 476 | 2.31 | 3 | 86.0% |
 | `batching-only-4` | #13 alone — shipped | 103 | 451,859 | 555 | 1.93 | 0 | 78.7% |
-| **`main-control`** | **current `main` — the control for all future arms** | 102 | 473,784 | 618 | 1.75 | 3 | 84.1% |
+| **`main-control`** | **the control for all future arms** | 102 | 473,784 | 618 | 1.75 | 3 | 84.1% |
 | `quiet-bash-2` | #14 — rejected | 97 | 472,770 | 621 | 1.84 | 0 | 83.0% |
 
-**`main-control` is the baseline for everything from here.** `batching-only-4` measured a
-prompt set that no longer exists.
+Real-feature datapoints, not arms: **gym-walls** 13 scenarios / 309 min (pre-programme) and
+**filter-by-grade** 14 scenarios / 167 min (current `main`) — §2.
 
-## 3. Standing rules, earned the hard way
+## 7. If you are picking this up cold
 
-1. **No wall-clock claim from fewer than three arms.** Span has ranged 74–127 min.
-2. **No claim — cost *or mechanism* — from an interim or partial reading.** Four inversions
-   now. The worst: #14 read −46% Bash bytes at 2 of 11 dispatches and **+31%** complete.
-   Its predecessor arm died at 7/9, so a false mechanism story was one crash from being
-   published.
-3. **A metric parsed out of agent prose measures the prose.** Three cases: usage summed per
-   log event; `red_then_green` made exclusive with `unplanned` by an elif-chain; and
-   `red_arrival` moving because Status cells got 42% shorter while suite runs stayed at
-   103 vs 110. Cross-check a behavioural counter before believing any of them.
-4. **Filtered mutation candidate-real has ranged 0–4 across eleven arms with no treatment
-   explaining the spread.** A gate of "must not increase" is a floor against gross failure,
-   not a precision instrument. Single-arm moves inside that band are noise. This applies
-   retroactively to every gate set here — the Stage 3 and layered rejections survive because
-   they rest on red-arrival collapses too, not on mutation alone.
-5. **Read the produced source, not only the oracles.** The most decision-relevant defect
-   found in this programme — a use case destroying an account's movement history on re-open
-   — is invisible to mutation, CRAP, DRY and every row metric.
-6. **Verify a metric's *definition* before building on it.** Every serious error here was a
-   definition bug producing a confident, internally consistent, wrong story.
-7. **Normalise by scenario, not by row, within one frozen spec.** Row count is an *output*
-   of a run; dividing by it rewards an arm for writing more tests. Per-row is for comparing
-   across different features.
-
-## 4. Rig operation
-
-```
-evals/benchmark/README.md      how to run an arm, what is scored, the traps
-run-arm.sh <arm>               materialise; --score runs oracles + scorecard
-rescore-cost.sh                re-derive every arm's cost side from stored transcripts
-evals/scorecard/extract_run.py transcript -> scorecard, keyed on requestId
-```
-
-```bash
-cd runs/<arm> && nohup caffeinate -i -s -m \
-  claude -p "/run-pipeline bank-accounts" --dangerously-skip-permissions \
-  > ../../<arm>-run.log 2>&1 < /dev/null &
-pmset -g assertions | grep PreventUserIdleSystemSleep   # must be 1
-```
-
-- **`caffeinate` is not optional** — an arm died 11 minutes in to an idle sleep.
-- **Never switch branches in `~/.claude` while an arm runs.** The checkout *is* the live
-  config the arm reads on every dispatch. Use `git worktree` to edit another branch.
-- **An arm a human helped is not an arm.** Discard it however complete it looks.
-- **A 529 destroys an arm** (#21) — four instant retries, no backoff, then it proceeds as
-  though the scenario were skipped.
-- **Spend limits kill arms mid-run.** One died at 7/9. There is no way to check headroom
-  from inside the session; ask before starting a paid run.
-- `gh` on this repo: `export GH_TOKEN=$(cat ~/.claude-flow-gh-token)` in the **same**
-  command. The ambient login is the user's work account — never author anything as it.
-
-## 5. NEXT: the 12-scenario Android run
-
-The user is running a real 12-scenario feature on the merged `main` config in another
-session. **This is the external validation the whole programme was for** — the user said at
-the outset they would judge it on a real Android feature rather than re-running gym-walls.
-
-**They will hand over the worktree path.** From that alone everything is extractable: the
-Claude Code project slug is the path with `/` and `.` replaced by `-`, giving
-`~/.claude/projects/<slug>/<session>/subagents/`. The worktree gives the plan files and the
-source.
-
-Per-scenario breakdown is already verified working — architect / test-designer / developer
-API calls and wall-clock minutes per scenario, by parsing `SCENARIO-NN` out of each
-dispatch's `description` in its `.meta.json`.
-
-**Two things that would break the analysis:**
-
-- **A session restart mid-run** creates a second session directory, and the extractor takes
-  only the most recent — silently dropping every earlier dispatch. gym-walls ran 5h09, so a
-  12-scenario run is well inside the range where this happens. Ask whether they restarted,
-  and merge the directories if so.
-- **The oracles will not run** on Android — the init script targets a Boot/JVM Gradle
-  fixture. This does **not** matter: mutation/CRAP/DRY were never part of `/run-pipeline`
-  (finding 14 rejected a gate), and everything worth extracting comes from transcripts and
-  plan files, which are stack-agnostic. I raised this once as a limitation and was correctly
-  told it was noise — do not repeat that.
-
-**Asked the user to note, since transcripts cannot show it:** any pause (span is wall-clock
-and a lunch break is undetectable afterwards), every intervention *and why*, anything that
-felt wrong, and whether they would have shipped the code unchanged. This is the first
-**attended** run of the programme; unlabelled interventions make it incomparable.
-
-Compare per unit against gym-walls: **23.7 min/scenario, 3.25 min/row, 10,681 out-tok/row**.
-
-## 6. Still open, in the order I would take them
-
-1. **#24 shell file-inspection.** The real Bash lever — 64.6% of the developer's Bash bytes
-   against gradle's 35.2%. Harder than it looks: those bytes rose 41% in the #14 arm with no
-   rule aimed at them, so the number moves for reasons not yet understood.
-2. **Arm B — one suite run per class instead of two.** Design written and rationale recorded
-   in the scratchpad note from 2026-08-12: after writing a class's production code, do not
-   run the suite; the next class's batch-red run confirms both. Runs per scenario go 2N →
-   N+1 while every class keeps a real behavioural red. Rejected alternatives are in that
-   note: per-scenario batch-red (compile-cascade destroys the red evidence) and test+prod in
-   one message (≤16% of developer API calls, and removes the property finding 14 relied on).
-3. **#21** 529 handling, **#15** skill split, **#16** Stage 6 deliberation budget (needs 3
-   arms per configuration).
+Land **#25** and **#37**, then take **#28** — it is the only open item blocking work rather
+than improving measurement. After that #27, because until it lands the pipeline's best
+behaviour (mutant-proving a pinning row) is scored as its worst.
