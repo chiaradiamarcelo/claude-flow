@@ -15,12 +15,15 @@ fix loop with `## Follow-ups`, reviewer gate on VIOLATIONs only, developer tool-
 batching, the rule-coverage check in `/intent-and-goal` Phase 2, the measurement rig,
 findings 15 and 16, **the `comments` skill (#33)**, and **reviewer skill wiring (#36)**.
 
-**Open PRs — both mine, both worth landing:**
+**Also merged since:** **#37**, dropping the per-scenario commit rule (closed #30 — the rule had
+never fired in any run on record).
+
+**Open PRs:**
 
 | PR | What | Why it matters |
 |---|---|---|
 | **#25** (this branch) | finding 17, both #14 arms' scorecards, `run-arm.sh` identity fix, 9 restored mutation XMLs, this file | **Closes the work-email leak at source.** Until it lands, a new arm's git commands take the machine's global identity |
-| **#37** | drops the per-scenario commit rule (closes #30) | The rule has never fired in any run on record |
+| **#38** | `/mutation-audit` on Maven + Stryker (closes #12) | Also fixes a glob bug that made the command's own documented filter invocation read nothing on a real PIT run |
 
 **Open issues, in the order I would take them:**
 
@@ -28,11 +31,15 @@ findings 15 and 16, **the `comments` skill (#33)**, and **reviewer skill wiring 
    something: the mutation oracle cannot be pointed at a Flow-heavy codebase at all.
 2. **#27 — `red_arrival` scores mutant-proven early-green rows as the weakest category.**
    No red-arrival figure should be quoted for a future run until this lands.
-3. **#29** reviewer parallelism ratio mislabels parallel rounds · **#34** deterministic
-   orphaned-doc-block check · **#31** no cheap exit for an untestable scenario ·
-   **#32** markdown is the largest remaining output · **#24** shell file-inspection ·
-   **#21** a 529 burns an arm · **#16** Stage 6 deliberation budget · **#15** split the
-   testing skill · **#12** unrelated.
+3. **#29** reviewer parallelism ratio mislabels parallel rounds · **#31** no cheap exit for an
+   untestable scenario · **#32** markdown is the largest remaining output · **#24** shell
+   file-inspection · **#21** a 529 burns an arm · **#16** Stage 6 deliberation budget ·
+   **#15** split the testing skill.
+
+**#34** (deterministic orphaned-doc-block check) is **closed as confounded**: the five reviewers
+that missed the orphans were running with no `comments` skill and no skill content at all (#33 /
+#36 both postdate that run), so no model was ever asked. Reopen only if a post-#33/#36 run still
+emits one *and* `refactor-advisor` misses it.
 
 A TypeScript port of everything above exists in the `prerender/monostack` repo (PR #4405).
 Out of scope here; noted only so it is not rediscovered.
@@ -173,6 +180,6 @@ Real-feature datapoints, not arms: **gym-walls** 13 scenarios / 309 min (pre-pro
 
 ## 7. If you are picking this up cold
 
-Land **#25** and **#37**, then take **#28** — it is the only open item blocking work rather
+Land **#25** and **#38**, then take **#28** — it is the only open item blocking work rather
 than improving measurement. After that #27, because until it lands the pipeline's best
 behaviour (mutant-proving a pinning row) is scored as its worst.
