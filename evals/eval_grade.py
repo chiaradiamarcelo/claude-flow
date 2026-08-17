@@ -135,8 +135,22 @@ def grade_agent(spec, actual):
         if not _mentions(haystack, needle):
             fails.append(f"mustMention: no issue mentioned {needle!r}")
 
+    fails.extend(_file_faults(spec, issues))
     fails.extend(_skill_faults(spec, actual))
     return fails
+
+
+def _file_faults(spec, issues):
+    """Did the review actually cover the files it was given?
+
+    `mustMention` reads the prose, so a reviewer that read one familiar layer and
+    generalised about the rest can satisfy it. This reads the `file` field: a
+    reviewer cannot report `file` for something it never opened. That is the
+    difference between "said the right words" and "reviewed the right files"."""
+    reviewed = [str(i.get("file", "")) for i in issues]
+    return [f"mustFlagFiles: no issue on a file matching {needle!r} — reviewed {reviewed}"
+            for needle in spec.get("mustFlagFiles", [])
+            if not any(needle in f for f in reviewed)]
 
 
 def _skill_faults(spec, actual):
@@ -344,10 +358,11 @@ def check_corpus(evals_dir, agents_dir=Path("agents")):
         input_dir = fx / "input"
         if m.get("given", {}).get("files") and (not input_dir.is_dir() or not any(input_dir.iterdir())):
             faults.append(f"{stem}: given.files set but input/ is missing or empty")
-        skills = m.get("then", {}).get("mustInvokeSkills")
-        if skills is not None and not (isinstance(skills, list)
-                                       and all(isinstance(x, str) for x in skills)):
-            faults.append(f"{stem}: then.mustInvokeSkills must be a list of skill names")
+        for key in ("mustInvokeSkills", "mustFlagFiles"):
+            value = m.get("then", {}).get(key)
+            if value is not None and not (isinstance(value, list)
+                                          and all(isinstance(x, str) for x in value)):
+                faults.append(f"{stem}: then.{key} must be a list of strings")
     return faults
 
 

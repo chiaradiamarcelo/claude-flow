@@ -34,9 +34,30 @@ def fired_set(output):
             if (tok := raw.strip()) and _NAME.match(tok)}
 
 
+def scoped_files(output):
+    """Map fired reviewer -> the file paths the SCOPE block says it will receive.
+
+    Routing decides *whether* a reviewer runs; scope decides *what it is held to*.
+    They are separate failures: a correctly-routed reviewer handed a bare
+    directory instead of its matched files can review a familiar subset and
+    report a pass on files it never opened, and the `fires:` line looks perfect.
+    Absent block -> {} , so a spec that asserts nothing about scope is unaffected.
+    """
+    block = re.search(r"(?ims)^[ \t]*SCOPE[ \t]*$\n(.*?)(?=^[ \t]*[A-Z]{3,}[ \t]*$|\Z)", output)
+    if not block:
+        return {}
+    scope = {}
+    for line in block.group(1).splitlines():
+        name, _, paths = line.partition(":")
+        if _NAME.match(name.strip()):
+            scope[name.strip()] = {p.strip() for p in paths.split(",") if p.strip()}
+    return scope
+
+
 def grade_routing(spec, output):
     """Return a list of failure strings (empty = pass). spec carries fires /
-    doesNotFire. A None fired-set (no 'fires:' line) is a fault unless quarantined."""
+    doesNotFire / mustScope. A None fired-set (no 'fires:' line) is a fault
+    unless quarantined."""
     fired = fired_set(output)
     if fired is None:
         return ["no 'fires:' line in command output"]
@@ -47,4 +68,15 @@ def grade_routing(spec, output):
     for r in spec.get("doesNotFire", []):
         if r in fired:
             fails.append(f"expected {r!r} NOT to fire — it did")
+
+    scope = scoped_files(output)
+    for reviewer, required in (spec.get("mustScope") or {}).items():
+        got = scope.get(reviewer)
+        if got is None:
+            fails.append(f"no SCOPE line for {reviewer!r} — it must be dispatched with its "
+                         f"matched file list, not a bare path")
+            continue
+        for path in required:
+            if not any(path in g for g in got):
+                fails.append(f"{reviewer} scope is missing {path!r} — got {sorted(got)}")
     return fails

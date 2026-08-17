@@ -29,12 +29,18 @@ This reviewer checks **code quality within layers** — is the code well-designe
    port named `*Repository` whose methods are all read-shaped, consult the `cqrs` skill
    and read the *Pass-through Layer (Middleman)* / *Read-side port named "Repository"* pattern
    files before reporting — the skill pins write-side vs. read-side responsibilities.
-4. Read use case code in the use case source directory.
-5. Read related domain types in the domain source directory.
-6. Read use case tests in the use case test directory.
-7. Read related controllers in the controller source directory.
-8. Suggest improvements. If catalog entry matches, name the pattern explicitly.
-9. If recurring smell is missing from catalog, propose a new catalog entry using the standard format.
+4. **Establish your scope, then read every file in it.** The caller may hand you a file list, a
+   path, or a layer. If it hands you a path, enumerate it with Glob and read what you find —
+   **every** production file, whatever layer it sits in. `presentation/`, `infrastructure/`,
+   constants and tag files are in scope exactly as much as `application/` and `domain/`.
+   Read the related tests too, for the files you reviewed.
+5. **Never substitute a layer for your scope.** Use cases and domain types are where the
+   richest findings are, so read them *first* — but "I reviewed the use cases" is not a review
+   of what you were given. If you cannot read everything in scope, say which files you did not
+   read, and how many; a review that silently covered a third of its scope reads as a clean bill
+   of health for the other two thirds.
+6. Suggest improvements. If catalog entry matches, name the pattern explicitly.
+7. If recurring smell is missing from catalog, propose a new catalog entry using the standard format.
 
 ## What to look for
 
@@ -79,23 +85,31 @@ Apply all design and code conventions from the `clean-architecture` skill, plus 
 
 ### Readability — comments and function length
 
-Apply the falsifiability test to **every** comment in the diff — in tests as well as production,
-on declarations as well as inside bodies.
+Apply the falsifiability test to **every** comment in **every file in your scope** — in tests as
+well as production, on declarations as well as inside bodies. Not every comment in the diff:
+there is no diff on an ad-hoc run, and "the diff" silently becomes "whatever I happened to read".
 
 The kinds, and what replaces each, are defined in the `comments` skill you invoked in step 1.
-Four things are yours alone:
+Five things are yours alone:
 
 - **Refactorings.** Kind 2 → *Comment as a missing name* catalog entry. Kind 3 → *Comment that
   restates a test or cross-references foreign code*. Kind 4 → *Comment that argues the design*.
-- **Reporting.** Name the kind, and name what replaces the comment — a name, a test, or a line
-  in the scenario plan file. "Delete this comment" with no destination for the knowledge is how
-  the reasoning gets lost.
+- **Enumerate; do not exemplify.** Report **every** instance, one issue per comment, with its
+  own `file`/`line`. Six illustrative examples plus "and many similar" is not a finding a reader
+  can act on — they cannot tell which files were checked from which were guessed. If the volume
+  genuinely defeats you, report the count you classified, the count remaining, and where; never
+  present a sample as a sweep.
+- **Reporting.** Name the kind, and name what replaces the comment — a name, a test, or a
+  durable document. "Delete this comment" with no destination for the knowledge is how the
+  reasoning gets lost.
 - **Severity.** A comment that is **already false**, and an orphaned doc block, are `WARNING` —
   not `SUGGESTION`. Neither is merely redundant: the first misleads, and the second does not
   exist where its author believes it does. Everything else is `SUGGESTION`.
 - **File-level signals** no single comment shows: the same explanation duplicated on two
-  declarations, and a file whose comment lines outnumber its code lines. Report the ratio as a
-  design signal — the names are not carrying their weight.
+  declarations, and a file whose comment lines outnumber its code lines. **Apply the ratio to
+  every file in scope, not to the ones you happened to notice** — it is a counting job, so
+  report it for each file that qualifies. The ratio is a design signal: the names are not
+  carrying their weight.
 
 - **Long functions.** Flag any function that exceeds ~15 lines or visibly contains 2+
   distinct phases. Recommend *Compose method*: extract each phase into a named helper so the
@@ -153,7 +167,9 @@ Field rules:
   - Primitive obsession → extract a value object.
   - Comment as a missing name → Extract Variable / Extract Method.
   - Comment that restates a test → delete it, or write the missing test.
-  - Comment that argues the design → move it to the scenario plan file or an ADR.
+  - Comment that argues the design → move it to an ADR, the commit message, or the scenario
+    plan file where the project commits one (see the `comments` skill: an untracked plan file
+    is a worse home than the comment, and every source reference to it is dead on arrival).
   - Long function (2+ phases) → Compose method.
   - Feature envy → Move method.
 

@@ -1,0 +1,31 @@
+{
+  "description": "Scope, not just routing. The changeset spans two layers under src/main, so refactor-advisor fires on both — that much already worked. What did not: Step 5 dispatched it with a bare path, so the file list Step 4 had already computed was thrown away, and the reviewer was free to read the layers it prefers and report a pass on a file it never opened. The SCOPE block is that list; this asserts the presentation file is on it. Routing is path-only, so the files are created empty.",
+  "given": {
+    "workspace": "git-scratch",
+    "changedFiles": [
+      "src/main/application/RenameWallUseCase.kt",
+      "src/main/presentation/wall/WallPickerTags.kt"
+    ]
+  },
+  "when": {
+    "do": "command",
+    "command": "/run-reviewers --dry-run"
+  },
+  "then": {
+    "grader": "routing",
+    "fires": [
+      "arch-reviewer",
+      "refactor-advisor"
+    ],
+    "doesNotFire": [
+      "api-reviewer",
+      "test-reviewer"
+    ],
+    "mustScope": {
+      "refactor-advisor": [
+        "presentation/wall/WallPickerTags.kt",
+        "application/RenameWallUseCase.kt"
+      ]
+    }
+  }
+}

@@ -139,8 +139,18 @@ given → when → then:
 - **THEN** — `then.grader` selects a pure grader. For reviewers that's
   `grade_agent`: machine-first verdict `{status, issues:[{severity,…}], summary}`,
   `status` a strict FAIL-if-any-issue gate; checks are `status` ==, `len(issues)`
-  in range, each `mustMention` substring present. **No model in the grader** —
-  pure Python, flake-free.
+  in range, each `mustMention` substring present, each `mustFlagFiles` path
+  reported in some issue's `file`, each `mustInvokeSkills` skill actually invoked.
+  **No model in the grader** — pure Python, flake-free.
+
+  The last two exist because the first two read the reviewer's *prose*, and prose
+  is the easiest thing for a reviewer to get right while covering the wrong ground.
+  `mustInvokeSkills` grades tool calls, so a reviewer cannot pass with its rules
+  unloaded; `mustFlagFiles` grades the `file` field, so it cannot pass by reviewing
+  a familiar layer and generalising about the rest. Both were added after a green
+  suite turned out to be compatible with exactly that. `/run-reviewers` fixtures
+  have the sibling assertion, `mustScope`: the file list each reviewer is
+  dispatched with must contain the files that matched its triggers.
 
 ### The two-tier gate
 

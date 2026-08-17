@@ -108,14 +108,22 @@ The reasoning is worth keeping — it is just not source code's job:
 
 | The thought | Where it belongs |
 |---|---|
-| Why this design over that one | the scenario plan file, or an ADR if it outlives the feature |
+| Why this design over that one | an ADR, or the scenario plan file **if the project commits it** |
 | What bug this shape prevents | the test name, plus the commit message |
 | What the rule is | a named test |
 | Why a *future* reader must not change this | a comment (kind 1 — a fence) |
 
-Plan files and commit messages are already written, already durable, and **nobody has to keep
-them true** — they are records of a moment, not claims about current code. Move the argument
-there and the source keeps only what must stay accurate.
+These destinations are already written, already durable, and **nobody has to keep them true** —
+they are records of a moment, not claims about current code. Move the argument there and the
+source keeps only what must stay accurate.
+
+**Check that the destination survives the merge.** Some projects gitignore
+`docs/specifications/`, which makes the scenario plan file a *worse* home than the comment was:
+the reasoning is gone for anyone in a fresh clone, and every source reference to it — "see
+Rule 7", "SCENARIO-04 proved this" — is a dead cross-reference on arrival.
+`git check-ignore docs/specifications/` is the whole check. If the plan is not tracked, the
+argument goes in an ADR or the commit
+message, and a cited rule gets promoted to an ADR or inlined where it is cited.
 
 ## Tests are in scope
 

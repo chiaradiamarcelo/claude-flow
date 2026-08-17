@@ -8,7 +8,20 @@ so it can never silently regress. Pure parsing of our own code — no model, $0.
 import unittest
 
 from . import _bootstrap  # noqa: F401  (puts evals/ on sys.path)
-from check_routing import fired_set
+from check_routing import fired_set, grade_routing, scoped_files
+
+DRY_RUN = """ROUTING
+fires: arch-reviewer, refactor-advisor
+skips: api-reviewer
+
+SKILLS
+arch-reviewer: (none)
+refactor-advisor: kotlin-conventions
+
+SCOPE
+arch-reviewer: src/main/App.kt, src/main/presentation/WallPickerTags.kt
+refactor-advisor: src/main/App.kt, src/main/presentation/WallPickerTags.kt
+"""
 
 
 class FiredSetTest(unittest.TestCase):
@@ -46,6 +59,56 @@ class FiredSetTest(unittest.TestCase):
         fired = fired_set(output)
 
         self.assertEqual(fired, {"ui-test-reviewer"})
+
+
+class ScopedFilesTest(unittest.TestCase):
+    """A reviewer is dispatched with the files that matched its own triggers. Left
+    as a bare path, `refactor-advisor` read the layers it prefers and returned a
+    pass on files it never opened — with a flawless `fires:` line."""
+
+    def test_each_fired_reviewers_file_list_is_parsed(self):
+        scope = scoped_files(DRY_RUN)
+
+        self.assertEqual({"src/main/App.kt", "src/main/presentation/WallPickerTags.kt"},
+                         scope["refactor-advisor"])
+
+    def test_the_block_ends_before_the_next_section(self):
+        output = "SCOPE\narch-reviewer: a.kt\n\nROUTING\nfires: arch-reviewer\n"
+
+        self.assertEqual({"arch-reviewer": {"a.kt"}}, scoped_files(output))
+
+    def test_no_scope_block_is_an_empty_map_not_a_crash(self):
+        self.assertEqual({}, scoped_files("fires: arch-reviewer\n"))
+
+
+class MustScopeTest(unittest.TestCase):
+    def test_passes_when_the_required_file_is_in_the_reviewers_scope(self):
+        spec = {"fires": ["refactor-advisor"],
+                "mustScope": {"refactor-advisor": ["presentation/WallPickerTags.kt"]}}
+
+        self.assertEqual([], grade_routing(spec, DRY_RUN))
+
+    def test_fails_when_a_matched_file_never_reaches_the_reviewer(self):
+        spec = {"fires": ["refactor-advisor"],
+                "mustScope": {"refactor-advisor": ["infrastructure/WallFileAdapter.kt"]}}
+
+        fails = grade_routing(spec, DRY_RUN)
+
+        self.assertEqual(1, len(fails))
+        self.assertIn("WallFileAdapter.kt", fails[0])
+
+    def test_a_bare_path_dispatch_with_no_scope_block_is_a_fault(self):
+        spec = {"fires": ["refactor-advisor"],
+                "mustScope": {"refactor-advisor": ["presentation/WallPickerTags.kt"]}}
+
+        fails = grade_routing(spec, "ROUTING\nfires: refactor-advisor\nskips:\n")
+
+        self.assertIn("matched file list", fails[0])
+
+    def test_routing_only_specs_are_unaffected(self):
+        spec = {"fires": ["arch-reviewer"], "doesNotFire": ["api-reviewer"]}
+
+        self.assertEqual([], grade_routing(spec, DRY_RUN))
 
 
 if __name__ == "__main__":
