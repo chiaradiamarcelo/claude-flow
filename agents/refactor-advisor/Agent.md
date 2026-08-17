@@ -20,9 +20,6 @@ This reviewer checks **code quality within layers** — is the code well-designe
    source of truth and this file does not restate them:
    - `clean-architecture` — layer rules, dependency direction, naming, repository conventions.
    - `comments` — the falsifiability test and the four kinds of comment.
-
-   A bare `@skills/…/SKILL.md` line does **not** load a skill inside an agent definition; it is
-   passed through as literal text. Invoke them.
 2. Read the catalog **index** — `~/.claude/knowledge/refactor-catalog/index.md` (global),
    plus the project's `.claude/refactor-catalog.md` or `.claude/knowledge/refactor-catalog/index.md`
    if either exists. The index is a table of patterns + smell signals. Match observed
