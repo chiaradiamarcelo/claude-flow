@@ -12,6 +12,10 @@
     "expectedStatus": "FAIL",
     "mustMention": [
       "snake"
+    ],
+    "mustInvokeSkills": [
+      "ui-testing",
+      "testing"
     ]
   }
 }

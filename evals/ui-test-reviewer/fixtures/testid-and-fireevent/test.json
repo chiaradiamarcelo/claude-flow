@@ -17,6 +17,10 @@
     },
     "mustMention": [
       "getByTestId"
+    ],
+    "mustInvokeSkills": [
+      "ui-testing",
+      "testing"
     ]
   }
 }

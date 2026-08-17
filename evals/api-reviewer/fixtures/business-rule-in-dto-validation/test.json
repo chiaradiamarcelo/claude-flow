@@ -17,6 +17,10 @@
     },
     "mustMention": [
       "validation"
+    ],
+    "mustInvokeSkills": [
+      "api-conventions",
+      "clean-architecture"
     ]
   }
 }

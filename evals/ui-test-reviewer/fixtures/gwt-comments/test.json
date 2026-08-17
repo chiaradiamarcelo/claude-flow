@@ -12,6 +12,10 @@
     "expectedStatus": "FAIL",
     "mustMention": [
       "comment"
+    ],
+    "mustInvokeSkills": [
+      "ui-testing",
+      "testing"
     ]
   }
 }

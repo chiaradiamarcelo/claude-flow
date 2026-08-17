@@ -9,6 +9,10 @@
   },
   "then": {
     "grader": "verdict",
-    "expectedStatus": "PASS"
+    "expectedStatus": "PASS",
+    "mustInvokeSkills": [
+      "ui-testing",
+      "testing"
+    ]
   }
 }

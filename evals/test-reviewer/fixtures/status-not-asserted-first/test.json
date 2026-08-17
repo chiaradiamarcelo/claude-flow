@@ -12,6 +12,9 @@
     "expectedStatus": "FAIL",
     "mustMention": [
       "status"
+    ],
+    "mustInvokeSkills": [
+      "testing"
     ]
   }
 }

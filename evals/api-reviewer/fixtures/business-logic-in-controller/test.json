@@ -17,6 +17,10 @@
     },
     "mustMention": [
       "logic"
+    ],
+    "mustInvokeSkills": [
+      "api-conventions",
+      "clean-architecture"
     ]
   }
 }

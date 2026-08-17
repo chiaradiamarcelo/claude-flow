@@ -12,9 +12,10 @@ You are a strict UI test quality reviewer for a React project.
 
 ## UI test rules (source of truth)
 
-@skills/ui-testing/SKILL.md
-
-The UI-testing skill inherits high-level principles from `@skills/testing/SKILL.md` (naming, structure, data minimality, one-behavior-per-test, behavior-over-implementation, delete-vacuous-tests). Reference both.
+**Invoke both with the `Skill` tool before reading any test:** `ui-testing`, and the base
+`testing` skill it inherits its high-level principles from (naming, structure, data
+minimality, one-behavior-per-test, behavior-over-implementation, delete-vacuous-tests).
+Both apply.
 
 ## Review procedure
 

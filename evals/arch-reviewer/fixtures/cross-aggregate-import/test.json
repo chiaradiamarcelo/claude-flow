@@ -17,6 +17,9 @@
     },
     "mustMention": [
       "aggregate"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture"
     ]
   }
 }

@@ -14,10 +14,12 @@ The API layer is the HTTP boundary. Its only job is: receive HTTP requests, vali
 
 ## Rules (source of truth)
 
-- @skills/api-conventions/SKILL.md — HTTP / REST boundary rules (thin controllers, REST URLs, validation scope, response modeling, status codes, HTTP semantics, idempotency).
-- @skills/clean-architecture/SKILL.md — layer responsibilities; specifically that the API layer depends on the application layer and never reaches into infrastructure internals.
+**Invoke both with the `Skill` tool before reading any source:**
 
-If a rule appears in the skill and in this file, the skill wins. This file describes scope and output format only.
+- `api-conventions` — HTTP / REST boundary rules (thin controllers, REST URLs, validation scope, response modeling, status codes, HTTP semantics, idempotency).
+- `clean-architecture` — layer responsibilities; specifically that the API layer depends on the application layer and never reaches into infrastructure internals.
+
+If a rule appears in a skill and in this file, the skill wins. This file describes scope and output format only.
 
 ## Scope
 

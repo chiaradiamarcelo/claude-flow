@@ -17,6 +17,9 @@
     },
     "mustMention": [
       "application"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture"
     ]
   }
 }

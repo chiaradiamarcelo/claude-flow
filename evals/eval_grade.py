@@ -75,6 +75,10 @@ def _mentions(haystack, needle):
 VALID_STATUS = {"PASS", "FAIL"}
 VALID_SEVERITY = {"VIOLATION", "WARNING", "SUGGESTION"}
 
+# Where run_all.sh stashes the skills a dispatch actually invoked. Not part of the
+# agent's own verdict contract, so _schema_faults ignores it.
+SKILLS_KEY = "_skillsInvoked"
+
 
 def _schema_faults(actual):
     """Contract violations in the agent's verdict — independent of expectations.
@@ -131,7 +135,29 @@ def grade_agent(spec, actual):
         if not _mentions(haystack, needle):
             fails.append(f"mustMention: no issue mentioned {needle!r}")
 
+    fails.extend(_skill_faults(spec, actual))
     return fails
+
+
+def _skill_faults(spec, actual):
+    """Did the agent actually load the skills its rules live in?
+
+    `mustMention` reads keywords out of the agent's prose, so it passes whether or
+    not the skill loaded — every reviewer's Agent.md restates enough of its skill to
+    satisfy it. This reads the dispatch's tool calls instead: a deterministic check
+    on wiring, needing no model judgement."""
+    required = spec.get("mustInvokeSkills") or []
+    if not required:
+        return []
+    invoked = actual.get(SKILLS_KEY)
+    if invoked is None:
+        return [f"mustInvokeSkills: no tool-call record captured — the dispatch must "
+                f"pass --output-format stream-json for {SKILLS_KEY!r} to be recorded"]
+    missing = [s for s in required if s not in invoked]
+    if not missing:
+        return []
+    return [f"mustInvokeSkills: {', '.join(repr(s) for s in missing)} never invoked "
+            f"(invoked: {', '.join(sorted(invoked)) or 'nothing'})"]
 
 
 def _fixtures(evals_dir):
@@ -153,22 +179,31 @@ def _file_hash(path):
         return "MISSING"
 
 
-def _agent_inputs(agent, agents_dir, root):
-    """The agent definition plus every file it @-references (its skills)."""
+def _agent_inputs(agent, agents_dir, root, skills=()):
+    """The agent definition plus every skill whose content reaches it.
+
+    Two routes, because an agent cannot @-include a skill (see dead_include_faults):
+    the skills a fixture requires via `mustInvokeSkills`, which is how a skill
+    actually loads; and any lingering `@…md` reference in the agent's prose."""
     agent_md = agents_dir / agent / "Agent.md"
     files = [agent_md]
+    files.extend(root / "skills" / s / "SKILL.md" for s in skills)
     try:
         text = agent_md.read_text()
     except OSError:
         return files
     files.extend(root / ref for ref in _SKILL_REF.findall(text))
-    return files
+    return list(dict.fromkeys(files))
 
 
 def fingerprint(fixture_dir, agent, agents_dir, root):
     """Hash everything that can change a fixture's verdict."""
     parts = []
-    for f in _agent_inputs(agent, agents_dir, root):
+    try:
+        skills = _manifest(fixture_dir).get("then", {}).get("mustInvokeSkills") or []
+    except (OSError, json.JSONDecodeError):
+        skills = []
+    for f in _agent_inputs(agent, agents_dir, root, skills):
         parts.append((f"agent:{f}", _file_hash(f)))
     input_dir = fixture_dir / "input"
     if input_dir.is_dir():
@@ -238,20 +273,61 @@ def changed_agents(root, agents_dir):
             agents.add(parts[1])
         if f.startswith("skills/"):
             changed_skills.add(f)
-    if changed_skills and agents_dir.is_dir():
-        for adir in agents_dir.iterdir():
-            md = adir / "Agent.md"
-            if md.is_file() and any(
-                (root / ref) == (root / s) or ref == s
-                for ref in _SKILL_REF.findall(md.read_text(errors="ignore"))
-                for s in changed_skills
-            ):
-                agents.add(adir.name)
+    if changed_skills:
+        agents.update(_agents_using_skills(changed_skills, agents_dir, root))
     return agents
 
 
-def check_corpus(evals_dir):
+def _agents_using_skills(changed_skills, agents_dir, root):
+    """Agents whose verdict a changed skill can move — via a fixture's
+    `mustInvokeSkills`, or a lingering `@…md` reference in the agent's prose."""
+    hit = set()
+    for f in changed_skills:
+        parts = f.split("/")
+        if len(parts) >= 2:
+            hit.add(parts[1])                       # skills/<name>/SKILL.md
+    found = set()
+    for evals_dir in sorted((root / "evals").iterdir()) if (root / "evals").is_dir() else []:
+        for fx in _fixtures(evals_dir):
+            agent, spec = _agent_spec(fx)
+            if agent and set(spec.get("mustInvokeSkills") or []) & hit:
+                found.add(agent)
+    if not agents_dir.is_dir():
+        return found
+    for adir in agents_dir.iterdir():
+        md = adir / "Agent.md"
+        if md.is_file() and set(_SKILL_REF.findall(md.read_text(errors="ignore"))) & set(changed_skills):
+            found.add(adir.name)
+    return found
+
+
+_INCLUDE_LINE = re.compile(r"^\s*-?\s*@[A-Za-z0-9_./-]+\.md")
+
+
+def dead_include_faults(agent_md):
+    """`@some/file.md` in an agent definition is NOT expanded.
+
+    Claude Code expands `@` imports in CLAUDE.md, but an agent definition passes them
+    through as literal text — verified by probe on 2.1.233. An agent that states a
+    skill is its 'source of truth' via a bare `@` line is reviewing without it. The
+    only thing that loads a skill inside an agent is invoking it with the Skill tool.
+
+    Matches a reference that stands as its own line or list item — the form used as an
+    include — and deliberately not one quoted inside prose, which is just a pointer."""
+    try:
+        lines = agent_md.read_text().splitlines()
+    except OSError:
+        return []
+    return [f"{agent_md}:{n}: `@…md` include is inert — invoke the skill with the "
+            f"Skill tool instead: {line.strip()!r}"
+            for n, line in enumerate(lines, 1) if _INCLUDE_LINE.match(line)]
+
+
+def check_corpus(evals_dir, agents_dir=Path("agents")):
     faults = []
+    agent_md = agents_dir / evals_dir.name / "Agent.md"
+    if agent_md.is_file():
+        faults.extend(dead_include_faults(agent_md))
     fixtures = _fixtures(evals_dir)
     if not fixtures:
         faults.append(f"no fixtures with test.json under {evals_dir}/fixtures")
@@ -268,6 +344,10 @@ def check_corpus(evals_dir):
         input_dir = fx / "input"
         if m.get("given", {}).get("files") and (not input_dir.is_dir() or not any(input_dir.iterdir())):
             faults.append(f"{stem}: given.files set but input/ is missing or empty")
+        skills = m.get("then", {}).get("mustInvokeSkills")
+        if skills is not None and not (isinstance(skills, list)
+                                       and all(isinstance(x, str) for x in skills)):
+            faults.append(f"{stem}: then.mustInvokeSkills must be a list of skill names")
     return faults
 
 
@@ -325,7 +405,7 @@ def main(argv):
         return 2
 
     if args.check_corpus:
-        faults = check_corpus(args.evals_dir)
+        faults = check_corpus(args.evals_dir, args.agents_dir)
         if faults:
             print("# Corpus check — FAIL\n")
             for f in faults:

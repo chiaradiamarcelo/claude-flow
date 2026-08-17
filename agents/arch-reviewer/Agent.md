@@ -12,7 +12,8 @@ You are a strict architecture reviewer for a project following Clean Architectur
 
 ## Architecture rules (source of truth)
 
-@skills/clean-architecture/SKILL.md
+Invoke the `clean-architecture` skill with the `Skill` tool before reading any source. It
+is the source of truth; this file describes scope and output format only.
 
 ## Scope
 

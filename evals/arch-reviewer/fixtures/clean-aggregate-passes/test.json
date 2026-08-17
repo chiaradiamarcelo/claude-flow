@@ -9,6 +9,9 @@
   },
   "then": {
     "grader": "verdict",
-    "expectedStatus": "PASS"
+    "expectedStatus": "PASS",
+    "mustInvokeSkills": [
+      "clean-architecture"
+    ]
   }
 }

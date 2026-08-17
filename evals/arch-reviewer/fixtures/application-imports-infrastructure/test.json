@@ -17,6 +17,9 @@
     },
     "mustMention": [
       "infrastructure"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture"
     ]
   }
 }

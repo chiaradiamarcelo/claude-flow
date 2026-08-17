@@ -17,6 +17,9 @@
     },
     "mustMention": [
       "domain"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture"
     ]
   }
 }
