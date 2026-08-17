@@ -53,7 +53,6 @@ Read `docs/specifications/<feature-slug>/specification.md`. If it doesn't exist
 2. Run **`test-designer`** to append the `## Ordered Test List (FLFI · TPP · Contradiction)` section to that file.
 3. Run **`developer`** to implement it (executes the ordered test list red-green; honors any `> Note to architect:` lines).
 4. Check its box.
-5. **Commit the scenario's work** (`git add -A && git commit`) with the scenario ID in the message. A green scenario is a checkpoint; leaving a whole feature uncommitted across hours puts every earlier scenario at the mercy of the next agent's `git` command.
 
 **After all scenarios are implemented:**
 1. Run **`/run-reviewers`** (no arguments).
