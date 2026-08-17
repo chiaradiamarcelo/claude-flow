@@ -1,6 +1,6 @@
 ---
 name: comments
-description: Use whenever writing or reviewing comments in production source. Defines which comments earn their place and which are liabilities, via a single falsifiability test. Stack-agnostic — examples are Kotlin, principles apply anywhere.
+description: Use whenever writing or reviewing comments, in production source or in tests. Defines which comments earn their place and which are liabilities, via a single falsifiability test. Stack-agnostic — examples are Kotlin, principles apply anywhere.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -117,23 +117,32 @@ Plan files and commit messages are already written, already durable, and **nobod
 them true** — they are records of a moment, not claims about current code. Move the argument
 there and the source keeps only what must stay accurate.
 
-## Production vs tests — a hard carve-out
+## Tests are in scope
 
-**This skill governs production source.** Test files are different and are not thinned by it.
+A comment in a test is as dangerous as one in production, for the same reason: nothing
+enforces it. Test files get no exemption, and in practice they are just as bloated — a test
+that needs prose to explain what it is doing is usually a test with a bad name, an implicit
+seed, or two scenarios in one body. Fix the test.
 
-A test's doc block routinely does something no production comment can: it names the specific
-wrong implementation the test discriminates against, and the seed chosen to catch it.
+What survives in a test survives on the same terms as kind 1, not on a special allowance. The
+common case is a **rejected alternative in the seed** — why the setup is this shape and not the
+simpler one:
 
 ```kotlin
 /**
- * A grade-five boulder as well as a grade-three one, because a filter written as a comparison
- * rather than a membership — `grade <= FOUR` — is green against whichever side of grade four
- * is missing from the seed.
+ * A grade-five boulder as well as a grade-three one: a filter written as a comparison rather
+ * than a membership — `grade <= FOUR` — is green against whichever side of grade four is
+ * missing from the seed.
  */
 ```
 
-That is a mutation proof, not narration. It is falsifiable by construction — weaken the test
-and the stated mutant survives. Never delete it, and never apply the production rules to it.
+That earns its place because it states a wrong implementation the test discriminates against,
+which no name and no assertion can say. It is also *checkable* — apply the named mutant and the
+test must fail — which is more than most comments offer, but it is not automatic, so it can
+still rot if the seed changes. Write it only when the seed choice is genuinely non-obvious.
+
+What does **not** survive in a test: prose restating the test's own name, narration of the
+Given/When/Then, and anything explaining what a helper or robot method mechanically does.
 
 ## Mechanical rules
 

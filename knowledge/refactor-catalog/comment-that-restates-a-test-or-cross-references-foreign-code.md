@@ -63,7 +63,7 @@ is excluded from `TRACKED_AI_CRAWLERS`, so …"*. Both sentences were already en
 comment was deleted: the test names are the specification, and unlike the comment they fail when
 the aliasing rule changes. Surfaced in PR #3471 review.
 
-The full doctrine — the falsifiability test, the four kinds of comment, and the production/test
-carve-out — is in the `comments` skill (`~/.claude/skills/comments/SKILL.md`). This entry covers
+The full doctrine — the falsifiability test and the four kinds of comment
+— is in the `comments` skill (`~/.claude/skills/comments/SKILL.md`). This entry covers
 kind 3. See *Comment that argues the design* for kind 4, which asserts no rule and restates no
 test, so it passes both of this entry's triggers while still going stale.

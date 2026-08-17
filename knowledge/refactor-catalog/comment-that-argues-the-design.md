@@ -51,8 +51,7 @@ You are reading a declaration's doc block and:
 
 - Declarations carry doc blocks only where a fact outside the code's reach needs stating.
 - The design argument is in a record that no maintainer has to keep in sync.
-- Production comment lines are a small fraction of production code lines.
-- Test doc blocks are **untouched** — see the carve-out in the skill.
+- Comment lines are a small fraction of code lines, in tests as well as in production.
 
 ### Tests
 

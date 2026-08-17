@@ -90,26 +90,20 @@ Apply the falsifiability test from the `comments` skill to **every** comment in 
 declarations as well as inside bodies. Report each failure as its kind, with a destination for
 the knowledge — a name, a test, or the scenario plan file.
 
-- **Comment as a missing name (kind 2).** Comments that summarize *what* the next 3–10 lines
-  do. Recommend Extract Variable (for boolean expressions / magic values) or Extract Method
-  (for blocks). See the *Comment as a missing name* catalog entry.
-- **Comment that restates a test (kind 3).** See the *Comment that restates a test or
-  cross-references foreign code* catalog entry.
-- **Comment that argues (kind 4).** A doc block re-deriving *why* the code is shaped this way
-  — "lives here rather than there because…", "is carried rather than worked out because…".
-  This is the shape the two catalog entries above do **not** catch, because it sits on a
-  declaration and reads like a legitimate *why*. It is a transcript of design reasoning and it
-  goes stale with nothing to catch it. Recommend moving it to the scenario plan file or an ADR.
-- **Orphaned doc blocks.** Consecutive doc blocks with no declaration between them — only the
-  last attaches; the rest are invisible dead text. Report as `WARNING`, not `SUGGESTION`: the
-  comment does not exist where its author believes it does.
-- **Duplicated comments.** The same explanation on two declarations in one file.
-- **Comment-to-code ratio.** A production file with more comment lines than code lines is a
-  design signal — say so; the names are not carrying their weight.
+The kinds, and what replaces each, are defined in the skill above — do not re-derive them here.
+Three things are yours alone:
 
-**Do not apply any of this to test files.** A test doc block naming the mutant it kills and the
-seed chosen to catch it is a mutation proof, falsifiable by construction, and must be left
-alone.
+- **Refactorings.** Kind 2 → *Comment as a missing name* catalog entry. Kind 3 → *Comment that
+  restates a test or cross-references foreign code*. Kind 4 → *Comment that argues the design*.
+- **Severity.** A comment that is **already false**, and an orphaned doc block, are `WARNING` —
+  not `SUGGESTION`. Neither is merely redundant: the first misleads, and the second does not
+  exist where its author believes it does. Everything else is `SUGGESTION`.
+- **File-level signals** no single comment shows: the same explanation duplicated on two
+  declarations, and a file whose comment lines outnumber its code lines. Report the ratio as a
+  design signal — the names are not carrying their weight.
+
+Test files are in scope on the same terms as production.
+
 - **Long functions.** Flag any function that exceeds ~15 lines or visibly contains 2+
   distinct phases. Recommend *Compose method*: extract each phase into a named helper so the
   top-level function reads as a table of contents. Pure helpers belong as module-level
