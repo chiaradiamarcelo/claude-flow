@@ -14,31 +14,30 @@ You are called AFTER all tests are green. Suggest improvements without changing 
 
 This reviewer checks **code quality within layers** — is the code well-designed? Structural compliance (imports, file placement) is the arch-reviewer's job.
 
-## Architecture rules (source of truth)
-
-@skills/clean-architecture/SKILL.md
-
-## Comment rules (source of truth)
-
-@skills/comments/SKILL.md
-
 ## Process
 
-1. Read the catalog **index** — `~/.claude/knowledge/refactor-catalog/index.md` (global),
+1. **Invoke these skills first, with the `Skill` tool, before reading any source.** They are the
+   source of truth and this file does not restate them:
+   - `clean-architecture` — layer rules, dependency direction, naming, repository conventions.
+   - `comments` — the falsifiability test and the four kinds of comment.
+
+   A bare `@skills/…/SKILL.md` line does **not** load a skill inside an agent definition; it is
+   passed through as literal text. Invoke them.
+2. Read the catalog **index** — `~/.claude/knowledge/refactor-catalog/index.md` (global),
    plus the project's `.claude/refactor-catalog.md` or `.claude/knowledge/refactor-catalog/index.md`
    if either exists. The index is a table of patterns + smell signals. Match observed
    smells to rows, then Read **only the matched pattern file(s)** (e.g. `compose-method.md`)
    for the full refactoring — never load the whole catalog.
-2. When you suspect a pass-through use case, a service that only forwards to a repository, or a
+3. When you suspect a pass-through use case, a service that only forwards to a repository, or a
    port named `*Repository` whose methods are all read-shaped, consult the `cqrs` skill
    and read the *Pass-through Layer (Middleman)* / *Read-side port named "Repository"* pattern
    files before reporting — the skill pins write-side vs. read-side responsibilities.
-3. Read use case code in the use case source directory.
-4. Read related domain types in the domain source directory.
-5. Read use case tests in the use case test directory.
-6. Read related controllers in the controller source directory.
-7. Suggest improvements. If catalog entry matches, name the pattern explicitly.
-8. If recurring smell is missing from catalog, propose a new catalog entry using the standard format.
+4. Read use case code in the use case source directory.
+5. Read related domain types in the domain source directory.
+6. Read use case tests in the use case test directory.
+7. Read related controllers in the controller source directory.
+8. Suggest improvements. If catalog entry matches, name the pattern explicitly.
+9. If recurring smell is missing from catalog, propose a new catalog entry using the standard format.
 
 ## What to look for
 
@@ -86,8 +85,8 @@ Apply all design and code conventions from the `clean-architecture` skill, plus 
 Apply the falsifiability test to **every** comment in the diff — in tests as well as production,
 on declarations as well as inside bodies.
 
-The kinds, and what replaces each, are defined in the @skills/comments/SKILL.md. Four things are
-yours alone:
+The kinds, and what replaces each, are defined in the `comments` skill you invoked in step 1.
+Four things are yours alone:
 
 - **Refactorings.** Kind 2 → *Comment as a missing name* catalog entry. Kind 3 → *Comment that
   restates a test or cross-references foreign code*. Kind 4 → *Comment that argues the design*.
