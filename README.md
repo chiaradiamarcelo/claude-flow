@@ -85,8 +85,8 @@ Built-in reviewers (defined in agent frontmatter):
 | Reviewer | Default triggers | Checks |
 |---|---|---|
 | `test-reviewer` | `**/src/test/**`, `**/*Test.*`, `**/*IT.*`, `**/*AT.*` | GWT structure, naming, fakes vs mocks, redundant assertions, test logic, coverage strategy |
-| `arch-reviewer` | `**/src/main/**` | Layer dependencies, domain purity, Clean Architecture patterns, TDD compliance |
-| `refactor-advisor` | `**/src/main/**` | Primitive obsession, misplaced logic, intent-revealing methods, naming, mapper cleanliness |
+| `arch-reviewer` | source roots + layer names (`**/src/**`, `**/domain/**`, …), minus non-source `excludes` | Layer dependencies, domain purity, Clean Architecture patterns, TDD compliance |
+| `refactor-advisor` | same as `arch-reviewer` | Primitive obsession, misplaced logic, intent-revealing methods, naming, mapper cleanliness, the comment doctrine |
 | `api-reviewer` | `**/api/**`, `**/controller/**`, `**/dto/**` | HTTP conventions, thin controllers, REST URLs, response modeling |
 | `ui-test-reviewer` | `**/*.test.tsx`, `**/*.test.jsx` | React component/hook tests: naming, query priority, mocking, behavioral focus |
 | `android-presentation-reviewer` | `**/presentation/**` | Compose screens/ViewModels: Humble View, atomic screen state, Composed Method |
@@ -119,9 +119,13 @@ To review code outside the normal pipeline (legacy code, full project audit, spe
 
 - Accepts one or more comma-separated paths
 - Lists all files under each path, matches against reviewer triggers, spawns only relevant reviewers in parallel
-- `/run-reviewers src/test` → only `test-reviewer` runs
-- `/run-reviewers src/main` → only `arch-reviewer` + `refactor-advisor` run
+- `/run-reviewers src/test` → `test-reviewer`, plus `arch-reviewer` / `refactor-advisor`
+  (test files are in their scope: fake and contract-test placement, and the comment doctrine,
+  which gives tests no exemption)
 - `/run-reviewers` (no path) → reviews all tracked files in the project
+- Generated, vendored and build output (`build/`, `dist/`, `node_modules/`, `**/*.generated.*`, …)
+  is dropped before routing. A reviewer's matched files are its mandatory scope, so an
+  unfiltered path would make it answerable for `node_modules`.
 
 ## Adding a new reviewer
 

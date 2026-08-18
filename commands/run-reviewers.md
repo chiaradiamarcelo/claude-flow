@@ -32,6 +32,26 @@ Combine all results into a deduplicated list. If all commands return empty, fall
 
 Collect all file paths into a single deduplicated list.
 
+### Drop what is not ours to review
+
+Remove any path matching these, **always**, before anything else sees the list:
+
+```
+**/build/**  **/dist/**  **/out/**  **/target/**  **/.gradle/**  **/.git/**
+**/node_modules/**  **/vendor/**  **/Pods/**  **/.venv/**  **/__pycache__/**
+**/generated/**  **/*.generated.*  **/*.g.kt  **/*.d.ts  **/*.lock  **/*.min.*
+```
+
+Generated, vendored and build output is nobody's code. This list is not a
+convenience: a reviewer's matched files are now its **mandatory scope** (Step 5),
+so an unfiltered path makes a reviewer answerable for `node_modules`. That is also
+why the widest trigger globs are safe — `**/src/**` matches
+`node_modules/foo/src/index.ts`, and this is what stops it.
+
+Report the number dropped in your final report. A whole-tree run on a built
+project drops far more than it keeps, and a reader who sees only the kept count
+cannot tell a filtered run from a small one.
+
 ## Step 2: Discover reviewer agents
 
 Use the `Grep` tool to find all agents with `type: reviewer` in their frontmatter. Run both searches in parallel:
@@ -49,18 +69,39 @@ From each valid reviewer's frontmatter, extract `name` and `triggers`. Read all 
 
 Check if `.claude/pipeline.json` exists in the project root. If it does, read it and use its `reviewers` object (an optional top-level key mapping reviewer `name` → glob array) to **override** triggers for matching reviewer names. Reviewers not named in `reviewers` keep their frontmatter triggers. If the file or the `reviewers` key is absent, skip this step.
 
+The same file may carry a `reviewerExcludes` object (reviewer `name` → glob array), which **overrides** that reviewer's frontmatter `excludes` the same way. A project that overrides `reviewers` for a reviewer and says nothing about its excludes keeps the frontmatter excludes — they are independent keys, and a narrowed trigger does not imply a narrowed exclude list.
+
 ## Step 3b: Resolve project skill injection
 
 From the same `.claude/pipeline.json`, read its optional `agentSkills` object (a map of agent `name` → array of skill names). For each reviewer that has a non-empty entry, remember its extra skills — you will inject them at dispatch (Step 5). These are **additive**: a reviewer always loads its own core skills, plus any listed here. If the file or the `agentSkills` key is absent, no skills are injected. (Handle only the reviewers you dispatch — entries for any other agent are not yours to apply.)
 
 ## Step 4: Filter by relevance
 
-For each reviewer, check if ANY target file matches ANY of its `triggers` glob patterns (after overrides). Skip reviewers with no matching files.
+A target file is in a reviewer's scope when it matches **at least one** of that
+reviewer's `triggers` globs and **none** of its `excludes` globs (both read from
+frontmatter, both overridable per project — see Step 3). A reviewer with an empty
+resulting set is skipped.
+
+`triggers` has to be wide, because source has no portable location: `src/main` on
+Gradle/Maven, `src/commonMain` and `src/androidMain` on KMP, plain `src/domain` on a
+TypeScript workspace, `internal/` and `pkg/` on Go. **A trigger narrow enough to name
+one layout matches nothing in the others — the reviewer never fires, and a review
+that never ran is indistinguishable from a clean one.** That is why these globs name
+source roots rather than build layouts.
+
+`excludes` is the cost of that width: `**/src/**` also sweeps in strings files,
+snapshots, schemas and markdown. It removes non-source, **not tests** — a test file
+is production code for these two reviewers' purposes (`arch-reviewer` checks fake and
+contract-test placement; `refactor-advisor` applies the comment doctrine, which
+explicitly gives tests no exemption).
 
 **Matching is purely glob-based — mechanical, not topical.** A reviewer fires **if and only if** at least one target file *path* matches at least one of its trigger globs. Do **not** fire a reviewer because the changeset *seems* related to its domain, because a file's *content or topic* looks relevant, or "just in case." Only a glob path match counts.
 
 - A reviewer with **zero** matching files goes in `skips`, never `fires`.
 - A changeset that matches **no** reviewer (e.g. a docs-only change: `README.md`, `docs/**/*.md`) yields an **empty** `fires:` line with every reviewer in `skips`. That is a valid, expected outcome — not an error, and not a reason to fire a reviewer anyway.
+- An `excludes` match **removes the file from that reviewer only.** It does not drop
+  the file from the run: the same path is production source to one reviewer and a
+  test file to another, which is the entire point of the two lists being per-reviewer.
 
 ### Dry run (routing assertion — used by the live test)
 

@@ -1,5 +1,5 @@
 {
-  "description": "A Compose UI test under the instrumented source set. It matches android-ui-test-reviewer's default trigger `**/androidTest/**`, so that reviewer must fire. It also matches test-reviewer's generic `**/*Test.*`, so test-reviewer legitimately fires too (routing is tolerant of extra fires). The src/main and API/UI-React/presentation reviewers must NOT fire: the path is neither src/main, nor api/controller/dto, nor *.test.tsx, nor under presentation/.",
+  "description": "An instrumented Compose test. android-ui-test-reviewer must fire. This fixture used to assert arch-reviewer and refactor-advisor did NOT \u2014 production-only reviewers, tests left to the test reviewers. That is no longer the split: the comment doctrine gives test files no exemption (only refactor-advisor applies the falsifiability test, and the last real run put 745 comment lines in tests that nothing reviewed), and arch-reviewer's own rules include fake and contract-test placement. Both now fire on a test file. api-reviewer and android-presentation-reviewer still must not. Routing is path-only, so the files are created empty.",
   "given": {
     "workspace": "git-scratch",
     "changedFiles": [
@@ -13,12 +13,12 @@
   "then": {
     "grader": "routing",
     "fires": [
-      "android-ui-test-reviewer"
+      "android-ui-test-reviewer",
+      "arch-reviewer",
+      "refactor-advisor"
     ],
     "doesNotFire": [
       "api-reviewer",
-      "arch-reviewer",
-      "refactor-advisor",
       "ui-test-reviewer",
       "android-presentation-reviewer"
     ]

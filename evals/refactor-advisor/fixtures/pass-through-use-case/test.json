@@ -1,0 +1,25 @@
+{
+  "description": "Two CQRS smells the advisor can only see if it is already holding the rule. ListWallsUseCase adds nothing to walls.byGym — a pass-through use case (Middleman), and a pure read that belongs straight in the controller. WallRepository is named for the write side but every method is read-shaped, so it is a Query wearing a Repository's name. Both are plausible-looking files: nothing in them announces a smell, which is why the cqrs skill was made unconditional rather than loaded 'when you suspect' one.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "refactor-advisor"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "ListWallsUseCase"
+    ],
+    "mustFlagFiles": [
+      "WallRepository"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture",
+      "comments",
+      "cqrs"
+    ]
+  }
+}

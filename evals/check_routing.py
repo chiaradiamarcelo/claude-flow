@@ -79,4 +79,16 @@ def grade_routing(spec, output):
         for path in required:
             if not any(path in g for g in got):
                 fails.append(f"{reviewer} scope is missing {path!r} — got {sorted(got)}")
+
+    # The other half of a wide trigger. `**/src/**` matches
+    # node_modules/foo/src/index.ts, and a matched file is now a MANDATORY scope
+    # item — so an unfiltered path does not merely add noise, it makes a reviewer
+    # answerable for vendored code. Asserting the absence is the only way to tell a
+    # working ignore list from one that never ran.
+    for reviewer, forbidden in (spec.get("mustNotScope") or {}).items():
+        got = scope.get(reviewer) or set()
+        for path in forbidden:
+            hits = [g for g in got if path in g]
+            if hits:
+                fails.append(f"{reviewer} scope must not contain {path!r} — got {sorted(hits)}")
     return fails

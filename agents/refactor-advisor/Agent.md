@@ -2,7 +2,10 @@
 name: refactor-advisor
 description: Suggests Clean Architecture and clean code improvements after tests are green. Use after completing a use case implementation.
 type: reviewer
-triggers: ["**/src/main/**"]
+triggers: ["**/src/**", "**/lib/**", "**/internal/**", "**/pkg/**", "**/cmd/**",
+           "**/domain/**", "**/application/**", "**/infrastructure/**", "**/presentation/**"]
+excludes: ["**/res/**", "**/resources/**", "**/assets/**", "**/*.md", "**/*.json",
+           "**/*.xml", "**/*.yaml", "**/*.yml", "**/*.snap", "**/*.sql"]
 tools: Read, Glob, Grep, Skill
 model: sonnet
 color: green
@@ -20,15 +23,19 @@ This reviewer checks **code quality within layers** — is the code well-designe
    source of truth and this file does not restate them:
    - `clean-architecture` — layer rules, dependency direction, naming, repository conventions.
    - `comments` — the falsifiability test and the four kinds of comment.
+   - `cqrs` — write-side vs. read-side responsibilities: which port is a `Repository` and which
+     is a `Query`, when a use case is a middleman, and when a read belongs straight in the
+     controller. Unconditional, because a pass-through use case does not announce itself: it is
+     a plausible-looking file, and you cannot recognise the smell from source you are reading
+     without already holding the rule.
 2. Read the catalog **index** — `~/.claude/knowledge/refactor-catalog/index.md` (global),
    plus the project's `.claude/refactor-catalog.md` or `.claude/knowledge/refactor-catalog/index.md`
    if either exists. The index is a table of patterns + smell signals. Match observed
    smells to rows, then Read **only the matched pattern file(s)** (e.g. `compose-method.md`)
    for the full refactoring — never load the whole catalog.
-3. When you suspect a pass-through use case, a service that only forwards to a repository, or a
-   port named `*Repository` whose methods are all read-shaped, consult the `cqrs` skill
-   and read the *Pass-through Layer (Middleman)* / *Read-side port named "Repository"* pattern
-   files before reporting — the skill pins write-side vs. read-side responsibilities.
+3. Read the matching catalog pattern file before reporting a CQRS finding: *Pass-through Layer
+   (Middleman)* for a use case that only forwards, *Read-side port named "Repository"* for a
+   port whose methods are all read-shaped.
 4. **Establish your scope, then read every file in it.** The caller may hand you a file list, a
    path, or a layer. If it hands you a path, enumerate it with Glob and read what you find —
    **every** production file, whatever layer it sits in. `presentation/`, `infrastructure/`,
