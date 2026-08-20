@@ -112,11 +112,19 @@ Five things are yours alone:
 - **Severity.** A comment that is **already false**, and an orphaned doc block, are `WARNING` —
   not `SUGGESTION`. Neither is merely redundant: the first misleads, and the second does not
   exist where its author believes it does. Everything else is `SUGGESTION`.
-- **File-level signals** no single comment shows: the same explanation duplicated on two
-  declarations, and a file whose comment lines outnumber its code lines. **Apply the ratio to
-  every file in scope, not to the ones you happened to notice** — it is a counting job, so
-  report it for each file that qualifies. The ratio is a design signal: the names are not
-  carrying their weight.
+- **Signals no single comment shows, and no single *file* shows either.** Two of these:
+
+  - **The same explanation in more than one place.** Within a file, and — the one that gets
+    missed — **across the files in your scope.** You are the only reviewer that sees them
+    together; a reviewer reading one file at a time cannot find this, and neither can the
+    author, because each copy looks reasonable where it sits. Compare the *substance* of the
+    background paragraphs across your scope, not their wording: the same fact rephrased is
+    still a second copy. Report it once, naming every file that carries a copy and the one
+    place it should live.
+  - **A file whose comment lines outnumber its code lines.** **Apply the ratio to every file in
+    scope, not to the ones you happened to notice** — it is a counting job, so report it for
+    each file that qualifies. The ratio is a design signal: the names are not carrying their
+    weight.
 
 - **Long functions.** Flag any function that exceeds ~15 lines or visibly contains 2+
   distinct phases. Recommend *Compose method*: extract each phase into a named helper so the

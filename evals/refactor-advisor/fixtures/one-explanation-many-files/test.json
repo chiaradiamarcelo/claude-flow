@@ -1,0 +1,26 @@
+{
+  "description": "One explanation, three files. The same background \u2014 the completion flag is recomputed server-side rather than stored, so a local patch hides the redirect until the next session \u2014 is told in the use case, the screen model and the HTTP query, reworded each time. The fact itself is kind 1 and earns a place: it is another service's behaviour, unknowable from this repo. What fails is that it exists three times, so two copies can drift into lying. This is invisible to a reviewer reading one file at a time, and to the author, because each copy reads reasonably where it sits. Modelled on a real PR that carried seven copies of one paragraph. The advisor must report the duplication once and name the files.",
+  "given": {
+    "files": "input/"
+  },
+  "when": {
+    "do": "agent",
+    "agent": "refactor-advisor"
+  },
+  "then": {
+    "grader": "verdict",
+    "expectedStatus": "FAIL",
+    "mustMention": [
+      "ProfileHttpQuery",
+      "SurveyScreenModel"
+    ],
+    "mustInvokeSkills": [
+      "clean-architecture",
+      "comments",
+      "cqrs"
+    ],
+    "mustFlagFiles": [
+      "CompleteSurvey"
+    ]
+  }
+}

@@ -150,8 +150,20 @@ Given/When/Then, and anything explaining what a helper or robot method mechanica
 - **One doc block per declaration.** Consecutive doc blocks with no declaration between them
   are orphaned: in Kotlin only the last attaches, and the others are invisible dead text. If
   you are documenting several fields, document each on its own field.
-- **Never repeat a comment.** The same explanation on two declarations in one file is two
-  copies to drift. Put it on one and let the name carry the other.
+- **One explanation, one place — across files, not just within one.** The same background on
+  two declarations in one file is two copies to drift; the same paragraph in seven files is
+  seven, and that is the shape this rule was written for. A real PR fixing one bug retold the
+  same story — a flag recomputed server-side, a lost write invisible until the next login — in
+  the use case, its test, the page, the page's test, the wizard step, that step's test, and a
+  redirect test. Seven copies of one paragraph, six of them load-bearing nowhere.
+
+  Put it where a reader who is *changing that code* needs it, and let the names and the test
+  names carry the rest. When several files genuinely need the same background, that is a sign
+  the explanation belongs in an ADR or the commit message, with at most a pointer in the one
+  place it constrains.
+
+  This is the hardest kind to notice while writing, because each copy looks reasonable in the
+  file you are looking at. It is only visible across the diff.
 - **No commented-out code.** Version control holds it.
 - **A file where comments outnumber code is a design signal**, not a documentation
   achievement — the names are not carrying their weight.
