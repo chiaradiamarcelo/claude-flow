@@ -24,14 +24,22 @@ never fired in any run on record).
 |---|---|---|
 | **#25** (this branch) | finding 17, both #14 arms' scorecards, `run-arm.sh` identity fix, 9 restored mutation XMLs, this file | **Closes the work-email leak at source.** Until it lands, a new arm's git commands take the machine's global identity |
 | **#38** | `/mutation-audit` on Maven + Stryker (closes #12) | Also fixes a glob bug that made the command's own documented filter invocation read nothing on a real PIT run |
+| **#42** → #38 | `classify-survivors` status buckets + generated-Kotlin rules (#28, partly) | The oracle was unusable on coroutine Kotlin. Does **not** fix suspend-entry filtering — unvalidatable without a report, see the PR |
+| **#39** | refactor-advisor reviews its whole scope; `mustFlagFiles` / `mustScope` | It had a closed reading list, so `presentation/` was never read. **13/13 paid, verified** |
+| **#41** → #39 | triggers for any layout, `cqrs` unconditional, cross-file comment rule | `**/src/main/**` matched nothing in KMP/TS/Go, so two reviewers silently never fired. **25/25 paid, verified** |
 
 **Open issues, in the order I would take them:**
 
-1. **#28 — `classify-survivors.py` is broken on Kotlin coroutines.** The only one *blocking*
-   something: the mutation oracle cannot be pointed at a Flow-heavy codebase at all.
-2. **#27 — `red_arrival` scores mutant-proven early-green rows as the weakest category.**
+1. **#28 — `classify-survivors.py` on Kotlin coroutines.** #42 fixes the status buckets and the
+   generated-Kotlin rules; what remains is the suspend-entry filter, which needs a coroutine PIT
+   report to validate against. boulder-friend's is gone, so this now waits on the next such run
+   rather than blocking one.
+2. **#40 — the eval harness grades the live `~/.claude` checkout, not the tree it runs in.**
+   Do this before the next eval run from a worktree; it is the third instance of a green suite
+   compatible with the thing under test being absent.
+3. **#27 — `red_arrival` scores mutant-proven early-green rows as the weakest category.**
    No red-arrival figure should be quoted for a future run until this lands.
-3. **#29** reviewer parallelism ratio mislabels parallel rounds · **#31** no cheap exit for an
+4. **#29** reviewer parallelism ratio mislabels parallel rounds · **#31** no cheap exit for an
    untestable scenario · **#32** markdown is the largest remaining output · **#24** shell
    file-inspection · **#21** a 529 burns an arm · **#16** Stage 6 deliberation budget ·
    **#15** split the testing skill.
@@ -107,9 +115,11 @@ out by the transcripts.
    log event; `red_then_green` made exclusive with `unplanned`; `red_arrival` moving because
    Status cells got shorter; `mustMention` passing whether or not a skill loaded; and
    `classify-survivors` on coroutines. Cross-check a behavioural counter before believing any.
-4. **Filtered mutation candidate-real has ranged 0–4 across eleven arms with no treatment
+4. **Filtered mutation candidate-real has ranged 0–3 across eleven arms with no treatment
    explaining the spread.** A "must not increase" gate is a floor against gross failure, not a
-   precision instrument — and #28 means the number itself is suspect on Kotlin.
+   precision instrument. Was 0–4 until #42 corrected the status buckets: four of the seventeen
+   historical candidate-reals were `NO_COVERAGE` mutants, which are a coverage gap, not a weak
+   assertion. `main-control` is unchanged at 3, so nothing compared against it moved.
 5. **Read the produced source, not only the oracles.** The most decision-relevant defects in
    this programme — a use case destroying an account's history, a comment that lies — are
    invisible to every oracle.
@@ -165,10 +175,10 @@ for everything from here**; `batching-only-4` measured a prompt set that no long
 |---|---|---|---|---|---|---|---|
 | `baseline` | pre-programme control | 127 | 564,943 | 787 | 1.69 | 2 | 80.5% |
 | `treatment-s1s2` | plan caps + reviewer gate | 104 | 429,198 | 669 | 1.66 | 0 | 89.1% |
-| `treatment-s3` | plan 2 ahead — rejected | 75 | 390,762 | 680 | 1.66 | 1 | 64.0% |
-| `treatment-s3-1deep` | plan 1 ahead — rejected | 106 | 450,950 | 716 | 1.55 | 1 | 67.7% |
-| `layered-seq` | layer as unit — rejected | 74 | 280,012 | 324 | 1.47 | 1 | 83.6% |
-| `layered-2` | layered confirmation | 103 | 356,013 | 493 | 1.45 | 4 | 81.0% |
+| `treatment-s3` | plan 2 ahead — rejected | 75 | 390,762 | 680 | 1.66 | 0 | 64.0% |
+| `treatment-s3-1deep` | plan 1 ahead — rejected | 106 | 450,950 | 716 | 1.55 | 0 | 67.7% |
+| `layered-seq` | layer as unit — rejected | 74 | 280,012 | 324 | 1.47 | 0 | 83.6% |
+| `layered-2` | layered confirmation | 103 | 356,013 | 493 | 1.45 | 3 | 81.0% |
 | `layered-3` | layered confirmation | 103 | 401,981 | 510 | 1.45 | 2 | 93.6% |
 | `turn-economy` | #13+#14 together — unattributable | 95 | 439,306 | 476 | 2.31 | 3 | 86.0% |
 | `batching-only-4` | #13 alone — shipped | 103 | 451,859 | 555 | 1.93 | 0 | 78.7% |
