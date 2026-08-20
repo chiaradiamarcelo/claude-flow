@@ -100,14 +100,18 @@ python3 ~/.claude/tools/mutation/classify-stryker.py reports/mutation/mutation.j
 Both split survivors into **junk** (dropped) and **candidate-real** (business-logic gaps). Report
 ONLY the candidate-real list, as **advisory** findings.
 
-The Stryker filter separates two more buckets that the PIT one does not, and **neither is a
-weak-test finding** — do not report them as one:
+Both also separate two buckets that are **not** weak-test findings — do not report them as one:
 
 - **uncovered** (`NoCoverage`) — no test executes the line. That is a coverage gap; the ask is a
   test that runs the code at all, not a stronger assertion. Say so, and say it first: auditing
   assertions on unexecuted code is meaningless.
-- **static** — Stryker's own unreliable class (above). Mention the count and the `ignoreStatic`
-  fix; do not turn them into findings.
+- **static** (Stryker only) — its own unreliable class (above). Mention the count and the
+  `ignoreStatic` fix; do not turn them into findings.
+
+On the JVM side, `TIMED_OUT` / `MEMORY_ERROR` / `RUN_ERROR` are counted as **killed**, as PIT's
+own mutation score counts them. On coroutine code this matters: a negated conditional inside a
+collector hangs far more often than it fails, so counting timeouts as survivors inflates the
+figure systematically rather than marginally.
 
 **The Stryker junk rules are less trustworthy than PIT's.** PIT's were derived from a measured
 run (finding 14); no equivalent Stryker run exists yet, so one of its three rules (log-message
