@@ -105,6 +105,14 @@ the eval suite (`evals/run_all.sh`).
     was dropped — measured against a plain review pass it added nothing and mis-certified a
     rule as covered — and so was the separate review phase, whose disposition step was
     wrong: an uncovered rule has to become a question to the user, not a labelled note.
+17. [Quieting Bash output is rejected; two metric lessons are the return](findings/17-quiet-bash-rejected.md)
+    — the rule meant to shrink build output **increased** the developer's Bash bytes 31%
+    and left cost flat. The return is two metric lessons: an interim reading inverted on
+    the full arm for the **fourth** time (−46% at 2 dispatches, +31% complete), and
+    `red_arrival` was shown to measure *prose* — 12 apparent no-red rows were terser Status
+    cells, not weaker verification, since suite runs were 103 vs 110. Also settles a feared
+    regression on `main`: filtered candidate-real has ranged 0–4 across eleven arms with no
+    treatment explaining it, so single-arm moves inside that band are noise.
 
 ## Conventions used across these notes
 

@@ -1,0 +1,12 @@
+methods=135  over_30=0  total_crap=168.0  mean_crap=1.24
+    CRAP  comp    cov  method
+     3.0     3    1.0  TransferMoneyUseCase.transfer
+     3.0     3    1.0  AccountRecordDecoder.predatesMovements
+     3.0     3    1.0  Account.withdraw
+     3.0     3    1.0  Account.equals
+     3.0     3    1.0  MovementResponse$Companion.wireKind
+     2.0     2    1.0  DomainExceptionHandler.messageFor
+     2.0     1    0.0  BankApplicationKt.main
+     2.0     2    1.0  DepositMoneyUseCase.deposit
+     2.0     2    1.0  ReadAccountStatementUseCase.statement
+     2.0     2    1.0  WithdrawMoneyUseCase.withdraw

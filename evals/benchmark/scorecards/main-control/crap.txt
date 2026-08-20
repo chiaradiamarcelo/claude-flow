@@ -1,0 +1,12 @@
+methods=144  over_30=0  total_crap=182.04  mean_crap=1.26
+    CRAP  comp    cov  method
+     4.0     4    1.0  AccountJpaAdapter.findById
+     4.0     4    1.0  MovementKindResponse$Companion.of
+     3.0     3    1.0  TransferMoneyController.transfer
+     3.0     3    1.0  Account.equals
+     2.0     2    1.0  WithdrawMoneyController.withdraw
+     2.0     2    1.0  OpenAccountController.open
+     2.0     2    1.0  DepositMoneyController.deposit
+     2.0     1    0.0  BankApplicationKt.main
+     2.0     2    1.0  Account.requirePositive
+     2.0     2    1.0  Account.isNotPositive

@@ -161,7 +161,15 @@ def rows_from_plans(plans_dir):
     a 9-point regression in test strength when it was the opposite.
 
     `red_arrival` is therefore counted across every ✅ token, from the prose
-    evidence, and is the metric to compare between arms."""
+    evidence, and is the metric to compare between arms.
+
+    CAVEAT, measured (finding 17): this reads PROSE, not behaviour. An arm whose
+    Status cells averaged 109 characters scored 12 no-evidence rows against an
+    arm at 187 characters scoring 3 — while running 103 and 110 suite runs
+    respectively. Verification was identical; only the record got terser. Any
+    treatment that changes how much the agent writes moves this metric for free.
+    Cross-check against a behavioural counter (suite-run count, build calls)
+    before believing a red_arrival delta."""
     c = collections.Counter()
     for f in sorted(glob.glob(f"{plans_dir}/*.md")):
         if os.path.basename(f) == "specification.md":

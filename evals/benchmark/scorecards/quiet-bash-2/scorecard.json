@@ -1,0 +1,205 @@
+{
+  "reviewer_rounds": [
+    {
+      "n": 4,
+      "span_min": 1.8988,
+      "sum_min": 6.228833333333333,
+      "ratio": 3.2804051681763924,
+      "names": [
+        "arch-reviewer",
+        "api-reviewer",
+        "refactor-advisor",
+        "test-reviewer"
+      ]
+    },
+    {
+      "n": 4,
+      "span_min": 2.1107666666666667,
+      "sum_min": 7.348716666666666,
+      "ratio": 3.481539093220473,
+      "names": [
+        "arch-reviewer",
+        "api-reviewer",
+        "refactor-advisor",
+        "test-reviewer"
+      ]
+    },
+    {
+      "n": 2,
+      "span_min": 1.5094666666666667,
+      "sum_min": 2.0220333333333333,
+      "ratio": 1.339568059358714,
+      "names": [
+        "api-reviewer",
+        "arch-reviewer"
+      ]
+    }
+  ],
+  "fix_rounds": {
+    "n": 2,
+    "min": 14.757033333333334,
+    "out_tok": 65102
+  },
+  "commits": 0,
+  "catches_note_to_architect": 6,
+  "staleness": {
+    "events": [],
+    "by_source": {}
+  },
+  "label": "quiet-bash-2",
+  "span_min": 97.25653333333334,
+  "agent_min": 101.47168333333335,
+  "dispatches": 39,
+  "output_tokens": 472770,
+  "api_calls": 621,
+  "assistant_events": 1620,
+  "cache_read": 36399562,
+  "tool_calls": 1145,
+  "tool_calls_per_api_call": 1.8438003220611916,
+  "single_tool_call_share": 0.5668276972624798,
+  "ctx_per_api_call": 58614.43156199678,
+  "scenarios": 9,
+  "rows": 100,
+  "min_per_scenario": 10.806281481481482,
+  "min_per_row": 0.9725653333333334,
+  "out_tok_per_row": 4727.7,
+  "roles": {
+    "developer": {
+      "n": 11,
+      "min": 59.87171666666667,
+      "out_tok": 264687,
+      "chars": {
+        "code_test": 80863,
+        "code_prod": 38450,
+        "spec_plan": 48172,
+        "spec_sot": 2399
+      },
+      "builds": 103,
+      "reads": 117,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 389,
+      "cache_read": 29829125,
+      "tool_calls": 588
+    },
+    "refactor-advisor": {
+      "n": 2,
+      "min": 3.867233333333333,
+      "out_tok": 20323,
+      "chars": {},
+      "builds": 0,
+      "reads": 87,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 28,
+      "cache_read": 864016,
+      "tool_calls": 92
+    },
+    "test-designer": {
+      "n": 9,
+      "min": 15.483683333333333,
+      "out_tok": 70419,
+      "chars": {
+        "spec_plan": 35081
+      },
+      "builds": 0,
+      "reads": 65,
+      "models": [
+        "claude-opus-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 67,
+      "cache_read": 2346727,
+      "tool_calls": 112
+    },
+    "architect": {
+      "n": 9,
+      "min": 10.516700000000002,
+      "out_tok": 55351,
+      "chars": {
+        "spec_plan": 27373
+      },
+      "builds": 0,
+      "reads": 78,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 50,
+      "cache_read": 1161108,
+      "tool_calls": 117
+    },
+    "api-reviewer": {
+      "n": 3,
+      "min": 4.57175,
+      "out_tok": 24625,
+      "chars": {},
+      "builds": 0,
+      "reads": 66,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 34,
+      "cache_read": 719531,
+      "tool_calls": 88
+    },
+    "arch-reviewer": {
+      "n": 3,
+      "min": 3.8889833333333335,
+      "out_tok": 20197,
+      "chars": {},
+      "builds": 0,
+      "reads": 87,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 32,
+      "cache_read": 716117,
+      "tool_calls": 96
+    },
+    "test-reviewer": {
+      "n": 2,
+      "min": 3.271616666666667,
+      "out_tok": 17168,
+      "chars": {},
+      "builds": 0,
+      "reads": 43,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "efforts": [
+        "medium"
+      ],
+      "api_calls": 21,
+      "cache_read": 762938,
+      "tool_calls": 52
+    }
+  },
+  "rows_detail": {
+    "total": 100,
+    "red_then_green": 79,
+    "green": 100,
+    "red_arrival": 83,
+    "early_green": 5,
+    "unplanned": 16,
+    "no_red_evidence": 12
+  }
+}
