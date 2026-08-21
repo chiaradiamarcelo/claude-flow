@@ -2,7 +2,10 @@
 name: refactor-advisor
 description: Suggests Clean Architecture and clean code improvements after tests are green. Use after completing a use case implementation.
 type: reviewer
-triggers: ["**/src/main/**"]
+triggers: ["**/src/**", "**/lib/**", "**/internal/**", "**/pkg/**", "**/cmd/**",
+           "**/domain/**", "**/application/**", "**/infrastructure/**", "**/presentation/**"]
+excludes: ["**/res/**", "**/resources/**", "**/assets/**", "**/*.md", "**/*.json",
+           "**/*.xml", "**/*.yaml", "**/*.yml", "**/*.snap", "**/*.sql"]
 tools: Read, Glob, Grep, Skill
 model: sonnet
 color: green
@@ -20,15 +23,19 @@ This reviewer checks **code quality within layers** — is the code well-designe
    source of truth and this file does not restate them:
    - `clean-architecture` — layer rules, dependency direction, naming, repository conventions.
    - `comments` — the falsifiability test and the four kinds of comment.
+   - `cqrs` — write-side vs. read-side responsibilities: which port is a `Repository` and which
+     is a `Query`, when a use case is a middleman, and when a read belongs straight in the
+     controller. Unconditional, because a pass-through use case does not announce itself: it is
+     a plausible-looking file, and you cannot recognise the smell from source you are reading
+     without already holding the rule.
 2. Read the catalog **index** — `~/.claude/knowledge/refactor-catalog/index.md` (global),
    plus the project's `.claude/refactor-catalog.md` or `.claude/knowledge/refactor-catalog/index.md`
    if either exists. The index is a table of patterns + smell signals. Match observed
    smells to rows, then Read **only the matched pattern file(s)** (e.g. `compose-method.md`)
    for the full refactoring — never load the whole catalog.
-3. When you suspect a pass-through use case, a service that only forwards to a repository, or a
-   port named `*Repository` whose methods are all read-shaped, consult the `cqrs` skill
-   and read the *Pass-through Layer (Middleman)* / *Read-side port named "Repository"* pattern
-   files before reporting — the skill pins write-side vs. read-side responsibilities.
+3. Read the matching catalog pattern file before reporting a CQRS finding: *Pass-through Layer
+   (Middleman)* for a use case that only forwards, *Read-side port named "Repository"* for a
+   port whose methods are all read-shaped.
 4. **Establish your scope, then read every file in it.** The caller may hand you a file list, a
    path, or a layer. If it hands you a path, enumerate it with Glob and read what you find —
    **every** production file, whatever layer it sits in. `presentation/`, `infrastructure/`,
@@ -105,11 +112,19 @@ Five things are yours alone:
 - **Severity.** A comment that is **already false**, and an orphaned doc block, are `WARNING` —
   not `SUGGESTION`. Neither is merely redundant: the first misleads, and the second does not
   exist where its author believes it does. Everything else is `SUGGESTION`.
-- **File-level signals** no single comment shows: the same explanation duplicated on two
-  declarations, and a file whose comment lines outnumber its code lines. **Apply the ratio to
-  every file in scope, not to the ones you happened to notice** — it is a counting job, so
-  report it for each file that qualifies. The ratio is a design signal: the names are not
-  carrying their weight.
+- **Signals no single comment shows, and no single *file* shows either.** Two of these:
+
+  - **The same explanation in more than one place.** Within a file, and — the one that gets
+    missed — **across the files in your scope.** You are the only reviewer that sees them
+    together; a reviewer reading one file at a time cannot find this, and neither can the
+    author, because each copy looks reasonable where it sits. Compare the *substance* of the
+    background paragraphs across your scope, not their wording: the same fact rephrased is
+    still a second copy. Report it once, naming every file that carries a copy and the one
+    place it should live.
+  - **A file whose comment lines outnumber its code lines.** **Apply the ratio to every file in
+    scope, not to the ones you happened to notice** — it is a counting job, so report it for
+    each file that qualifies. The ratio is a design signal: the names are not carrying their
+    weight.
 
 - **Long functions.** Flag any function that exceeds ~15 lines or visibly contains 2+
   distinct phases. Recommend *Compose method*: extract each phase into a named helper so the

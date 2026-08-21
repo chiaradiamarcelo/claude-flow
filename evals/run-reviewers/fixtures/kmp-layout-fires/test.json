@@ -1,0 +1,18 @@
+{
+  "description": "Kotlin Multiplatform layout. Production is src/commonMain and src/androidMain; there is no src/main anywhere. Under the old trigger (**/src/main/**) arch-reviewer and refactor-advisor matched nothing and were reported as skipped — a whole-codebase architecture review that never looked at the architecture, indistinguishable in the report from a clean one. boulder-friend had to work around this in pipeline.json. Routing is path-only, so the files are created empty.",
+  "given": {
+    "workspace": "git-scratch",
+    "changedFiles": [
+      "shared/src/commonMain/kotlin/domain/Wall.kt",
+      "shared/src/androidMain/kotlin/infrastructure/WallFileAdapter.kt"
+    ]
+  },
+  "when": { "do": "command", "command": "/run-reviewers --dry-run" },
+  "then": {
+    "grader": "routing",
+    "fires": ["arch-reviewer", "refactor-advisor"],
+    "mustScope": {
+      "refactor-advisor": ["commonMain/kotlin/domain/Wall.kt", "androidMain/kotlin/infrastructure/WallFileAdapter.kt"]
+    }
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "description": "Scope regression. The input holds a clean use case in application/ and a comment-bloated file in presentation/: 30 comment lines to 14 lines of code, an orphaned doc block above `sheet` (two consecutive KDoc blocks, only the last attaches), an argues-the-design block on `wallOptionTag`, and a comment cross-referencing a test by name on `confirm`. Every finding available is in the presentation file. The advisor's Process used to name a closed reading list — use cases, domain types, use-case tests, controllers — so it read the clean use case, found nothing, and returned a pass on a file it never opened. `mustFlagFiles` is the assertion that matters here: prose about comments can be produced without reading anything, but a `file` field cannot.",
+  "description": "Scope regression. The input holds a clean use case in application/ and a comment-bloated file in presentation/: 30 comment lines to 14 lines of code, an orphaned doc block above `sheet` (two consecutive KDoc blocks, only the last attaches), an argues-the-design block on `wallOptionTag`, and a comment cross-referencing a test by name on `confirm`. Every finding available is in the presentation file. The advisor's Process used to name a closed reading list \u2014 use cases, domain types, use-case tests, controllers \u2014 so it read the clean use case, found nothing, and returned a pass on a file it never opened. `mustFlagFiles` is the assertion that matters here: prose about comments can be produced without reading anything, but a `file` field cannot.",
   "given": {
     "files": "input/"
   },
@@ -18,7 +18,8 @@
     ],
     "mustInvokeSkills": [
       "clean-architecture",
-      "comments"
+      "comments",
+      "cqrs"
     ]
   }
 }

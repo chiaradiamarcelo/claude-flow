@@ -1,5 +1,5 @@
 {
-  "description": "Exercises the previously-untested project-override path (Step 3) under the NEW single-file schema. Changeset is one TypeScript test `src/widget.spec.ts`, which matches NO reviewer's default triggers (test-reviewer defaults to `**/*Test.*` / `**/src/test/**`; the src/main and api reviewers don't match; ui-test-reviewer wants `*.test.tsx`). The seeded `.claude/pipeline.json` overrides `reviewers.test-reviewer` to `[**/*.spec.ts]`, so test-reviewer — and ONLY test-reviewer — must fire. If the router ignored the file, or read the old `review-triggers.json` name, or failed to descend into the `reviewers` key, `fires` would be empty. So a non-empty `fires: test-reviewer` proves the new schema is read and applied.",
+  "description": "Exercises the project-override path (Step 3). Changeset is one TypeScript test, src/widget.spec.ts, which matches no reviewer's DEFAULT test triggers (test-reviewer defaults to **/*Test.* / **/src/test/**; ui-test-reviewer wants *.test.tsx). The seeded .claude/pipeline.json overrides reviewers.test-reviewer to [**/*.spec.ts], so test-reviewer can only fire via the override \u2014 if the router ignored the file, read the old review-triggers.json name, or failed to descend into the reviewers key, test-reviewer would be skipped. arch-reviewer and refactor-advisor also fire, on their widened **/src/** trigger and not via any override; they are listed so the assertion stays honest about who is dispatched. Routing is path-only, so the file is created empty.",
   "given": {
     "workspace": "git-scratch",
     "changedFiles": [
@@ -14,12 +14,12 @@
   "then": {
     "grader": "routing",
     "fires": [
-      "test-reviewer"
+      "test-reviewer",
+      "arch-reviewer",
+      "refactor-advisor"
     ],
     "doesNotFire": [
       "api-reviewer",
-      "arch-reviewer",
-      "refactor-advisor",
       "ui-test-reviewer"
     ]
   }

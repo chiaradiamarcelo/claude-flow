@@ -81,6 +81,35 @@ class ScopedFilesTest(unittest.TestCase):
         self.assertEqual({}, scoped_files("fires: arch-reviewer\n"))
 
 
+class MustNotScopeTest(unittest.TestCase):
+    """The other half of a wide trigger. `**/src/**` matches
+    `node_modules/foo/src/index.ts`, and a matched file is a mandatory scope item."""
+
+    VENDORED = DRY_RUN.replace(
+        "refactor-advisor: src/main/App.kt",
+        "refactor-advisor: node_modules/left-pad/src/index.js, src/main/App.kt")
+
+    def test_passes_when_the_ignored_path_never_reached_the_reviewer(self):
+        spec = {"fires": ["refactor-advisor"],
+                "mustNotScope": {"refactor-advisor": ["node_modules/"]}}
+
+        self.assertEqual([], grade_routing(spec, DRY_RUN))
+
+    def test_fails_when_vendored_code_is_in_the_reviewers_scope(self):
+        spec = {"fires": ["refactor-advisor"],
+                "mustNotScope": {"refactor-advisor": ["node_modules/"]}}
+
+        fails = grade_routing(spec, self.VENDORED)
+
+        self.assertEqual(1, len(fails))
+        self.assertIn("left-pad", fails[0])
+
+    def test_a_reviewer_that_did_not_fire_cannot_violate_an_absence(self):
+        spec = {"mustNotScope": {"api-reviewer": ["node_modules/"]}}
+
+        self.assertEqual([], grade_routing(spec, DRY_RUN))
+
+
 class MustScopeTest(unittest.TestCase):
     def test_passes_when_the_required_file_is_in_the_reviewers_scope(self):
         spec = {"fires": ["refactor-advisor"],

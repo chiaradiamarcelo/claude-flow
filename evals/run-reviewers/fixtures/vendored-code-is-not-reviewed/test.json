@@ -1,0 +1,18 @@
+{
+  "description": "The cost of a wide trigger. **/src/** matches node_modules/left-pad/src/index.js and build/generated/Db.kt as readily as real source, and a matched file is now a MANDATORY scope item — so an unfiltered path does not add noise, it makes a reviewer answerable for vendored code. Step 1's drop list is what prevents it; mustNotScope is the only way to tell a working drop list from one that never ran. Routing is path-only, so the files are created empty.",
+  "given": {
+    "workspace": "git-scratch",
+    "changedFiles": [
+      "src/domain/Wall.kt",
+      "node_modules/left-pad/src/index.js",
+      "build/generated/source/Db.kt"
+    ]
+  },
+  "when": { "do": "command", "command": "/run-reviewers --dry-run" },
+  "then": {
+    "grader": "routing",
+    "fires": ["arch-reviewer", "refactor-advisor"],
+    "mustScope": { "refactor-advisor": ["src/domain/Wall.kt"] },
+    "mustNotScope": { "refactor-advisor": ["node_modules/", "build/generated/"] }
+  }
+}

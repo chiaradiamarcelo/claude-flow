@@ -1,12 +1,12 @@
 ---
 name: kotlin-conventions
-description: Kotlin style and idiom conventions for a Clean-Architecture Kotlin project. Load when writing or reviewing Kotlin code that isn't already covered by clean-architecture, testing, or tdd.
+description: Kotlin style and idiom conventions for a Clean-Architecture Kotlin project. Load when writing or reviewing Kotlin code that isn't already covered by clean-architecture or testing.
 allowed-tools: Read, Glob, Grep
 ---
 
 ## When to use this skill
 
-Load when writing or reviewing Kotlin production code — as a supplement to `clean-architecture`, `tdd`, and `testing`. This skill covers style choices that those skills don't already dictate.
+Load when writing or reviewing Kotlin production code — as a supplement to `clean-architecture` and `testing`. This skill covers style choices that those skills don't already dictate.
 
 ## Type modelling
 
@@ -60,6 +60,6 @@ val success = when (state) {
 ## What this skill does NOT cover
 
 - Layer boundaries, port/adapter placement, contract tests — see `clean-architecture`.
-- RED/GREEN/REFACTOR discipline — see `tdd`.
+- Red-then-green discipline — see `testing`.
 - Test structure (GWT, fakes, no control flow in tests) — see `testing`.
 - Compose UI test patterns — see `android-ui-testing`.

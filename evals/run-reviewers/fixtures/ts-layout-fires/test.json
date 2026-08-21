@@ -1,0 +1,18 @@
+{
+  "description": "TypeScript workspace layout: src/domain, src/application, no src/main and no JVM build dirs at all. The same silent-skip as the KMP case, and the reason it matters beyond one project — the TS sibling pipeline runs these same two reviewers. Routing is path-only, so the files are created empty.",
+  "given": {
+    "workspace": "git-scratch",
+    "changedFiles": [
+      "packages/api/src/domain/planTier.ts",
+      "packages/api/src/application/recacheUrl.ts"
+    ]
+  },
+  "when": { "do": "command", "command": "/run-reviewers --dry-run" },
+  "then": {
+    "grader": "routing",
+    "fires": ["arch-reviewer", "refactor-advisor"],
+    "mustScope": {
+      "refactor-advisor": ["src/domain/planTier.ts", "src/application/recacheUrl.ts"]
+    }
+  }
+}

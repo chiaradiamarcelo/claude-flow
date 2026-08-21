@@ -15,7 +15,8 @@
     ],
     "mustInvokeSkills": [
       "clean-architecture",
-      "comments"
+      "comments",
+      "cqrs"
     ]
   }
 }
