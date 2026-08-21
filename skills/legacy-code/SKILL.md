@@ -47,7 +47,7 @@ The order of phases matters. Do not skip ahead. **Get the code under test before
 
 ## Out of scope (use a different skill)
 
-- **Greenfield code** → use `tdd` + `clean-architecture`.
+- **Greenfield code** → use `testing` + `clean-architecture`.
 - **Pure dependency upgrades** with no behavior change → standard upgrade work, not legacy-code.
 - **Architectural redesign** → a separate planning concern that follows once the legacy code is testable.
 

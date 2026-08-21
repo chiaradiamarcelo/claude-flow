@@ -85,7 +85,7 @@ Built-in reviewers (defined in agent frontmatter):
 | Reviewer | Default triggers | Checks |
 |---|---|---|
 | `test-reviewer` | `**/src/test/**`, `**/*Test.*`, `**/*IT.*`, `**/*AT.*` | GWT structure, naming, fakes vs mocks, redundant assertions, test logic, coverage strategy |
-| `arch-reviewer` | source roots + layer names (`**/src/**`, `**/domain/**`, …), minus non-source `excludes` | Layer dependencies, domain purity, Clean Architecture patterns, TDD compliance |
+| `arch-reviewer` | source roots + layer names (`**/src/**`, `**/domain/**`, …), minus non-source `excludes` | Layer dependencies, domain purity, Clean Architecture patterns, file placement |
 | `refactor-advisor` | same as `arch-reviewer` | Primitive obsession, misplaced logic, intent-revealing methods, naming, mapper cleanliness, the comment doctrine |
 | `api-reviewer` | `**/api/**`, `**/controller/**`, `**/dto/**` | HTTP conventions, thin controllers, REST URLs, response modeling |
 | `ui-test-reviewer` | `**/*.test.tsx`, `**/*.test.jsx` | React component/hook tests: naming, query priority, mocking, behavioral focus |
