@@ -115,14 +115,8 @@ The reasoning is worth keeping — it is just not source code's job:
 
 These destinations are already written, already durable, and **nobody has to keep them true** —
 they are records of a moment, not claims about current code. Move the argument there and the
-source keeps only what must stay accurate.
-
-**The scenario plan file is not one of these destinations.** `docs/specifications/` is not
-committed — it is a working artifact of the run that produced the code, and it is gone for
-anyone who clones the repo. Sending the reasoning there deletes it while feeling like filing
-it, and worse, it invites the source to cite it: "see Rule 7", "SCENARIO-04 proved this" —
-cross-references that are dead on arrival for every reader but their author. A decision worth
-keeping goes in an ADR. A cited rule gets promoted to an ADR, or inlined where it is cited.
+source keeps only what must stay accurate. If the decision is worth keeping, write the ADR; if
+it is not worth an ADR, it was not worth a comment either.
 
 ## Tests are in scope
 

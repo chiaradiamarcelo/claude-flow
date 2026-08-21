@@ -33,9 +33,7 @@ You are reading a declaration's doc block and:
 
 1. **Locate the durable home.** An ADR for a design decision; the commit message when it is
    about a bug just fixed. Both are already written and **nobody has to keep them true** —
-   they describe a moment, not current code. **Not the scenario plan file:**
-   `docs/specifications/` is not committed, so moving the reasoning there deletes it while
-   feeling like filing it.
+   they describe a moment, not current code.
 2. **Move the argument there verbatim.** Do not compress it; the reasoning is worth keeping.
 3. **Delete the doc block.** If something genuinely local survives — a fence against a future
    change, an accepted cost — keep only that sentence.
