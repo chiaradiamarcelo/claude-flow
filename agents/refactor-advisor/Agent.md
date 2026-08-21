@@ -167,9 +167,9 @@ Field rules:
   - Primitive obsession → extract a value object.
   - Comment as a missing name → Extract Variable / Extract Method.
   - Comment that restates a test → delete it, or write the missing test.
-  - Comment that argues the design → move it to an ADR, the commit message, or the scenario
-    plan file where the project commits one (see the `comments` skill: an untracked plan file
-    is a worse home than the comment, and every source reference to it is dead on arrival).
+  - Comment that argues the design → move it to an ADR, or the commit message. **Never the
+    scenario plan file** — `docs/specifications/` is not committed, so that is deletion
+    dressed as filing (see the `comments` skill).
   - Long function (2+ phases) → Compose method.
   - Feature envy → Move method.
 

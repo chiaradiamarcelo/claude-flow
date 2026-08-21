@@ -108,7 +108,7 @@ The reasoning is worth keeping — it is just not source code's job:
 
 | The thought | Where it belongs |
 |---|---|
-| Why this design over that one | an ADR, or the scenario plan file **if the project commits it** |
+| Why this design over that one | an ADR |
 | What bug this shape prevents | the test name, plus the commit message |
 | What the rule is | a named test |
 | Why a *future* reader must not change this | a comment (kind 1 — a fence) |
@@ -117,13 +117,12 @@ These destinations are already written, already durable, and **nobody has to kee
 they are records of a moment, not claims about current code. Move the argument there and the
 source keeps only what must stay accurate.
 
-**Check that the destination survives the merge.** Some projects gitignore
-`docs/specifications/`, which makes the scenario plan file a *worse* home than the comment was:
-the reasoning is gone for anyone in a fresh clone, and every source reference to it — "see
-Rule 7", "SCENARIO-04 proved this" — is a dead cross-reference on arrival.
-`git check-ignore docs/specifications/` is the whole check. If the plan is not tracked, the
-argument goes in an ADR or the commit
-message, and a cited rule gets promoted to an ADR or inlined where it is cited.
+**The scenario plan file is not one of these destinations.** `docs/specifications/` is not
+committed — it is a working artifact of the run that produced the code, and it is gone for
+anyone who clones the repo. Sending the reasoning there deletes it while feeling like filing
+it, and worse, it invites the source to cite it: "see Rule 7", "SCENARIO-04 proved this" —
+cross-references that are dead on arrival for every reader but their author. A decision worth
+keeping goes in an ADR. A cited rule gets promoted to an ADR, or inlined where it is cited.
 
 ## Tests are in scope
 
