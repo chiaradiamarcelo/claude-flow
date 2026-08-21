@@ -26,15 +26,14 @@ You are reading a declaration's doc block and:
 
 - its subject is a **choice between alternatives**, not a fact about the world;
 - removing it would not make the code harder to *use*, only harder to *justify*;
-- the same reasoning already exists in a scenario plan file, an ADR, or a commit message;
+- the same reasoning already exists in an ADR or a commit message;
 - the file's comment lines outnumber its code lines.
 
 ### Refactoring
 
-1. **Locate the durable home.** The scenario plan file for a decision local to one feature; an
-   ADR when it outlives the feature; the commit message when it is about a bug just fixed.
-   Those records are already written and **nobody has to keep them true** — they describe a
-   moment, not current code.
+1. **Locate the durable home.** An ADR for a design decision; the commit message when it is
+   about a bug just fixed. Both are already written and **nobody has to keep them true** —
+   they describe a moment, not current code.
 2. **Move the argument there verbatim.** Do not compress it; the reasoning is worth keeping.
 3. **Delete the doc block.** If something genuinely local survives — a fence against a future
    change, an accepted cost — keep only that sentence.

@@ -76,7 +76,16 @@ skips: <comma-separated names of discovered reviewers with no match, sorted>
 
 SKILLS
 <fired-reviewer-name>: <comma-separated project skills from Step 3b, or (none)>
+
+SCOPE
+<fired-reviewer-name>: <comma-separated matched file paths, sorted>
 ```
+
+The `SCOPE` block is the file list Step 5 would pass to that reviewer — every
+target file matching that reviewer's triggers, and nothing else. One line per
+**fired** reviewer. Print the paths in full; never abbreviate the list or write
+"and N more", because a scope that is silently narrower than it claims is the
+defect this block exists to expose.
 
 List one `SKILLS` line per **fired** reviewer (a skipped reviewer is never
 dispatched, so it receives nothing); use `(none)` for a fired reviewer with no
@@ -87,11 +96,17 @@ routing (Step 4) end-to-end, without spending tokens dispatching reviewers.
 
 ## Step 5: Launch relevant reviewers in parallel
 
-Spawn all matching reviewers in a **single message** using the `Agent` tool:
+Spawn all matching reviewers in a **single message** using the `Agent` tool. **Pass each
+reviewer the files that matched *its own* triggers in Step 4** — not just a path:
 
 ```
-Agent(subagent_type="<name>", prompt="Review the code in this project. Focus on files under <path>.")
+Agent(subagent_type="<name>", prompt="Review these <N> files, all of them:
+<one matched path per line>
+
+This list is your scope. Read every file on it. If you cannot review them all, say which ones you did not read and how many.")
 ```
+
+Pass the whole list, however long — never trim it to keep the prompt small.
 
 For a reviewer with a non-empty `agentSkills` entry (from Step 3b), append to its prompt:
 

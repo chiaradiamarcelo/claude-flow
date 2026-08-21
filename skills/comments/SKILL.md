@@ -108,14 +108,15 @@ The reasoning is worth keeping — it is just not source code's job:
 
 | The thought | Where it belongs |
 |---|---|
-| Why this design over that one | the scenario plan file, or an ADR if it outlives the feature |
+| Why this design over that one | an ADR |
 | What bug this shape prevents | the test name, plus the commit message |
 | What the rule is | a named test |
 | Why a *future* reader must not change this | a comment (kind 1 — a fence) |
 
-Plan files and commit messages are already written, already durable, and **nobody has to keep
-them true** — they are records of a moment, not claims about current code. Move the argument
-there and the source keeps only what must stay accurate.
+These destinations are already written, already durable, and **nobody has to keep them true** —
+they are records of a moment, not claims about current code. Move the argument there and the
+source keeps only what must stay accurate. If the decision is worth keeping, write the ADR; if
+it is not worth an ADR, it was not worth a comment either.
 
 ## Tests are in scope
 
