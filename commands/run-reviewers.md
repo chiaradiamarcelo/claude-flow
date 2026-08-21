@@ -106,12 +106,7 @@ Agent(subagent_type="<name>", prompt="Review these <N> files, all of them:
 This list is your scope. Read every file on it. If you cannot review them all, say which ones you did not read and how many.")
 ```
 
-Step 4 already computed this list per reviewer; discarding it and passing a bare directory is
-what lets a reviewer quietly substitute a familiar subset for its actual scope. A bare path also
-gives it nothing to be held to — with the list in the prompt, an unreviewed file is visible.
-
-If the list is long (a whole-tree ad-hoc run), **pass it anyway** — paths are cheap, and the
-count is the point. Never trim it silently to keep the prompt small.
+Pass the whole list, however long — never trim it to keep the prompt small.
 
 For a reviewer with a non-empty `agentSkills` entry (from Step 3b), append to its prompt:
 
