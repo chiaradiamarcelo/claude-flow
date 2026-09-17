@@ -1,0 +1,82 @@
+{
+  "total_cost_usd": 3.6232726500000014,
+  "output_tokens_total": 663,
+  "input_tokens_total": 160,
+  "cache_read_total": 4013514,
+  "cache_creation_total": 373142,
+  "gradle_runs_total": 9,
+  "assistant_events_total": 80,
+  "by_origin": {
+    "orchestrator": {
+      "output_tokens": 40,
+      "cache_read": 431699,
+      "cache_creation": 52356,
+      "assistant_events": 13,
+      "gradle_runs": 0,
+      "tool_calls": {
+        "Bash": 1,
+        "Read": 2,
+        "Agent": 3
+      }
+    },
+    "subagent": {
+      "output_tokens": 623,
+      "cache_read": 3581815,
+      "cache_creation": 320786,
+      "assistant_events": 67,
+      "gradle_runs": 9,
+      "tool_calls": {
+        "Skill": 11,
+        "Read": 10,
+        "Glob": 2,
+        "Write": 16,
+        "Edit": 9,
+        "Bash": 18,
+        "Grep": 1
+      }
+    }
+  },
+  "subagents_dispatched": {
+    "exptopology:architect:architect": 1,
+    "exptopology:test-designer:test-designer": 1,
+    "exptopology:developer:developer": 1
+  },
+  "mainloop_only_usage": {
+    "input_tokens": 14,
+    "cache_creation_input_tokens": 29573,
+    "cache_read_input_tokens": 232871,
+    "output_tokens": 2695,
+    "output_tokens_details": {
+      "thinking_tokens": 131
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 29573,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 609,
+        "cache_read_input_tokens": 41370,
+        "cache_creation_input_tokens": 361,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 361
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "num_turns_mainloop": 7,
+  "duration_ms": 440503,
+  "duration_api_ms": 409436,
+  "is_error": false,
+  "wall_seconds": 444.0
+}
