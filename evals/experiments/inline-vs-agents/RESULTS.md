@@ -1,5 +1,11 @@
 # Results — subagent pipeline vs inline pipeline
 
+> **⚠️ RETRACTED BY THE VARIANCE STUDY — read [`VARIANCE.md`](VARIANCE.md) first.**
+> The headline below (−21% cost, mutation 73%→85%) came from **one run per cell** and
+> **does not replicate**. At n=4 on the strongest round, inline was *more* expensive on
+> average (+9.8%) and killed *fewer* mutants (80.0% → 75.8%), with every axis overlapping
+> except test count. The tables below stand as recorded data; their interpretation does not.
+
 **n = 1 run per arm per round, 3 rounds.** All six arms finished green.
 Total spend: **$25.11** on the arms, $7.31 on the post-hoc reviewer pass, ~$0.60 on
 instrument spikes.
@@ -109,21 +115,20 @@ partials), so token counts are used for **attribution only**, never as spend.
 5. **Only the topology variable was tested.** The three other differences bundled into the
    `rafa-*` variant were deliberately pinned out and remain untested.
 
-## Recommendation
+## Recommendation — superseded
 
-**Do not promote inline into the standing pipeline on this evidence.** The direction is
-consistent and quality never regressed, which is enough to justify the next step — not
-enough to move `main`.
+The original recommendation was "don't promote, run a variance study first". **That study
+ran** (`VARIANCE.md`) and settled it: **no case for switching to inline.** The cost and
+mutation effects were noise.
 
-Next, in order:
+Status of the follow-ups:
 
-1. **Variance study** on `withdraw-money` (the round with the largest effect), 4 runs per
-   arm, mirroring the prior experiment's R4. That is what turns this into a claim.
-2. **Fix the reviewer harness** so the `-p` session waits for dispatched reviewers before
-   terminating — that bug will bite any future experiment that scores review.
-3. **Then the other three variables**, one experiment each: all-scenarios-in-one-pass
-   planning, `one-shot` granularity, and the deterministic inventory script. The inventory
-   script in particular is cheap, deterministic and independently attractive.
+1. ~~Variance study~~ — **DONE**, see `VARIANCE.md`. Result: negative.
+2. ~~Fix the reviewer harness~~ — **DONE**, `commands/run-reviewers.md` now forbids ending
+   the turn before dispatched reviewers return.
+3. **Still open:** the other three variables, one experiment each — all-scenarios-in-one-pass
+   planning, `one-shot` granularity, and the deterministic inventory script. Any such run
+   should budget **n=4 per cell from the start**; n=1 cannot see a 30% effect here.
 
 One incidental finding worth fixing regardless: the subagent arm named a Kotlin file
 `AccountJpaAdapter.integration.spec.kt`, leaking a `.spec.ts` convention into a Kotlin

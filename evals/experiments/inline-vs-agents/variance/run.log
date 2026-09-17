@@ -1,0 +1,9 @@
+run1 arm=agents exit=0 cost=$4.46 wall=585s gradle=12 tests=18
+run1 arm=inline exit=0 cost=$4.08 wall=471s gradle=12 tests=24
+run2 arm=agents exit=0 cost=$5.84 wall=733s gradle=21 tests=20
+run2 arm=inline exit=0 cost=$6.42 wall=708s gradle=18 tests=26
+run3 arm=agents exit=0 cost=$6.01 wall=1018s gradle=19 tests=21
+run3 arm=inline exit=0 cost=$7.33 wall=894s gradle=26 tests=25
+run4 arm=agents exit=0 cost=$4.34 wall=557s gradle=12 tests=22
+run4 arm=inline exit=0 cost=$4.84 wall=488s gradle=13 tests=23
+VARIANCE COMPLETE
