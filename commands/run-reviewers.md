@@ -114,6 +114,22 @@ For a reviewer with a non-empty `agentSkills` entry (from Step 3b), append to it
 
 Do NOT review code yourself — only orchestrate.
 
+### Wait for every reviewer before ending your turn
+
+Dispatching is not finishing. **Do not end your turn until every reviewer you spawned has
+returned its findings** — then go straight to Step 6 in the same run.
+
+If you are about to write "the reviewers are running in the background", "I'll consolidate
+when they report back", or anything else that promises a report in a later turn: **that is
+the bug.** There is no later turn. A non-interactive run (`claude -p`) ends the session the
+moment you end your turn, so the findings are discarded and the caller gets a promise
+instead of a review. Announcing what you are waiting for is fine; ending the turn to wait
+is not.
+
+Observed in the wild: two runs dispatched all four reviewers correctly and then ended the
+turn ~40s in, against ~166s for the same review that waited. Same dispatches, same turn
+count, no verdict.
+
 ## Step 6: Report
 
 Consolidate all findings into a single report:
