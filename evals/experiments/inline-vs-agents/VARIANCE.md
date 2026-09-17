@@ -47,10 +47,50 @@ inline produces more test code and more production code of equivalent complexity
 duplication, with proportionally weaker discrimination per test. That is not a quality win;
 at best it is neutral, at worst it is dilution.
 
+## The arms were not model-matched (found after the fact)
+
+Neither arm was given `--model`, so both defaulted to **Opus 5**. But the subagent arm's
+`architect` carries `model: sonnet` in its own frontmatter, so **one phase of arm-agents ran
+on Sonnet 5 while arm-inline did that same planning work on Opus 5.**
+
+Pricing those Sonnet events at Opus rates (a *lower bound* — streaming under-reports output
+tokens):
+
+| | run1 | run2 | run3 | run4 | mean |
+|---|---|---|---|---|---|
+| understatement | $1.01 | $1.16 | $1.50 | $1.49 | **$1.29** |
+| as % of that run | 22.5% | 19.8% | 25.0% | 34.4% | ~25% |
+
+| cost $ | agents | inline | Δ |
+|---|---|---|---|
+| **as run** | 5.16 | 5.67 | **+9.8%** (inline worse) |
+| **model-matched** | 6.45 | 5.67 | **−12.2%** (inline better) |
+
+The ranges still overlap heavily either way ([5.46–7.51] vs [4.08–7.33]), so **"no reliable
+cost difference" survives** — but the *direction* of the mean flips, and the original
+"+9.8% worse" should not be quoted without this caveat.
+
+**Two defensible framings, and they disagree:**
+
+1. **Topology-only.** A clean test needs the architect on Opus in both arms. Not run;
+   estimated above at inline ≈ −12%.
+2. **As-deployed.** The subagent topology *can* route a cheap phase to a cheap model, and a
+   single inline session structurally cannot — it is one session on one model. On that
+   reading the Sonnet architect is not a confound at all but a **real advantage of the
+   topology**, and the as-run numbers are the honest ones.
+
+Framing 2 is arguably the more useful one for the actual decision, and it is the framing
+under which the subagent arm is cheaper.
+
+**The quality result is unaffected, and if anything strengthened:** arm-agents achieved the
+higher mutation kill rate (80.0% vs 75.8%) *while* running its planning phase on the cheaper
+model.
+
 ## Verdict
 
 **No case for switching to the inline pipeline.** Cost, wall-clock, suite runs and code
-quality are indistinguishable between the topologies at n=4. The only reliable difference
+quality are indistinguishable between the topologies at n=4 — on cost the mean direction
+depends on whether you model-match the arms (see above), and the ranges overlap either way. The only reliable difference
 favours neither: more tests of lower average yield.
 
 This also **retracts the combined 3-round headline in `RESULTS.md`** (−21% cost, mutation
