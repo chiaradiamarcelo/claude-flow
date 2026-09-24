@@ -33,6 +33,7 @@ import check_fidelity      # noqa: E402
 import check_build         # noqa: E402
 import check_spec          # noqa: E402
 import check_choreography  # noqa: E402
+from plugin_under_test import plugin_args, qualified  # noqa: E402
 import check_refusal       # noqa: E402
 import check_routing       # noqa: E402
 import check_skills        # noqa: E402
@@ -58,7 +59,8 @@ def _extract_json(text):
 
 
 def _claude(prompt, cwd, tools, agent=None):
-    cmd = ["claude", "-p", prompt] + (["--agent", agent] if agent else []) \
+    cmd = ["claude", "-p", prompt, *plugin_args()] \
+        + (["--agent", qualified(agent)] if agent else []) \
         + ["--allowedTools", *tools]
     return subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True,
                           stdin=subprocess.DEVNULL)

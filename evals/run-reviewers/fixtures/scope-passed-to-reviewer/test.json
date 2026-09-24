@@ -9,7 +9,7 @@
   },
   "when": {
     "do": "command",
-    "command": "/run-reviewers --dry-run"
+    "command": "/claude-flow:run-reviewers --dry-run"
   },
   "then": {
     "grader": "routing",

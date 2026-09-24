@@ -13,14 +13,14 @@ Modes
 --plan           Print, per fixture, RUN (must dispatch) vs CACHED (fingerprint
                  matches a prior pass → reuse, no tokens). Free. This is how the
                  orchestrator dispatches only what changed (caching + diff-scoping).
---changed-agents Print the agents touched by the current git diff (their Agent.md,
+--changed-agents Print the agents touched by the current git diff (their agent definition,
                  a skill they @-reference, or their fixtures). Coarse diff-scoping.
 default          Grade --actuals against the corpus. With --write-cache, record
                  each freshly-graded pair's fingerprint so the next run can skip it.
 
 Caching / diff-scoping
 ----------------------
-Each fixture is fingerprinted over (agent Agent.md + every skill it @-references
+Each fixture is fingerprinted over (agent agent definition + every skill it @-references
 + the fixture input + expected.json). An unchanged fingerprint that previously
 passed is reused for free — so an untouched agent's whole suite costs 0 tokens,
 and editing an agent re-runs exactly its affected fixtures.
@@ -157,7 +157,7 @@ def _skill_faults(spec, actual):
     """Did the agent actually load the skills its rules live in?
 
     `mustMention` reads keywords out of the agent's prose, so it passes whether or
-    not the skill loaded — every reviewer's Agent.md restates enough of its skill to
+    not the skill loaded — every reviewer's agent definition restates enough of its skill to
     satisfy it. This reads the dispatch's tool calls instead: a deterministic check
     on wiring, needing no model judgement."""
     required = spec.get("mustInvokeSkills") or []
@@ -199,7 +199,7 @@ def _agent_inputs(agent, agents_dir, root, skills=()):
     Two routes, because an agent cannot @-include a skill (see dead_include_faults):
     the skills a fixture requires via `mustInvokeSkills`, which is how a skill
     actually loads; and any lingering `@…md` reference in the agent's prose."""
-    agent_md = agents_dir / agent / "Agent.md"
+    agent_md = agents_dir / f"{agent}.md"
     files = [agent_md]
     files.extend(root / "skills" / s / "SKILL.md" for s in skills)
     try:
@@ -263,7 +263,7 @@ def plan(evals_dir, agents_dir, root, only):
 
 
 def changed_agents(root, agents_dir):
-    """Agents touched by the working tree: their Agent.md, a skill they
+    """Agents touched by the working tree: their agent definition, a skill they
     @-reference, or anything under evals/<agent>/. Coarse diff-scoping."""
     cmds = (["git", "diff", "--name-only", "HEAD"],
             ["git", "diff", "--name-only", "--cached"],
@@ -279,9 +279,9 @@ def changed_agents(root, agents_dir):
     agents, changed_skills = set(), set()
     for f in files:
         parts = f.split("/")
-        if len(parts) >= 3 and parts[0] == agents_dir.name \
-                and (root / parts[0] / parts[1] / "Agent.md").is_file():
-            agents.add(parts[1])
+        if len(parts) == 2 and parts[0] == agents_dir.name and f.endswith(".md") \
+                and (root / f).is_file():
+            agents.add(parts[1][:-len(".md")])
         if len(parts) >= 3 and parts[0] == "evals" \
                 and (root / "evals" / parts[1] / "fixtures").is_dir():
             agents.add(parts[1])
@@ -308,10 +308,9 @@ def _agents_using_skills(changed_skills, agents_dir, root):
                 found.add(agent)
     if not agents_dir.is_dir():
         return found
-    for adir in agents_dir.iterdir():
-        md = adir / "Agent.md"
-        if md.is_file() and set(_SKILL_REF.findall(md.read_text(errors="ignore"))) & set(changed_skills):
-            found.add(adir.name)
+    for md in agents_dir.glob("*.md"):
+        if set(_SKILL_REF.findall(md.read_text(errors="ignore"))) & set(changed_skills):
+            found.add(md.stem)
     return found
 
 
@@ -339,7 +338,7 @@ def dead_include_faults(agent_md):
 
 def check_corpus(evals_dir, agents_dir=Path("agents")):
     faults = []
-    agent_md = agents_dir / evals_dir.name / "Agent.md"
+    agent_md = agents_dir / f"{evals_dir.name}.md"
     if agent_md.is_file():
         faults.extend(dead_include_faults(agent_md))
     fixtures = _fixtures(evals_dir)

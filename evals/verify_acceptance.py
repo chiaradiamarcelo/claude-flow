@@ -19,6 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # evals/
 import check_acceptance  # noqa: E402
+from plugin_under_test import plugin_args, qualified  # noqa: E402
 
 # Same glob routing as the reviewers' triggers: tests -> test-reviewer;
 # main -> arch-reviewer + refactor-advisor (no api/ui code in the core slice).
@@ -42,8 +43,8 @@ def gradle_build(ws) -> int:
 
 def review(ws, reviewer, d) -> dict:
     proc = subprocess.run(
-        ["claude", "-p", REVIEW_PROMPT.format(d=d), "--agent", reviewer,
-         "--allowedTools", *REV_TOOLS],
+        ["claude", "-p", REVIEW_PROMPT.format(d=d), *plugin_args(),
+         "--agent", qualified(reviewer), "--allowedTools", *REV_TOOLS],
         cwd=str(ws), capture_output=True, text=True, stdin=subprocess.DEVNULL)
     m = _JSON.search(proc.stdout or "")
     if not m:
