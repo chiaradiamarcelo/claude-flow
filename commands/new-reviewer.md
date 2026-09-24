@@ -20,7 +20,7 @@ Ask the user the following questions (skip any already answered via the argument
    - Infrastructure: `**/infrastructure/**`
    - Config files: `**/*.yml`, `**/*.yaml`, `**/*.properties`
    - Frontend: `**/*.tsx`, `**/*.vue`, `**/*.svelte`
-4. **Placement**: Should this be a global reviewer (`~/.claude/agents/`) or project-specific (`.claude/agents/`)? Default to project-specific.
+4. **Placement**: Should this be project-specific (`.claude/agents/` in the project) or bundled in the `claude-flow` plugin (`agents/` in the plugin's own repo)? Default to project-specific. A reviewer under `~/.claude/agents/` is **not** collected by `/claude-flow:run-reviewers` — it knows only the bundled table and the project's `.claude/agents/`.
 5. **Checklist**: What specific things should it check? Ask the user to describe the rules, conventions, or patterns this reviewer enforces. Probe for triggers of each severity the reviewer emits:
    - `VIOLATION` — a broken rule (must fix)
    - `WARNING` — a should-fix problem that does not break a hard rule
@@ -34,7 +34,7 @@ Before creating, glob for existing reviewer agents in the target location to avo
 
 ## Step 3: Generate the agent file
 
-Create the agent at `<placement>/<reviewer-name>/Agent.md` with this structure:
+Create the agent at `<placement>/<reviewer-name>.md` (flat — the plugin loader reads `agents/<name>.md`, and a project's `.claude/agents/` accepts the same) with this structure:
 
 ```markdown
 ---
@@ -113,9 +113,19 @@ Field rules:
 Emit nothing but this JSON object.
 ```
 
+## Step 3b: Register a bundled reviewer
+
+**Only if the placement is the plugin.** A plugin's agents are not on a consuming project's
+filesystem, so `/claude-flow:run-reviewers` cannot discover a bundled reviewer — add a row
+for it to the **Step 2a** table in `commands/run-reviewers.md`, with the same triggers as
+its frontmatter. Then run `bash scripts/check-reviewers.sh`: it fails if the table and the
+frontmatter disagree, which would otherwise surface as a reviewer that silently never fires.
+
+A project-specific reviewer needs no registration — Step 2b finds it.
+
 ## Step 4: Project trigger overrides
 
-If the reviewer is **global** but the user mentions it will be used in projects with different file conventions (e.g., TypeScript uses `*.spec.ts` instead of `*Test.*`), inform them they can override triggers per project by adding an entry to the `reviewers` object in `.claude/pipeline.json`:
+If the reviewer is **bundled** but the user mentions it will be used in projects with different file conventions (e.g., TypeScript uses `*.spec.ts` instead of `*Test.*`), inform them they can override triggers per project by adding an entry to the `reviewers` object in `.claude/pipeline.json`:
 
 ```json
 {
@@ -152,4 +162,4 @@ Verify with `./evals/run_all.sh --agents` (free structural check runs first; the
 
 ## Step 6: Confirm
 
-Show the user the generated file path and a summary of what the reviewer will check and when it triggers. Remind them it is registered in the reviewer table and will be picked up by the `review-gate` on the next scenario run.
+Show the user the generated file path and a summary of what the reviewer will check and when it triggers. Remind them it will be picked up by `/claude-flow:run-reviewers` on the next run — for a bundled reviewer, only once its Step 2a row exists.

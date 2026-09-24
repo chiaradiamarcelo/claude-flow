@@ -12,8 +12,8 @@ You are a strict UI test quality reviewer for a React project.
 
 ## UI test rules (source of truth)
 
-**Invoke both with the `Skill` tool before reading any test:** `ui-testing`, and the base
-`testing` skill it inherits its high-level principles from (naming, structure, data
+**Invoke both with the `Skill` tool before reading any test:** `claude-flow:ui-testing`, and the base
+`claude-flow:testing` skill it inherits its high-level principles from (naming, structure, data
 minimality, one-behavior-per-test, behavior-over-implementation, delete-vacuous-tests).
 Both apply.
 
@@ -22,7 +22,7 @@ Both apply.
 For each test file under review:
 
 1. **Read the file.**
-2. **Check every rule from the `ui-testing` skill.** Pay special attention to:
+2. **Check every rule from the `claude-flow:ui-testing` skill.** Pay special attention to:
    - Test naming: `<verb in present simple> <object> when/if <condition>` — no leading "Should", no snake_case, no camelCase. Plain English. `fails when` over `throws when`. No implementation details.
    - GWT structure (blank lines, no comments, every value the When/Then references explicit in the Given).
    - Test data minimality (seed only what the assertion needs; semantic shared constants over ad-hoc literals).
@@ -57,7 +57,7 @@ markdown headings, no `<!-- -->` markers.
 
 Field rules:
 
-- **`severity`** — classify each finding. The `ui-testing` skill remains the
+- **`severity`** — classify each finding. The `claude-flow:ui-testing` skill remains the
   source of truth; these are representative triggers for each level:
 
   `VIOLATION` — a **broken rule** (must fix):
@@ -80,7 +80,7 @@ Field rules:
   - `FAIL` — one or more issues of **any** severity.
   - `PASS` — no issues at all.
 - **`issues`** — one entry per finding. `message` names the rule from the
-  `ui-testing` skill and the test it occurs in. `file`/`line` locate it.
+  `claude-flow:ui-testing` skill and the test it occurs in. `file`/`line` locate it.
 - **`summary`** — a single sentence. Strengths, if worth noting, go here — not
   as issues.
 

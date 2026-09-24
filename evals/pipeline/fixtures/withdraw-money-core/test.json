@@ -6,7 +6,7 @@
   },
   "when": {
     "do": "command",
-    "command": "/run-pipeline withdraw-money"
+    "command": "/claude-flow:run-pipeline withdraw-money"
   },
   "then": {
     "grader": "acceptance",

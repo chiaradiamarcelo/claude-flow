@@ -5,7 +5,7 @@
   },
   "when": {
     "do": "command",
-    "command": "/intent-and-goal Transfer money from one account to another account. IMPORTANT: you are running non-interactively with no human available to answer \u2014 do NOT ask clarifying questions and do NOT wait for approval. Make reasonable assumptions, proceed through all three phases (intent refinement, scenario generation, SoT creation), and write the specification file to docs/specifications/<feature-slug>/specification.md. Then stop."
+    "command": "/claude-flow:intent-and-goal Transfer money from one account to another account. IMPORTANT: you are running non-interactively with no human available to answer \u2014 do NOT ask clarifying questions and do NOT wait for approval. Make reasonable assumptions, proceed through all three phases (intent refinement, scenario generation, SoT creation), and write the specification file to docs/specifications/<feature-slug>/specification.md. Then stop."
   },
   "then": {
     "grader": "spec",

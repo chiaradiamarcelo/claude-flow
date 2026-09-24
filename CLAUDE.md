@@ -5,7 +5,7 @@
 ## Workflow rules
 
 - **Step 0 — fresh worktree (MANDATORY, before any feature work):** Every
-  `/intent-and-goal` pipeline must start from a clean, up-to-date default branch
+  `/claude-flow:intent-and-goal` pipeline must start from a clean, up-to-date default branch
   in an isolated worktree — never on the shared checkout's current branch.
   1. If the session is **already in a worktree**, skip this step.
   2. Otherwise call the **`EnterWorktree`** tool with `name` set to a short slug
@@ -15,14 +15,14 @@
      checkout is on. All pipeline artifacts live inside it.
   3. **Do not warm dependencies yourself.** A `PostToolUse` hook on `EnterWorktree`
      runs the repo's `.claude/warm-deps.sh` detached and silently if present.
-     A global default (`~/.claude/warm-deps.sh`) auto-detects the ecosystem
+     A default shipped with the `claude-flow` plugin (`warm-deps.sh`) auto-detects the ecosystem
      (pnpm/npm/yarn → install; Kotlin/Java/Gradle/Maven/Go/Rust → no-op), and any
      repo can override it with its own `.claude/warm-deps.sh`. If you later need to
      confirm deps are ready, read the one-line `.claude/warm-deps.status` (`ok` =
      ready), never `.claude/warm-deps.log`. Convention:
-     `~/.claude/hooks/worktree-warming.md`.
+     `hooks/worktree-warming.md` in the `claude-flow` plugin.
 - **New features/use cases**: after Step 0, run
-  `/intent-and-goal <feature description>`. It scopes the feature and, once you
+  `/claude-flow:intent-and-goal <feature description>`. It scopes the feature and, once you
   approve the scenarios, drives the rest of the pipeline to completion. Never
   implement a feature any other way.
 
@@ -49,12 +49,12 @@
   - non-existing resource on update/delete/get -> `404`
   - unexpected runtime failures where defined -> `500`
 
-When writing or modifying tests, invoke the `testing` skill for full conventions. Enforced by the `test-reviewer` agent.
+When writing or modifying tests, invoke the `claude-flow:testing` skill for full conventions. Enforced by the `claude-flow:test-reviewer` agent.
 
 ## Code quality conventions
 
-The `refactor-advisor` agent enforces patterns from the catalog at
-`~/.claude/knowledge/refactor-catalog/` (start at `index.md`) —
+The `claude-flow:refactor-advisor` agent enforces patterns from the plugin's catalog at
+`knowledge/refactor-catalog/` (start at `index.md`) —
 *Comment as a missing name*, *Compose method*, *Feature envy → Move method*, and others.
 
 

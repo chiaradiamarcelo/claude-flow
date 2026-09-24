@@ -57,6 +57,13 @@ handler; `then.grader` → one of the pure `grade_*` functions
 ./evals/evals --list                # every fixture with its when/then
 ```
 
+Every live dispatch loads **this checkout** as the plugin (`claude -p --plugin-dir
+<repo root>`) and names its components in full — `--agent claude-flow:test-reviewer`,
+`/claude-flow:run-reviewers`. An eval therefore grades the working tree, never an
+installed copy, and cannot reach a personal agent that shares a bare name. Fixtures
+still name agents and skills bare; `evals/plugin_under_test.py` does the qualifying, and
+strips the prefix back off the skills a dispatch records.
+
 ## Testing strategy
 
 The pipeline is "tested" the same way it asks you to test production code — but
@@ -164,7 +171,7 @@ given → when → then:
 ### Cost control: cached reviewers, opt-in heavy kinds
 
 - **Caching (reviewers).** Each reviewer fixture is fingerprinted over
-  `(agent Agent.md + @-referenced skills + input + test.json)`. `run_all.sh`'s
+  `(agents/<name>.md + @-referenced skills + input + test.json)`. `run_all.sh`'s
   Phase 1 replays a fixture at **zero tokens** when its fingerprint matches a
   prior pass (`evals/<agent>/.eval-cache.json`, git-ignored). Content-based, so a
   no-op `touch` does not invalidate. (Decision in `docs/findings/11`: the cache

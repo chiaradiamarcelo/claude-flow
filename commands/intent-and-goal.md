@@ -77,7 +77,7 @@ Only create `specification.md` in this phase. Scenario plan files are created by
 
 ## Phase 4: Hand off to execution
 
-Once `specification.md` is written, immediately run `/run-pipeline <feature-slug>`.
+Once `specification.md` is written, immediately run `/claude-flow:run-pipeline <feature-slug>`.
 Do not implement anything yourself.
 
 ### Specification Template
@@ -110,6 +110,6 @@ Do not implement anything yourself.
 ---
 
 ## Follow-ups
-<Empty at creation. `/run-pipeline` records here anything it left unfixed — a deferred
+<Empty at creation. `/claude-flow:run-pipeline` records here anything it left unfixed — a deferred
 review finding, or a defect a developer reported rather than fixed — each with its reason.>
 ```

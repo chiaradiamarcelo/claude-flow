@@ -202,5 +202,5 @@ The controller's integration spec drives the real `FakeActiveUsersQuery` via `se
 
 ## Cross-references
 
-- Skill: `clean-architecture` — Vernon-shaped folder layout and dependency rules. This skill is the read/write complement explaining when a UseCase is *not* required and how the read model should be shaped/placed.
-- Skill: `testing` — read-side controller tests drive the real fake of the Query (with `seed(...)` / `failWith(...)`), not a UseCase mock; the contract spec is the conformance check shared by every adapter.
+- Skill: `claude-flow:clean-architecture` — Vernon-shaped folder layout and dependency rules. This skill is the read/write complement explaining when a UseCase is *not* required and how the read model should be shaped/placed.
+- Skill: `claude-flow:testing` — read-side controller tests drive the real fake of the Query (with `seed(...)` / `failWith(...)`), not a UseCase mock; the contract spec is the conformance check shared by every adapter.

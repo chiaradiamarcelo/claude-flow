@@ -26,19 +26,6 @@
           }
         ]
       }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "EnterWorktree",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/on-enter-worktree.sh",
-            "timeout": 15,
-            "statusMessage": "Warming worktree deps in background..."
-          }
-        ]
-      }
     ]
   },
   "worktree": {
@@ -48,7 +35,13 @@
     "type": "command",
     "command": "bash $HOME/.claude/statusline-command.sh"
   },
+  "extraKnownMarketplaces": {
+    "claude-flow": {
+      "source": { "source": "github", "repo": "chiaradiamarcelo/claude-flow" }
+    }
+  },
   "enabledPlugins": {
+    "claude-flow@claude-flow": true,
     "typescript-lsp@claude-plugins-official": true,
     "kotlin-lsp@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true

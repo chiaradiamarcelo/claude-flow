@@ -9,12 +9,17 @@
 !statusline-command.sh
 !README.md
 
+# Plugin manifest + self-hosted marketplace
+!.claude-plugin/
+!.claude-plugin/*.json
+
 # Knowledge (refactor catalog + other reference material, loaded on demand)
 !knowledge/
 !knowledge/**
 
 # Hooks
 !hooks/
+!hooks/hooks.json
 !hooks/rtk-rewrite.sh
 !hooks/on-enter-worktree.sh
 !hooks/worktree-warming.md
@@ -27,10 +32,9 @@
 !commands/
 !commands/*.md
 
-# Agents
+# Agents (flat: the plugin loader reads agents/<name>.md, not agents/<name>/Agent.md)
 !agents/
-!agents/*/
-!agents/*/Agent.md
+!agents/*.md
 
 # Skills
 !skills/

@@ -1,0 +1,17 @@
+{
+  "name": "claude-flow",
+  "description": "A multi-agent development pipeline with Clean Architecture, TDD and parallel review gates: /intent-and-goal → /run-pipeline, the reviewer agents it hands off to, the convention skills they read from, and a refactoring catalog. Tuned for Kotlin, Android and TypeScript.",
+  "version": "0.1.0",
+  "author": {
+    "name": "chiaradiamarcelo"
+  },
+  "homepage": "https://github.com/chiaradiamarcelo/claude-flow",
+  "repository": "https://github.com/chiaradiamarcelo/claude-flow",
+  "keywords": [
+    "clean-architecture",
+    "tdd",
+    "code-review",
+    "pipeline",
+    "conventions"
+  ]
+}

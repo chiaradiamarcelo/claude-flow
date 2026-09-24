@@ -4,7 +4,7 @@ source of truth ($0, no model).
 A bare `@skills/…/SKILL.md` line in an agent definition is not expanded — Claude
 Code passes it through as literal text. Every reviewer relied on one, so every
 reviewer was reviewing without its skill, and nothing noticed: `mustMention`
-greps the agent's prose, and each Agent.md restates enough of its skill to
+greps the agent's prose, and each agent definition restates enough of its skill to
 satisfy the keyword.
 
 Three deterministic guards, pinned here:
@@ -25,7 +25,7 @@ from extract_verdict import reduce_stream
 
 def _agent_md(body):
     directory = tempfile.mkdtemp()
-    path = Path(directory, "Agent.md")
+    path = Path(directory, "reviewer.md")
     path.write_text(body)
     return path
 
@@ -62,7 +62,7 @@ class DeadIncludeFaultsTest(unittest.TestCase):
 
     def test_every_shipped_agent_is_free_of_inert_includes(self):
         offenders = [fault
-                     for agent_md in sorted(Path("agents").glob("*/Agent.md"))
+                     for agent_md in sorted(Path("agents").glob("*.md"))
                      for fault in dead_include_faults(agent_md)]
 
         self.assertEqual([], offenders)
@@ -104,6 +104,16 @@ class ReduceStreamTest(unittest.TestCase):
         verdict = reduce_stream(stream)
 
         self.assertEqual(["ui-testing", "testing"], verdict["_skillsInvoked"])
+
+    def test_records_a_plugin_qualified_skill_by_its_bare_name(self):
+        stream = _stream(
+            _skill_call("claude-flow:testing"),
+            {"type": "result", "result": '{"status": "PASS", "issues": []}'},
+        )
+
+        verdict = reduce_stream(stream)
+
+        self.assertEqual(["testing"], verdict["_skillsInvoked"])
 
     def test_survives_an_unparseable_line(self):
         stream = io.StringIO(

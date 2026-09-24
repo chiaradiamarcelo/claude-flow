@@ -18,15 +18,15 @@ This reviewer checks **code quality within layers** — is the code well-designe
 
 1. **Invoke these skills first, with the `Skill` tool, before reading any source.** They are the
    source of truth and this file does not restate them:
-   - `clean-architecture` — layer rules, dependency direction, naming, repository conventions.
-   - `comments` — the falsifiability test and the four kinds of comment.
-2. Read the catalog **index** — `~/.claude/knowledge/refactor-catalog/index.md` (global),
-   plus the project's `.claude/refactor-catalog.md` or `.claude/knowledge/refactor-catalog/index.md`
+   - `claude-flow:clean-architecture` — layer rules, dependency direction, naming, repository conventions.
+   - `claude-flow:comments` — the falsifiability test and the four kinds of comment.
+2. Read the catalog **index** — `${CLAUDE_PLUGIN_ROOT}/knowledge/refactor-catalog/index.md`
+   (it ships inside the plugin, not in the project under review), plus the project's `.claude/refactor-catalog.md` or `.claude/knowledge/refactor-catalog/index.md`
    if either exists. The index is a table of patterns + smell signals. Match observed
    smells to rows, then Read **only the matched pattern file(s)** (e.g. `compose-method.md`)
    for the full refactoring — never load the whole catalog.
 3. When you suspect a pass-through use case, a service that only forwards to a repository, or a
-   port named `*Repository` whose methods are all read-shaped, consult the `cqrs` skill
+   port named `*Repository` whose methods are all read-shaped, consult the `claude-flow:cqrs` skill
    and read the *Pass-through Layer (Middleman)* / *Read-side port named "Repository"* pattern
    files before reporting — the skill pins write-side vs. read-side responsibilities.
 4. **Establish your scope, then read every file in it.** The caller may hand you a file list, a
@@ -44,7 +44,7 @@ This reviewer checks **code quality within layers** — is the code well-designe
 
 ## What to look for
 
-Apply all design and code conventions from the `clean-architecture` skill, plus these quality-specific checks:
+Apply all design and code conventions from the `claude-flow:clean-architecture` skill, plus these quality-specific checks:
 
 ### Extract domain concepts
 - Primitive obsession (raw strings/numbers for rich business concepts).
@@ -89,7 +89,7 @@ Apply the falsifiability test to **every** comment in **every file in your scope
 well as production, on declarations as well as inside bodies. Not every comment in the diff:
 there is no diff on an ad-hoc run, and "the diff" silently becomes "whatever I happened to read".
 
-The kinds, and what replaces each, are defined in the `comments` skill you invoked in step 1.
+The kinds, and what replaces each, are defined in the `claude-flow:comments` skill you invoked in step 1.
 Five things are yours alone:
 
 - **Refactorings.** Kind 2 → *Comment as a missing name* catalog entry. Kind 3 → *Comment that

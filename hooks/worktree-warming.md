@@ -9,10 +9,10 @@ code — without Claude spending tokens on it.
 
 | Piece | Location | Role |
 | --- | --- | --- |
-| `worktree.baseRef: fresh` | `~/.claude/settings.json` | New worktrees branch off `origin/<default-branch>` |
-| `EnterWorktree` PostToolUse hook | `~/.claude/settings.json` | Fires the dispatcher when a worktree is created |
-| Dispatcher | `~/.claude/hooks/on-enter-worktree.sh` | Picks the warm script, launches it detached & silent |
-| **Global default** warm script | `~/.claude/warm-deps.sh` | Auto-detects ecosystem; works out of the box |
+| `worktree.baseRef: fresh` | your `settings.json` — not shipped by the plugin | New worktrees branch off `origin/<default-branch>` |
+| `EnterWorktree` PostToolUse hook | `hooks/hooks.json` — registered by the plugin | Fires the dispatcher when a worktree is created |
+| Dispatcher | `hooks/on-enter-worktree.sh` | Picks the warm script, launches it detached & silent |
+| **Global default** warm script | `warm-deps.sh`, at the plugin root | Auto-detects ecosystem; works out of the box |
 | **Per-repo override** (optional) | `<repo>/.claude/warm-deps.sh` | Repo-specific warming; takes precedence over the default |
 
 ## Resolution order
@@ -20,7 +20,7 @@ code — without Claude spending tokens on it.
 On `EnterWorktree`, the dispatcher runs, in the new worktree:
 
 1. `<worktree>/.claude/warm-deps.sh` — **override** (if the repo ships one), else
-2. `~/.claude/warm-deps.sh` — **global default**, else
+2. `${CLAUDE_PLUGIN_ROOT}/warm-deps.sh` — **global default**, else
 3. nothing.
 
 The chosen script is launched **detached** (fire-and-forget) with cwd = the
@@ -29,7 +29,7 @@ emits nothing on stdout, so **Claude spends zero tokens** on warming. A
 single-flight `mkdir` lock (`.claude/.warm-deps.lock`) ensures the script runs
 once even if both a global and a project hook fire.
 
-## The global default (`~/.claude/warm-deps.sh`)
+## The global default (`warm-deps.sh`)
 
 Auto-detects by lockfile:
 

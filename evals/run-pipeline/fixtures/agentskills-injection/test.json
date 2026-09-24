@@ -6,7 +6,7 @@
   },
   "when": {
     "do": "command",
-    "command": "/run-pipeline shipping-fee --dry-run"
+    "command": "/claude-flow:run-pipeline shipping-fee --dry-run"
   },
   "then": {
     "grader": "skills",

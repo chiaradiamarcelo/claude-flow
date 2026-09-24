@@ -18,8 +18,10 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 # `Skill` is required: a reviewer's rules live in a skill it must invoke. Without it the
-# eval runs the Agent.md's inline rules only, which is not what production does.
+# eval runs the agent definition's inline rules only, which is not what production does.
 AGENT_TOOLS=(--allowedTools Read Glob Grep Skill)
+# Every live dispatch loads THIS checkout as the plugin (--plugin-dir) and names its
+# agents in full: a bare name can reach a personal agent of the same name instead.
 REVIEWERS="api-reviewer arch-reviewer refactor-advisor test-reviewer ui-test-reviewer android-ui-test-reviewer"
 OPTIN=" developer pipeline orchestration "   # heavy/paid — run only when named
 fail=0
@@ -56,7 +58,7 @@ engine_corpus() {  # run every fixture of a corpus through the single engine
 echo "== Phase 0: structural (free, no model) =="
 for d in evals/*/; do
   [ -d "${d}fixtures" ] || continue
-  [ -f "agents/$(basename "$d")/Agent.md" ] || continue   # only agent corpora have a schema check
+  [ -f "agents/$(basename "$d").md" ] || continue   # only agent corpora have a schema check
   [ -n "$ONLY_AGENT" ] && [ "$(basename "$d")" != "$ONLY_AGENT" ] && continue
   python3 evals/eval_grade.py --evals-dir "$d" --check-corpus || fail=1
 done
@@ -76,7 +78,7 @@ if [ "$do_agents" = 1 ]; then
       # stream-json so the invoked skills are observable: `mustInvokeSkills` grades
       # wiring off the tool calls, which prose keyword matching cannot see.
       claude -p "Review the file(s) under $ROOT/${adir}fixtures/$stem/input/. Read them directly with the Read tool. Return ONLY your machine-first JSON verdict." \
-        --agent "$agent" "${AGENT_TOOLS[@]}" --output-format stream-json --verbose </dev/null 2>/dev/null \
+        --plugin-dir "$ROOT" --agent "claude-flow:$agent" "${AGENT_TOOLS[@]}" --output-format stream-json --verbose </dev/null 2>/dev/null \
         | python3 evals/extract_verdict.py > "$vd/$stem.json"
     done
     actuals="$(mktemp)"

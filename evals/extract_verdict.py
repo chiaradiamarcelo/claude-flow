@@ -6,8 +6,9 @@ agent's own machine-first verdict, plus `_skillsInvoked` — the skills it actua
 loaded with the Skill tool.
 
 That second field is the point. `mustMention` greps the agent's prose, so it passes
-whether or not the skill its rules live in ever loaded; every reviewer's Agent.md
+whether or not the skill its rules live in ever loaded; every reviewer definition
 restates enough of its skill to satisfy it. The tool calls are the ground truth.
+Skills are recorded bare — `claude-flow:testing` as `testing` — since fixtures name them so.
 
 A run that produced no parseable verdict yields `{"_skillsInvoked": [...]}`, which
 fails the schema check in eval_grade — the same way a prose answer already did.
@@ -15,6 +16,8 @@ fails the schema check in eval_grade — the same way a prose answer already did
 import json
 import re
 import sys
+
+from plugin_under_test import unqualified
 
 
 def _events(stream):
@@ -46,7 +49,7 @@ def reduce_stream(stream):
         for block in _tool_uses(event):
             if block.get("name") != "Skill":
                 continue
-            skill = (block.get("input") or {}).get("skill")
+            skill = unqualified((block.get("input") or {}).get("skill") or "")
             if skill and skill not in skills:
                 skills.append(skill)
         if event.get("type") == "result" and event.get("result"):

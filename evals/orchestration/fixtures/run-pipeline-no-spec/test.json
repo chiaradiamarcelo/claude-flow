@@ -5,7 +5,7 @@
   },
   "when": {
     "do": "command",
-    "command": "/run-pipeline ghost-feature\n\nWork directly in this directory; skip any worktree step. Run non-interactively: do not ask questions."
+    "command": "/claude-flow:run-pipeline ghost-feature\n\nWork directly in this directory; skip any worktree step. Run non-interactively: do not ask questions."
   },
   "then": {
     "grader": "refusal",

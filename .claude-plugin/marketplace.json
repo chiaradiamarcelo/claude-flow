@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-flow",
+  "description": "The claude-flow development pipeline, as a single-plugin marketplace",
+  "owner": { "name": "chiaradiamarcelo" },
+  "plugins": [
+    {
+      "name": "claude-flow",
+      "description": "A multi-agent development pipeline with Clean Architecture, TDD and parallel review gates: /intent-and-goal → /run-pipeline, the reviewer agents it hands off to, the convention skills they read from, and a refactoring catalog. Tuned for Kotlin, Android and TypeScript.",
+      "author": { "name": "chiaradiamarcelo" },
+      "category": "development",
+      "source": "./",
+      "homepage": "https://github.com/chiaradiamarcelo/claude-flow"
+    }
+  ]
+}

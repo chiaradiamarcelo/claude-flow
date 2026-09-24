@@ -6,7 +6,7 @@
   },
   "when": {
     "do": "command",
-    "command": "/intent-and-goal Withdraw money from a bank account: an account owner withdraws an amount, reducing the balance; the amount must be positive and may not exceed the balance. IMPORTANT: run NON-INTERACTIVELY \u2014 do NOT ask clarifying questions or wait for approval; assume reasonable answers and proceed. Constrain the spec to EXACTLY ONE happy-path Gherkin scenario (successful withdrawal). Treat HTTP/REST delivery and persistence as OUT OF SCOPE (framework-free core only). Use the feature slug 'withdraw-money'."
+    "command": "/claude-flow:intent-and-goal Withdraw money from a bank account: an account owner withdraws an amount, reducing the balance; the amount must be positive and may not exceed the balance. IMPORTANT: run NON-INTERACTIVELY \u2014 do NOT ask clarifying questions or wait for approval; assume reasonable answers and proceed. Constrain the spec to EXACTLY ONE happy-path Gherkin scenario (successful withdrawal). Treat HTTP/REST delivery and persistence as OUT OF SCOPE (framework-free core only). Use the feature slug 'withdraw-money'."
   },
   "then": {
     "grader": "acceptance",

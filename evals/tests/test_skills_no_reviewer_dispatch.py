@@ -23,9 +23,9 @@ ROOT = Path(__file__).resolve().parents[2]
 # Files a pipeline worker reads: every skill, plus the write-side worker agents.
 # NOT the reviewer agents themselves (they legitimately talk about reviewing).
 SCANNED = sorted(ROOT.glob("skills/*/SKILL.md")) + [
-    ROOT / "agents/architect/Agent.md",
-    ROOT / "agents/test-designer/Agent.md",
-    ROOT / "agents/developer/Agent.md",
+    ROOT / "agents/architect.md",
+    ROOT / "agents/test-designer.md",
+    ROOT / "agents/developer.md",
 ]
 
 # The imperative "have this reviewed / dispatch a reviewer" construction.

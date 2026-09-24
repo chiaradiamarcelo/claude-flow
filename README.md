@@ -1,12 +1,73 @@
 # claude-flow
 
-Personal Claude Code configuration: global instructions, custom agents, skills, hooks, and settings. Implements a multi-agent development pipeline with Clean Architecture, TDD, and parallel review gates.
+A Claude Code plugin: a multi-agent development pipeline with Clean Architecture, TDD, and parallel review gates — the agents, commands, skills, refactor catalog and worktree hook that make it up. The repo also carries a personal Claude Code configuration (`CLAUDE.md`, `settings.json`, statusline, RTK hook) that the plugin does not ship.
+
+## Installing
+
+```
+/plugin marketplace add chiaradiamarcelo/claude-flow
+/plugin install claude-flow@claude-flow
+```
+
+Or from a shell:
+
+```bash
+claude plugin marketplace add chiaradiamarcelo/claude-flow
+claude plugin install claude-flow@claude-flow
+```
+
+`.claude-plugin/marketplace.json` makes this repo its own single-plugin marketplace, so there is no second repo to maintain. The agents, commands, skills, the refactor catalog and the worktree-warming hook all arrive with it, and upgrade when you re-sync the marketplace.
+
+Installing the plugin is the only supported way to use it. Everything here addresses its own files through `${CLAUDE_PLUGIN_ROOT}`, which is unset in a plain copy of the tree — copied into `~/.claude/`, the refactor catalog and the mutation tools are unreachable, and every namespaced reference below points at nothing.
+
+### Check it actually loaded
+
+```bash
+claude plugin details claude-flow@claude-flow
+```
+
+Look for **Agents (10)**. A plugin whose agents fail to load still installs, enables and reports success — the pipeline then has no architect, no developer and no reviewers, and the only symptom is that count.
+
+### Updating and removing
+
+```bash
+claude plugin marketplace update claude-flow
+claude plugin update claude-flow@claude-flow
+claude plugin uninstall claude-flow@claude-flow
+```
+
+### What stays yours
+
+The plugin cannot carry these — each user or repo keeps its own:
+
+| File | Why it is not in the plugin |
+|---|---|
+| `CLAUDE.md` | A plugin's root `CLAUDE.md` is not loaded as context. The one here is a personal global one; copy the parts you want |
+| `settings.json` | `worktree.baseRef: fresh` (Step 0 relies on it) is a user setting. The plugin registers its own hook — do **not** also register `on-enter-worktree.sh` in settings, or it fires twice (lock-guarded, so harmless, but pointless) |
+| `.claude/pipeline.json` | Per-project reviewer triggers and skill injection — see below |
+| `.claude/warm-deps.sh` | Per-repo dependency warming, when the default's ecosystem detection is not enough |
+
+### Namespacing: why every reference says `claude-flow:`
+
+Plugin agents, skills and commands are namespaced, and they **coexist** with personal and project ones of the same bare name: a session can offer both `testing` and `claude-flow:testing`, both `/run-reviewers` and `/claude-flow:run-reviewers`. A bare name resolves to whichever the session picks — possibly one tuned for another stack — and nothing about the result looks wrong. So everything here names its own components in full: the agents a command spawns, the skills an agent invokes, the commands one chains to. Frontmatter `name:` fields stay bare; that is the registration, not a reference.
+
+The one deliberate exception is a **project-local replacement**: an agent under a project's `.claude/agents/` with the same name as a bundled worker or reviewer replaces it, and is spawned by its bare name.
+
+### Working on this plugin
+
+Load a checkout for one session, with no install, push or tag:
+
+```bash
+claude --plugin-dir /path/to/claude-flow
+```
+
+That is also how every live eval runs — `--plugin-dir` at the repo root — so an eval grades the working tree, not whatever version is installed.
 
 ## Prerequisites
 
 ### RTK (Rust Token Killer)
 
-RTK is a token-optimized CLI proxy used by the hook in `settings.json`. Install it before using this config:
+RTK is a token-optimized CLI proxy used by the hook in the personal `settings.json` (not by the plugin). Install it before using that config:
 
 ```bash
 cargo install rtk
@@ -34,7 +95,7 @@ Every feature starts in a clean, isolated worktree branched off the current defa
 Start any new feature or use case with:
 
 ```
-/intent-and-goal <brief description of feature>
+/claude-flow:intent-and-goal <brief description of feature>
 ```
 
 This command is interactive:
@@ -74,13 +135,13 @@ docs/specifications/deposit-money/
 After **all** scenarios are implemented, `/run-pipeline` runs `/run-reviewers` once over all changed files. `/run-reviewers` runs in the main conversation (not as a sub-agent, so it can spawn reviewer agents). With no arguments (pipeline mode), it:
 
 1. Gets changed files via `git diff --name-only`. Falls back to `git ls-files` if no diff is available.
-2. Discovers reviewer agents by grepping for `type: reviewer` in agent frontmatter (global + project).
+2. Collects reviewers from **two** sources — the bundled ones, listed in the command itself (a plugin's agents are not on the project's filesystem, so they cannot be grepped for), and any the project added under `.claude/agents/`. A project-local reviewer with a bundled one's name replaces it. An empty merged list is a **STOP**, never a PASS.
 3. Applies project trigger overrides from the `reviewers` section of `.claude/pipeline.json` if it exists.
 4. Matches changed files against each reviewer's `triggers` glob patterns.
 5. Spawns **only relevant reviewers in parallel** (multiple Agent tool calls in a single message).
 6. Consolidates all findings into a single report with a PASS/FAIL verdict.
 
-Built-in reviewers (defined in agent frontmatter):
+Bundled reviewers (triggers in agent frontmatter, mirrored in `/run-reviewers` Step 2a — `scripts/check-reviewers.sh` keeps the two in sync):
 
 | Reviewer | Default triggers | Checks |
 |---|---|---|
@@ -114,7 +175,7 @@ Phase 4:  triage by severity → developer fix → /run-reviewers again, until P
 To review code outside the normal pipeline (legacy code, full project audit, specific layers):
 
 ```
-/run-reviewers src/main, src/test
+/claude-flow:run-reviewers src/main, src/test
 ```
 
 - Accepts one or more comma-separated paths
@@ -128,28 +189,28 @@ To review code outside the normal pipeline (legacy code, full project audit, spe
 Run:
 
 ```
-/new-reviewer
+/claude-flow:new-reviewer
 ```
 
 or:
 
 ```
-/new-reviewer android-presentation-reviewer
+/claude-flow:new-reviewer android-presentation-reviewer
 ```
 
 The command asks for:
 - **Name** — kebab-case identifier
 - **Purpose** — what the reviewer checks for
 - **Triggers** — file glob patterns that activate it
-- **Placement** — global (`~/.claude/agents/`) or project-specific (`.claude/agents/`)
+- **Placement** — project-specific (`.claude/agents/`) or bundled in this plugin (`agents/`)
 - **Checklist** — the specific rules it enforces
 - **Model** — which model tier (defaults to sonnet)
 
-It creates the agent file at the chosen location with `type: reviewer` and `triggers` in its frontmatter, plus the review rules and output format. The /run-reviewers auto-discovers it on the next run — no other registration needed.
+It creates the agent file at the chosen location with `type: reviewer` and `triggers` in its frontmatter, plus the review rules and output format. A project-specific reviewer is discovered on the next run with no other registration. A bundled one also needs a row in `/run-reviewers` Step 2a — the command walks you through it.
 
 ### Reviewer discovery
 
-`/run-reviewers` discovers reviewers by grepping for `type: reviewer` in agent files (both `~/.claude/agents/` and `<project>/.claude/agents/`). Each reviewer declares its triggers in its own frontmatter:
+`/run-reviewers` merges the bundled table with the project's own reviewers, found by grepping for `type: reviewer` under `<project>/.claude/agents/`. Reviewers under `~/.claude/agents/` are **not** collected. Each reviewer declares its triggers in its own frontmatter:
 
 ```yaml
 ---
@@ -162,12 +223,12 @@ model: sonnet
 ---
 ```
 
-### Global vs. project-specific reviewers
+### Bundled vs. project-specific reviewers
 
-- **Global** (`~/.claude/agents/`) — run on every project (e.g., `test-reviewer`, `arch-reviewer`)
-- **Project-specific** (`<project>/.claude/agents/`) — run only in that project (e.g., `android-presentation-reviewer`)
+- **Bundled** (this plugin's `agents/`) — run on every project with the plugin enabled (e.g., `test-reviewer`, `arch-reviewer`). Spawned as `claude-flow:<name>`.
+- **Project-specific** (`<project>/.claude/agents/`) — run only in that project. Spawned by bare name.
 
-Both are discovered automatically. A project agent with the same name as a global agent overrides it entirely (Claude Code built-in behavior).
+A project reviewer with the same name as a bundled one replaces it for that project — `/run-reviewers` does the replacing, since the two coexist as far as Claude Code is concerned.
 
 ### Per-project pipeline config (`.claude/pipeline.json`)
 
@@ -183,11 +244,7 @@ A single optional file at the project root customizes the pipeline per project. 
 - **`reviewers`** overrides a reviewer's frontmatter triggers by name. Global reviewers ship with defaults suited for Kotlin/Java conventions, so **no override is needed for Kotlin/Java projects**. Reviewers without an entry keep their defaults. `/run-reviewers` reads this section.
 - **`agentSkills`** injects **additional** skills into a pipeline agent's session, keyed by agent name — write-side agents (`architect`, `test-designer`, `developer`) and reviewers (`test-reviewer`, …) alike. It is **additive**: the agent always loads its core skills, plus whatever is listed here. This is how a project layers in stack-specific conventions (e.g. Android) without editing the global agents.
 
-To set up config, copy a template:
-
-```bash
-cp ~/.claude/examples/pipeline.typescript.json <project>/.claude/pipeline.json
-```
+To set up config, copy a template from [examples/](examples/) in this repo to `<project>/.claude/pipeline.json`.
 
 Available templates:
 
@@ -200,12 +257,21 @@ Available templates:
 
 | Path | Purpose |
 |---|---|
-| **Config** | |
+| **Plugin** | |
+| [.claude-plugin/plugin.json](.claude-plugin/plugin.json) | The plugin manifest |
+| [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) | Makes this repo its own single-plugin marketplace |
+| [hooks/hooks.json](hooks/hooks.json) | Registers the worktree-warming hook through `${CLAUDE_PLUGIN_ROOT}` |
+| [hooks/on-enter-worktree.sh](hooks/on-enter-worktree.sh) | `PostToolUse` on `EnterWorktree` — launches the warm script detached; see [hooks/worktree-warming.md](hooks/worktree-warming.md) |
+| [warm-deps.sh](warm-deps.sh) | Default warm script — auto-detects the ecosystem; a repo's own `.claude/warm-deps.sh` overrides it |
+| [scripts/check-reviewers.sh](scripts/check-reviewers.sh) | Asserts the bundled-reviewer table in `/run-reviewers` matches the agents' frontmatter, both directions. Run after touching a reviewer |
+| **Personal config** (not shipped by the plugin) | |
 | [CLAUDE.md](CLAUDE.md) | Global instructions — workflow rules, test naming + test design rules (TDD itself is owned by the pipeline agents, not restated here) |
 | [RTK.md](RTK.md) | RTK usage reference (referenced by CLAUDE.md) |
-| [knowledge/refactor-catalog/](knowledge/refactor-catalog/index.md) | Language-agnostic catalog of code smells and refactorings (index + one file per pattern, loaded on demand by `refactor-advisor`) |
-| [settings.json](settings.json) | Permissions, hooks, plugins, statusline config |
+| [settings.json](settings.json) | Permissions, hooks, plugins (including this one), statusline config |
 | [statusline-command.sh](statusline-command.sh) | Context window usage bar for the statusline |
+| [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
+| **Knowledge** | |
+| [knowledge/refactor-catalog/](knowledge/refactor-catalog/index.md) | Language-agnostic catalog of code smells and refactorings (index + one file per pattern, read on demand by `refactor-advisor` through `${CLAUDE_PLUGIN_ROOT}`) |
 | **Commands** | |
 | [commands/intent-and-goal.md](commands/intent-and-goal.md) | `/intent-and-goal` — entry point: intent refinement + scenario generation, then hands off to `/run-pipeline` |
 | [commands/run-pipeline.md](commands/run-pipeline.md) | `/run-pipeline <feature-slug>` — execution orchestrator: per-scenario architect→test-designer→developer, reviewers, fix-loop (requires an approved spec) |
@@ -213,17 +279,17 @@ Available templates:
 | [commands/run-reviewers.md](commands/run-reviewers.md) | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
 | [commands/mutation-audit.md](commands/mutation-audit.md) | `/mutation-audit <path>` — on-demand, filtered mutation audit (real survivors only; `--crap` for complexity×coverage). Backstop for suites you didn't generate; **not** part of `/run-pipeline` (see finding 14) |
 | **Agents — pipeline** | |
-| [agents/architect/](agents/architect/Agent.md) | Plans the scenario's **Structure & Contracts** (layers/ports/adapters); writes no tests or code (invokes `clean-architecture`, `cqrs`) |
-| [agents/test-designer/](agents/test-designer/Agent.md) | Appends the **Ordered Test List** (FLFI · TPP · Contradiction) — the justified test order that drives the slice; writes no code (invokes `testing`) |
-| [agents/developer/](agents/developer/Agent.md) | Implements the plan (batch-red-per-class TDD, batch-red-verified; invokes `clean-architecture`, `testing`) |
+| [agents/architect](agents/architect.md) | Plans the scenario's **Structure & Contracts** (layers/ports/adapters); writes no tests or code (invokes `clean-architecture`, `cqrs`) |
+| [agents/test-designer](agents/test-designer.md) | Appends the **Ordered Test List** (FLFI · TPP · Contradiction) — the justified test order that drives the slice; writes no code (invokes `testing`) |
+| [agents/developer](agents/developer.md) | Implements the plan (batch-red-per-class TDD, batch-red-verified; invokes `clean-architecture`, `testing`) |
 | **Agents — reviewers** | |
-| [agents/test-reviewer/](agents/test-reviewer/Agent.md) | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
-| [agents/arch-reviewer/](agents/arch-reviewer/Agent.md) | Reviews Clean Architecture structural compliance |
-| [agents/refactor-advisor/](agents/refactor-advisor/Agent.md) | Suggests code quality improvements (invokes `clean-architecture` skill) |
-| [agents/api-reviewer/](agents/api-reviewer/Agent.md) | Reviews API layer (HTTP conventions, thin controllers, REST URLs, response modeling) |
-| [agents/ui-test-reviewer/](agents/ui-test-reviewer/Agent.md) | Reviews React component/hook tests (naming, query priority, mocking, behavioral focus) |
-| [agents/android-presentation-reviewer/](agents/android-presentation-reviewer/Agent.md) | Reviews Android presentation layer (Compose screens, ViewModels, Humble View, atomic screen state) |
-| [agents/android-ui-test-reviewer/](agents/android-ui-test-reviewer/Agent.md) | Reviews Compose UI tests (robot pattern, test tags, Robolectric caveats) |
+| [agents/test-reviewer](agents/test-reviewer.md) | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
+| [agents/arch-reviewer](agents/arch-reviewer.md) | Reviews Clean Architecture structural compliance |
+| [agents/refactor-advisor](agents/refactor-advisor.md) | Suggests code quality improvements (invokes `clean-architecture` skill) |
+| [agents/api-reviewer](agents/api-reviewer.md) | Reviews API layer (HTTP conventions, thin controllers, REST URLs, response modeling) |
+| [agents/ui-test-reviewer](agents/ui-test-reviewer.md) | Reviews React component/hook tests (naming, query priority, mocking, behavioral focus) |
+| [agents/android-presentation-reviewer](agents/android-presentation-reviewer.md) | Reviews Android presentation layer (Compose screens, ViewModels, Humble View, atomic screen state) |
+| [agents/android-ui-test-reviewer](agents/android-ui-test-reviewer.md) | Reviews Compose UI tests (robot pattern, test tags, Robolectric caveats) |
 | **Skills** | |
 | [skills/clean-architecture/](skills/clean-architecture/SKILL.md) | Folder structure, dependency rules, design and code conventions |
 | [skills/cqrs/](skills/cqrs/SKILL.md) | When to split write side (Repository + UseCase) from read side (Query); port naming, read-model shape |
@@ -261,5 +327,4 @@ Available templates:
 | [docs/README.md](docs/README.md) | **Engineering findings (lab notebook)** — 16 measured discoveries: a grader bug that looked like model flakiness, skill-loading cost (~1.8×), the cost model, exhaustive corpora, generative-agent + integration + acceptance testing, orchestration-as-a-command (10), the test.json migration + cache decision (11), the v2 Spring/JPA vertical-slice integration (12), the strict-vs-batch-red TDD experiment (13), the mutation-gate spike (14), the pipeline cost programme (15), and the rejected layered pipeline (16) |
 | **Other** | |
 | [tools/mutation/](tools/mutation/) | Support scripts for `/mutation-audit` and the benchmark — `classify-survivors.py` (the mandatory junk-vs-real survivor filter), `crap.py` (JaCoCo XML → CRAP), `dry.py` (jscpd JSON → duplication summary) |
-| [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
 | [examples/](examples/) | Per-project `.claude/pipeline.json` templates (`pipeline.typescript.json`, `pipeline.android.json`) — reviewer trigger overrides + agent skill injection |

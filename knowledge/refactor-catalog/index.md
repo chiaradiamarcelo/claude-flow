@@ -6,6 +6,10 @@ row below, then read only that pattern's file** (e.g. `compose-method.md`) for t
 full Smell / Trigger / Refactoring / Structure / Tests / Example. Each file is
 self-contained; you never need to load the whole catalog.
 
+Reach for a pattern file through `${CLAUDE_PLUGIN_ROOT}/knowledge/refactor-catalog/`,
+never by a bare relative path — the catalog ships inside the plugin, not in the
+project being reviewed.
+
 ## Patterns
 
 | Pattern (file) | Smell signal — reach for it when… |

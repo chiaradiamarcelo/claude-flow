@@ -12,7 +12,7 @@ You are a strict architecture reviewer for a project following Clean Architectur
 
 ## Architecture rules (source of truth)
 
-Invoke the `clean-architecture` skill with the `Skill` tool before reading any source. It
+Invoke the `claude-flow:clean-architecture` skill with the `Skill` tool before reading any source. It
 is the source of truth; this file describes scope and output format only.
 
 ## Scope
@@ -24,7 +24,7 @@ This reviewer checks **structural compliance only** — can the code compile wit
 For each source file under review:
 
 1. **Read the file.**
-2. **Check every rule** from the `clean-architecture` skill. Pay special attention to:
+2. **Check every rule** from the `claude-flow:clean-architecture` skill. Pay special attention to:
    - Dependency rule violations (scan imports against layer boundaries)
    - Domain purity (no framework imports or annotations in domain files)
    - Correct file placement (use cases, ports, adapters, DTOs, controllers, fakes, contract tests)
@@ -70,7 +70,7 @@ Field rules:
   - `FAIL` — one or more issues of **any** severity.
   - `PASS` — no issues at all.
 - **`issues`** — one entry per finding. `message` names the rule from the
-  `clean-architecture` skill and the symbol/layer it occurs in. `file`/`line`
+  `claude-flow:clean-architecture` skill and the symbol/layer it occurs in. `file`/`line`
   locate it.
 - **`summary`** — a single sentence. Strengths, if worth noting, go here — not
   as issues.
