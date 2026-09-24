@@ -73,4 +73,4 @@ class Controller
 The controller integration test switches from mocking the use case to driving the fake of the
 collaborator. The behavior covered is the same; the level moves closer to the real boundary.
 
-See `~/.claude/skills/cqrs/SKILL.md` for the read-side variant of this smell (CQRS context).
+See the `claude-flow:cqrs` skill for the read-side variant of this smell (CQRS context).

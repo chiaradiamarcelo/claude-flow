@@ -2,7 +2,7 @@
 # GLOBAL DEFAULT dependency warming for a fresh worktree.
 #
 # Runs when a worktree has NO project-specific .claude/warm-deps.sh override.
-# Invoked detached by the EnterWorktree hook (~/.claude/hooks/on-enter-worktree.sh)
+# Invoked detached by the EnterWorktree hook (hooks/on-enter-worktree.sh, registered by the plugin)
 # with cwd = the worktree root and stdout/stderr already redirected to
 # .claude/warm-deps.log.
 #

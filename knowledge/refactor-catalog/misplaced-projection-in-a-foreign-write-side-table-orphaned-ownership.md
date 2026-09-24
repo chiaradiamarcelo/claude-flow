@@ -69,4 +69,4 @@ does not own. The result: a misplaced read projection, behaviour with no real ow
 fails consistently in production with no team that treats it as theirs. The fix is ownership: the
 delivery context owns and publishes delivery events; the projection becomes a read model owned by
 its readers and fed from those events; the orphan job is retired or rehomed into the owning context
-with its own alerting. See `~/.claude/skills/cqrs/SKILL.md` for read/write ownership conventions.
+with its own alerting. See the `claude-flow:cqrs` skill for read/write ownership conventions.

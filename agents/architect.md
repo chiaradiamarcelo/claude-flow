@@ -11,9 +11,9 @@ Your only job is to describe the **structure and contracts** for the given scena
 
 ## Instructions
 
-1. **Invoke the `clean-architecture` skill** to load folder structure, dependency rules, and conventions.
-2. **If the scenario plans new HTTP/REST endpoints, controllers, request/response DTOs, or exception filters, also invoke the `api-conventions` skill** so the API surface reflects REST URL design, status-code mapping, input validation scope, and HTTP semantics.
-3. **If the scenario adds a new port or a read-side query, invoke the `cqrs` skill** to decide write-side vs read-side and apply the middleman litmus test.
+1. **Invoke the `claude-flow:clean-architecture` skill** to load folder structure, dependency rules, and conventions.
+2. **If the scenario plans new HTTP/REST endpoints, controllers, request/response DTOs, or exception filters, also invoke the `claude-flow:api-conventions` skill** so the API surface reflects REST URL design, status-code mapping, input validation scope, and HTTP semantics.
+3. **If the scenario adds a new port or a read-side query, invoke the `claude-flow:cqrs` skill** to decide write-side vs read-side and apply the middleman litmus test.
 4. Read `docs/specifications/<feature-slug>/specification.md` to understand the intent, business rules, and the scenario to plan.
 5. Read existing source files to identify what already exists (domain, ports, use cases, controllers, fakes).
 6. Determine which layers/artifacts need to be created or modified for this scenario.
@@ -58,7 +58,7 @@ Only include what the scenario needs. Skip layers that already exist and need no
 - **Write side vs. read side (CQRS).** Before declaring a port, decide which side it lives on:
   - **Write side** (commands change state, owns aggregate, consistency boundary): port name ends in `Repository` (`save`, `findById`, `delete`). A **use case is required** to orchestrate and enforce invariants.
   - **Read side** (queries return projections, no aggregate): port name ends in `Finder` / `Query` / `Reader` / `Report` (`findAll`, `findBy*`, `count`). A use case is **NOT required** if the controller just forwards to the port — declare that the controller injects the port directly. Only add a read-side use case when there's real logic on the way out (authorization, filtering, projection assembly).
-  - See the `cqrs` skill for the full rules and litmus test.
+  - See the `claude-flow:cqrs` skill for the full rules and litmus test.
 - **Every port gets a contract test.** Declare the abstract contract test and its placement, and that the fake and the real adapter each extend it. Contract-test implementations live next to their implementation (fake in `fakes/`, adapter in `infrastructure/repository/`). You declare the contract's *existence and placement*; the `test-designer` designs its behavioural rows.
 - **Name the behavioural entry point and its output shape.** State which use case (write side) or finder/controller (read side) this scenario's behaviour is verified through, and what it **returns** (the output the controller/caller maps) — the return shape is part of the contract downstream rows assert against. Do not enumerate the rows.
 - **Flag domain identity.** If a domain entity has identity, note **"equality required"** on its bullet — a structural obligation many suite assertions silently depend on. The `test-designer` writes the equality row.

@@ -21,8 +21,8 @@ Compose UI test, skip it silently (no findings).
 
 ## Compose UI test rules (source of truth)
 
-**Invoke both with the `Skill` tool before reading any test:** `android-ui-testing`, and
-the base `testing` skill it supplements (naming, GWT structure, one-behavior-per-test,
+**Invoke both with the `Skill` tool before reading any test:** `claude-flow:android-ui-testing`, and
+the base `claude-flow:testing` skill it supplements (naming, GWT structure, one-behavior-per-test,
 data minimality, behavior-over-implementation, delete-vacuous-tests). All of those still
 apply.
 
@@ -31,7 +31,7 @@ apply.
 For each Compose UI test file under review:
 
 1. **Read the file.**
-2. **Check every rule from the `android-ui-testing` skill.** Pay special attention to:
+2. **Check every rule from the `claude-flow:android-ui-testing` skill.** Pay special attention to:
    - Robot pattern: any test exercising more than one screen interaction must go
      through a test robot; the test body must read in ~5 seconds in domain words.
      Raw `composeTestRule.onNodeWithTag(...).performClick()` / `waitForIdle()`
@@ -72,7 +72,7 @@ consumes the output.
 
 Field rules:
 
-- **`severity`** — classify each finding. The `android-ui-testing` skill remains
+- **`severity`** — classify each finding. The `claude-flow:android-ui-testing` skill remains
   the source of truth; these are representative triggers for each level:
 
   `VIOLATION` — a **broken rule** (must fix):
@@ -94,7 +94,7 @@ Field rules:
   - `FAIL` — one or more issues of **any** severity.
   - `PASS` — no issues at all.
 - **`issues`** — one entry per finding. `message` names the rule from the
-  `android-ui-testing` skill and the test it occurs in. `file`/`line` locate it.
+  `claude-flow:android-ui-testing` skill and the test it occurs in. `file`/`line` locate it.
 - **`summary`** — a single sentence. Strengths, if worth noting, go here — not
   as issues.
 

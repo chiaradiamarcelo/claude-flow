@@ -12,7 +12,7 @@ Invoke when writing or reviewing:
 - Navigation contract tests
 - Any test that uses `createComposeRule()` or `createAndroidComposeRule()`
 
-This skill supplements the base `testing` skill — all rules from `testing` still apply. This skill adds Compose-specific conventions.
+This skill supplements the base `claude-flow:testing` skill — all rules from `claude-flow:testing` still apply. This skill adds Compose-specific conventions.
 
 Inline examples use a hypothetical `Festival` domain type and a search screen for illustration. Substitute your codebase's actual domain types and screens — the robot pattern, test-tag conventions, and Robolectric caveats generalize.
 

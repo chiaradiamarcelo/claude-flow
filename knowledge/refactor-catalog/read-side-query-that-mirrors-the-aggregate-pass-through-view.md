@@ -103,5 +103,5 @@ class Controller(repo: DiscoverabilityStatusRepository)
     return { status: s.statusLevel(), triggers: s.triggers(), evaluatedAt: s.evaluatedAt, domains: s.domainIssues }
 ```
 
-See `~/.claude/skills/cqrs/SKILL.md` Rule 5 — *Don't introduce a Query when the read IS the
+See the `claude-flow:cqrs` skill Rule 5 — *Don't introduce a Query when the read IS the
 aggregate by primary key* — for the underlying convention.

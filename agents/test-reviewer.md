@@ -12,7 +12,7 @@ You are a strict test quality reviewer for a project following Clean Architectur
 
 ## Test rules (source of truth)
 
-Invoke the `testing` skill with the `Skill` tool before reading any test. It is the source
+Invoke the `claude-flow:testing` skill with the `Skill` tool before reading any test. It is the source
 of truth; this file describes scope and output format only.
 
 ## Review procedure
@@ -20,7 +20,7 @@ of truth; this file describes scope and output format only.
 For each test file under review:
 
 1. **Read the file.**
-2. **Check every rule** from the `testing` skill. Pay special attention to:
+2. **Check every rule** from the `claude-flow:testing` skill. Pay special attention to:
    - Structure (GWT with blank lines, no comments, setup discipline)
    - Naming conventions
    - Forbidden logic in test bodies
@@ -53,7 +53,7 @@ markdown headings, no `<!-- -->` markers.
 
 Field rules:
 
-- **`severity`** — classify each finding. The `testing` skill remains the source
+- **`severity`** — classify each finding. The `claude-flow:testing` skill remains the source
   of truth; these are representative triggers for each level:
 
   `VIOLATION` — a **broken rule** (must fix):
@@ -75,7 +75,7 @@ Field rules:
   - `FAIL` — one or more issues of **any** severity.
   - `PASS` — no issues at all.
 - **`issues`** — one entry per finding. `message` names the rule from the
-  `testing` skill and the test method it occurs in. `file`/`line` locate it.
+  `claude-flow:testing` skill and the test method it occurs in. `file`/`line` locate it.
 - **`summary`** — a single sentence. Strengths, if worth noting, go here — not
   as issues.
 

@@ -32,18 +32,49 @@ Combine all results into a deduplicated list. If all commands return empty, fall
 
 Collect all file paths into a single deduplicated list.
 
-## Step 2: Discover reviewer agents
+## Step 2: Collect reviewer agents
 
-Use the `Grep` tool to find all agents with `type: reviewer` in their frontmatter. Run both searches in parallel:
+Reviewers come from **two** sources. Merge them.
+
+### 2a. Bundled reviewers
+
+These ship in the `claude-flow` plugin. A plugin's agents are not on the project's
+filesystem, so they cannot be discovered by grepping — they are listed here instead:
+
+| Reviewer | Triggers |
+|---|---|
+| `android-presentation-reviewer` | `["**/presentation/**"]` |
+| `android-ui-test-reviewer` | `["**/androidTest/**", "**/androidInstrumentedTest/**"]` |
+| `api-reviewer` | `["**/api/**", "**/controller/**", "**/dto/**"]` |
+| `arch-reviewer` | `["**/src/main/**"]` |
+| `refactor-advisor` | `["**/src/main/**"]` |
+| `test-reviewer` | `["**/src/test/**", "**/*Test.*", "**/*IT.*", "**/*AT.*"]` |
+| `ui-test-reviewer` | `["**/*.test.tsx", "**/*.test.jsx"]` |
+
+A bundled reviewer is **spawned** as `claude-flow:<reviewer>` (Step 5) but **reported**
+by its bare name everywhere else — routing, dry run, the final report.
+
+### 2b. Project-local reviewers
+
+Find any the project has added of its own:
 
 ```
-Grep(pattern="type: reviewer", path="/Users/mchiaradia/.claude/agents/", glob="**/Agent.md")
-Grep(pattern="type: reviewer", path=".claude/agents/", glob="**/Agent.md")
+Grep(pattern="type: reviewer", path=".claude/agents/", glob="**/*.md")
 ```
 
-For each matched file, use the `Read` tool to read only the first 10 lines (the frontmatter). Check that `type: reviewer` appears **inside the YAML frontmatter block** (between the `---` markers), not in the body text. Discard any file where it only appears in the body.
+For each match, `Read` the first 10 lines and confirm `type: reviewer` appears **inside**
+the YAML frontmatter block (between the `---` markers), not in the body text — discard it
+otherwise. From each valid one, extract `name` and `triggers`. Read them in parallel.
 
-From each valid reviewer's frontmatter, extract `name` and `triggers`. Read all matched files in parallel.
+### 2c. Merge
+
+Take the bundled list, then add the project-local ones. **A project-local reviewer whose
+`name` matches a bundled one replaces it** — that is the supported way to retire or
+rewrite a bundled reviewer for one project. Remember which reviewers are project-local:
+they are spawned by their bare name.
+
+**If the merged list is empty, STOP** and report that no reviewers were found. Never
+report PASS on zero reviewers — it is indistinguishable from a clean review.
 
 ## Step 3: Apply project trigger overrides
 
@@ -100,13 +131,16 @@ Spawn all matching reviewers in a **single message** using the `Agent` tool. **P
 reviewer the files that matched *its own* triggers in Step 4** — not just a path:
 
 ```
-Agent(subagent_type="<name>", prompt="Review these <N> files, all of them:
+Agent(subagent_type="<claude-flow:name for a bundled reviewer, bare name for a project-local one>", prompt="Review these <N> files, all of them:
 <one matched path per line>
 
 This list is your scope. Read every file on it. If you cannot review them all, say which ones you did not read and how many.")
 ```
 
 Pass the whole list, however long — never trim it to keep the prompt small.
+
+Never spawn a bundled reviewer by its bare name: a personal or project agent called
+`test-reviewer` may exist, tuned for another stack, and a bare `subagent_type` can reach it.
 
 For a reviewer with a non-empty `agentSkills` entry (from Step 3b), append to its prompt:
 

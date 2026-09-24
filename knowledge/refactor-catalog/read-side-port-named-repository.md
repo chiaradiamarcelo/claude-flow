@@ -67,4 +67,4 @@ token ACTIVE_USERS_QUERY
 The adapter's `implements` clause changes from the old name to the new one; the body of the
 read method is unchanged.
 
-See `~/.claude/skills/cqrs/SKILL.md` for the write/read split rationale.
+See the `claude-flow:cqrs` skill for the write/read split rationale.

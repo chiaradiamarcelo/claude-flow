@@ -1,0 +1,18 @@
+{
+  "description": "Warms a fresh worktree's dependencies in the background, without spending tokens.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "EnterWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/on-enter-worktree.sh\"",
+            "timeout": 15,
+            "statusMessage": "Warming worktree deps in background..."
+          }
+        ]
+      }
+    ]
+  }
+}

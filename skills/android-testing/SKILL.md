@@ -6,14 +6,14 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 ## When to use this skill
 
-Load when writing or reviewing Android tests **other than Compose UI tests** — those have their own `android-ui-testing` skill. Typical fits:
+Load when writing or reviewing Android tests **other than Compose UI tests** — those have their own `claude-flow:android-ui-testing` skill. Typical fits:
 
 - Deciding whether a test belongs in `src/test/` (JVM) or `src/androidTest/` (emulator)
 - Writing ViewModel tests with coroutines
 - Working with Robolectric (including its CMP-resource limitations)
 - Testing platform adapters (permission wrappers, intent builders, calendar launchers)
 
-This skill supplements the base `testing` skill — all rules from `testing` still apply. This skill adds Android-specific conventions and constraints.
+This skill supplements the base `claude-flow:testing` skill — all rules from `claude-flow:testing` still apply. This skill adds Android-specific conventions and constraints.
 
 ## Source-set choice — JVM first
 
@@ -25,7 +25,7 @@ The layered strategy, from fastest to slowest:
 |---|---|---|---|---|
 | Unit tests | `src/test/` | JVM | `./gradlew testDebugUnitTest` | Domain, use cases, ViewModels, mappers, formatters |
 | Narrow integration | `src/androidTest/` | Emulator | `./gradlew connectedAndroidTest` | Adapters that require real Android context or assets |
-| Compose UI | `src/androidTest/` | Emulator | `./gradlew connectedAndroidTest` | Visual rendering + user interaction (see `android-ui-testing`) |
+| Compose UI | `src/androidTest/` | Emulator | `./gradlew connectedAndroidTest` | Visual rendering + user interaction (see `claude-flow:android-ui-testing`) |
 
 ### Escalation ladder
 
@@ -112,18 +112,18 @@ Wrap any coroutine-driving test body in `runTest { … }`. Never launch coroutin
 
 ### Avoid `viewModel.uiState.first { … condition … }` as a substitute for a proper wait
 
-If every test in a file starts with `val state = viewModel.uiState.first { it is Success }`, extract a helper (`viewModel.awaitSuccess()`) — see `testing`'s "Repeated construction = extract a helper" rule. The helper also becomes the natural home for a sealed-hierarchy assertion helper (see `testing`'s "Sealed-hierarchy assertion helpers" rule).
+If every test in a file starts with `val state = viewModel.uiState.first { it is Success }`, extract a helper (`viewModel.awaitSuccess()`) — see `claude-flow:testing`'s "Repeated construction = extract a helper" rule. The helper also becomes the natural home for a sealed-hierarchy assertion helper (see `claude-flow:testing`'s "Sealed-hierarchy assertion helpers" rule).
 
 ## Platform adapter tests
 
 Platform adapters (permission controllers, calendar launchers, share launchers, URL openers, back handlers) are the layer where Android framework types leak into the codebase. Test them narrowly.
 
-- **Test through the port they implement**, not through their internal `Intent` / `PackageManager` details (see the base `testing` skill: "Test adapters through their public interface"). The consumer cares about "share was launched with this text," not "the Intent has `ACTION_SEND` and `EXTRA_TEXT`."
+- **Test through the port they implement**, not through their internal `Intent` / `PackageManager` details (see the base `claude-flow:testing` skill: "Test adapters through their public interface"). The consumer cares about "share was launched with this text," not "the Intent has `ACTION_SEND` and `EXTRA_TEXT`."
 - **Robolectric is often enough.** If the adapter builds an `Intent` and hands it to `startActivity`, a Robolectric test can inspect the launched `ShadowIntent` without an emulator.
 - **When the framework's behavior can't be faked** (real permission dialogs, real system settings screens), the test escalates to instrumented — but that's rare; most adapter logic is pure `Intent`-shaping code.
 
 ## What this skill does NOT cover
 
-- Compose UI tests (screen rendering, user gestures, robot pattern, test tags, screen-state testing) — see `android-ui-testing`.
-- Language-neutral test structure (GWT, naming, no control flow, fixture builders, assertions) — see the base `testing` skill.
-- Kotlin idioms (sealed classes, no unsafe casts, `suspend`) — see `kotlin-conventions`.
+- Compose UI tests (screen rendering, user gestures, robot pattern, test tags, screen-state testing) — see `claude-flow:android-ui-testing`.
+- Language-neutral test structure (GWT, naming, no control flow, fixture builders, assertions) — see the base `claude-flow:testing` skill.
+- Kotlin idioms (sealed classes, no unsafe casts, `suspend`) — see `claude-flow:kotlin-conventions`.

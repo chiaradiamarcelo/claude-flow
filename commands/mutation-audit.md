@@ -11,8 +11,8 @@ Run a filtered mutation audit on: **$ARGUMENTS**
 Runs **mutation testing** on demand and reports only *actionable* surviving mutants — a real
 code change no test kills. It is a **deliberate backstop, not a pipeline gate.**
 
-Why not in `/run-pipeline`: the `test-designer` already does mutation analysis *by reasoning*
-(the `testing` skill's mutation-question + the `Contradiction` kill-list + TPP forcing minimal
+Why not in `/claude-flow:run-pipeline`: the `test-designer` already does mutation analysis *by reasoning*
+(the `claude-flow:testing` skill's mutation-question + the `Contradiction` kill-list + TPP forcing minimal
 code), so on freshly generated pipeline output this audit almost always reports **nothing** —
 wiring it into every run would add latency and noise for a failure mode that isn't occurring.
 Measured: [finding 14](../docs/findings/14-mutation-gate-spike.md).
@@ -57,7 +57,7 @@ Raw PIT survivors on Kotlin are ~100% noise (`equals`/`hashCode`/`toString` boil
 null-check intrinsics — finding 14). **Never report raw survivors.** Run the filter:
 
 ```bash
-python3 ~/.claude/tools/mutation/classify-survivors.py <dir-containing-mutations.xml>
+python3 "${CLAUDE_PLUGIN_ROOT}/tools/mutation/classify-survivors.py" <dir-containing-mutations.xml>
 ```
 
 It splits survivors into **junk** (dropped) and **candidate-real** (business-logic gaps). Report
@@ -78,7 +78,7 @@ Complexity × coverage risk. Near-silent on clean-arch code (finding 14) but use
 legacy code. Needs a JaCoCo XML report (`build/reports/jacoco/test/jacocoTestReport.xml`):
 
 ```bash
-python3 ~/.claude/tools/mutation/crap.py <jacocoTestReport.xml>
+python3 "${CLAUDE_PLUGIN_ROOT}/tools/mutation/crap.py" <jacocoTestReport.xml>
 ```
 
 Report methods over the CRAP threshold (30) — candidates for more tests or a smaller method.

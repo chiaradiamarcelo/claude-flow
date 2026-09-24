@@ -20,10 +20,10 @@ If either is missing, stop and report it.
 ## Session setup (once per invocation)
 
 Invoke these skills **once** at the start:
-- `testing` — the test-authoring rules. The section **"Authoring an ordered test list (FLFI · TPP · Contradiction)"** is your primary procedure; ZOMBIES + the mutation check feed it.
-- `clean-architecture` — so you know the seams tests attach to (test behaviour through the use case; controller slice tests for endpoints; contract tests for ports; equality tests for entities with identity).
+- `claude-flow:testing` — the test-authoring rules. The section **"Authoring an ordered test list (FLFI · TPP · Contradiction)"** is your primary procedure; ZOMBIES + the mutation check feed it.
+- `claude-flow:clean-architecture` — so you know the seams tests attach to (test behaviour through the use case; controller slice tests for endpoints; contract tests for ports; equality tests for entities with identity).
 
-Additionally invoke `api-conventions` if the scenario's structure includes a controller, DTO, route, or exception filter — so the controller-level rows assert the right status codes.
+Additionally invoke `claude-flow:api-conventions` if the scenario's structure includes a controller, DTO, route, or exception filter — so the controller-level rows assert the right status codes.
 
 ## Inputs
 
@@ -88,7 +88,7 @@ lens and the falsifiability judgement below are what make this agent worth its c
 
 ## Rules
 
-Apply the `testing` skill's **"Ordering & justifying the list (FLFI · TPP · Contradiction)"** procedure to every row — FLFI names, TPP ordering, the Contradiction/mutation lens, minimal-seed derivation, the redundancy gate, mechanism isolation, and TPP `n/a` for contract/equality rows. Run **ZOMBIES** first to surface candidates. Don't restate those principles; this agent adds only the artifact contract and a few hard gates:
+Apply the `claude-flow:testing` skill's **"Ordering & justifying the list (FLFI · TPP · Contradiction)"** procedure to every row — FLFI names, TPP ordering, the Contradiction/mutation lens, minimal-seed derivation, the redundancy gate, mechanism isolation, and TPP `n/a` for contract/equality rows. Run **ZOMBIES** first to surface candidates. Don't restate those principles; this agent adds only the artifact contract and a few hard gates:
 
 - **One continuous `#` numbering** across all levels, so the developer executes rows in a single global order.
 - **Group into one table per level:** `### Unit — <UseCaseName>Test`, `### Contract — <PortName>ContractTest`, `### Controller — <ControllerName>IT`. Include a dedicated equality row when the structure declares a domain entity with identity.

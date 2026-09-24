@@ -26,15 +26,15 @@ If the slug or scenario ID is missing, stop and report it. The orchestrator pass
 ## Session setup (once per invocation)
 
 Invoke these skills **once** at the start, not per step:
-- `clean-architecture` — folder structure, dependency rules, layer ordering, project-wide conventions.
-- `testing` — test structure, naming, fake usage.
-- `comments` — which comments earn their place and which are liabilities.
+- `claude-flow:clean-architecture` — folder structure, dependency rules, layer ordering, project-wide conventions.
+- `claude-flow:testing` — test structure, naming, fake usage.
+- `claude-flow:comments` — which comments earn their place and which are liabilities.
 
 Your red-green-refactor discipline is the batched cycle in **Implementation mode** below — the `test-designer` has already done the test *selection* (ZOMBIES/TPP/ordering) in your plan. Execute it class by class, and never write production code for a class until you have seen its whole test batch fail (batch-red-verified).
 
 Additionally, invoke conditionally based on what the scenario plan touches:
-- `api-conventions` — if the plan includes a controller, request/response DTO, route, or exception filter step.
-- `cqrs` — if the plan adds a new port (to decide write-side `Repository` vs read-side `Finder`/`Query`) or a new read-side use case (to apply the middleman litmus test).
+- `claude-flow:api-conventions` — if the plan includes a controller, request/response DTO, route, or exception filter step.
+- `claude-flow:cqrs` — if the plan adds a new port (to decide write-side `Repository` vs read-side `Finder`/`Query`) or a new read-side use case (to apply the middleman litmus test).
 
 ## Turn economy (applies in both modes)
 
@@ -106,4 +106,4 @@ Example: `✅ RED→GREEN — red with expected:<50> but was:<0> before the depo
 - The ordered test list **is** your design order — batch it **by class**: write a class's whole row-group, verify all red for their stated reasons, then implement the class to green. The row sequence within and across classes is the design (simplest transformation first); follow it top-to-bottom and don't create a class ahead of the row-group that forces it into existence.
 - RED may mean "compile-fails" while dependencies are being introduced, not just "runnable but failing." Both count as red.
 - If a step cannot go green after reasonable effort, stop and report the failure. Do not bypass tests or mark incomplete work as done.
-- Project-wide code rules (no interfaces for use cases, no framework in domain, constructor injection, etc.) live in the `clean-architecture` skill — do not duplicate them here.
+- Project-wide code rules (no interfaces for use cases, no framework in domain, constructor injection, etc.) live in the `claude-flow:clean-architecture` skill — do not duplicate them here.

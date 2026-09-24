@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GLOBAL PostToolUse hook for the EnterWorktree tool.
+# PostToolUse hook for the EnterWorktree tool, registered by the plugin (hooks/hooks.json).
 #
 # Warms dependencies in the freshly-created worktree WITHOUT spending any Claude
 # tokens: this runs outside the model loop and emits nothing on stdout, so Claude
@@ -29,9 +29,10 @@ if [ -z "${wt:-}" ] || [ ! -d "$wt" ]; then
   wt="$PWD"
 fi
 
-# Pick the warm script: per-repo override first, else the global default.
+# Pick the warm script: per-repo override first, else the default shipped beside this
+# hook — the plugin root when installed as a plugin (hooks/hooks.json).
 override="$wt/.claude/warm-deps.sh"
-default="$HOME/.claude/warm-deps.sh"
+default="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}/warm-deps.sh"
 if [ -f "$override" ]; then
   script="$override"
 elif [ -f "$default" ]; then
