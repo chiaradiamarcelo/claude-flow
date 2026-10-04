@@ -1,0 +1,33 @@
+######## run1 / agents ########
+mutation:  13/16 killed  (81%)
+crap:      methods=38  over30=0  total=49.0  mean=1.29
+cpd/DRY:   0 duplication blocks, 0 duplicated lines
+######## run1 / inline ########
+mutation:  11/15 killed  (73%)
+crap:      methods=46  over30=0  total=59.0  mean=1.28
+cpd/DRY:   0 duplication blocks, 0 duplicated lines
+######## run2 / agents ########
+mutation:  14/17 killed  (82%)
+crap:      methods=42  over30=0  total=56.0  mean=1.33
+cpd/DRY:   0 duplication blocks, 0 duplicated lines
+######## run2 / inline ########
+mutation:  (no report)
+crap:      methods=49  over30=0  total=63.0  mean=1.29
+cpd/DRY:   0 duplication blocks, 0 duplicated lines
+######## run3 / agents ########
+mutation:  13/17 killed  (76%)
+crap:      methods=47  over30=0  total=61.0  mean=1.3
+cpd/DRY:   0 duplication blocks, 0 duplicated lines
+######## run3 / inline ########
+mutation:  19/26 killed  (73%)
+crap:      methods=53  over30=0  total=68.0  mean=1.28
+cpd/DRY:   0 duplication blocks, 0 duplicated lines
+######## run4 / agents ########
+mutation:  13/16 killed  (81%)
+crap:      methods=49  over30=0  total=62.0  mean=1.27
+cpd/DRY:   0 duplication blocks, 0 duplicated lines
+######## run4 / inline ########
+mutation:  14/20 killed  (70%)
+crap:      methods=57  over30=0  total=78.0  mean=1.37
+cpd/DRY:   0 duplication blocks, 0 duplicated lines
+VAR ORACLE DONE

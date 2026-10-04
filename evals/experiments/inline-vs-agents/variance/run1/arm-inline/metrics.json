@@ -1,0 +1,64 @@
+{
+  "total_cost_usd": 4.084715000000002,
+  "output_tokens_total": 673,
+  "input_tokens_total": 184,
+  "cache_read_total": 8002048,
+  "cache_creation_total": 239458,
+  "gradle_runs_total": 12,
+  "assistant_events_total": 92,
+  "by_origin": {
+    "orchestrator": {
+      "output_tokens": 673,
+      "cache_read": 8002048,
+      "cache_creation": 239458,
+      "assistant_events": 92,
+      "gradle_runs": 12,
+      "tool_calls": {
+        "Bash": 22,
+        "Read": 4,
+        "Skill": 7,
+        "Write": 26,
+        "Edit": 5
+      }
+    }
+  },
+  "subagents_dispatched": {},
+  "mainloop_only_usage": {
+    "input_tokens": 86,
+    "cache_creation_input_tokens": 112916,
+    "cache_read_input_tokens": 3823150,
+    "output_tokens": 41742,
+    "output_tokens_details": {
+      "thinking_tokens": 12100
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 112916,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 854,
+        "cache_read_input_tokens": 124527,
+        "cache_creation_input_tokens": 547,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 547
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "num_turns_mainloop": 72,
+  "duration_ms": 467718,
+  "duration_api_ms": 436431,
+  "is_error": false,
+  "wall_seconds": 471.0
+}

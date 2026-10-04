@@ -1,0 +1,5 @@
+{
+  "name": "exptopology",
+  "version": "1.0.0",
+  "description": "Frozen A/B instrument: subagent pipeline vs inline pipeline, identical conventions."
+}

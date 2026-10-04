@@ -1,0 +1,81 @@
+{
+  "total_cost_usd": 5.13124075,
+  "output_tokens_total": 757,
+  "input_tokens_total": 202,
+  "cache_read_total": 6728733,
+  "cache_creation_total": 476281,
+  "gradle_runs_total": 14,
+  "assistant_events_total": 101,
+  "by_origin": {
+    "orchestrator": {
+      "output_tokens": 33,
+      "cache_read": 388654,
+      "cache_creation": 82556,
+      "assistant_events": 13,
+      "gradle_runs": 0,
+      "tool_calls": {
+        "Bash": 2,
+        "Read": 1,
+        "Agent": 3
+      }
+    },
+    "subagent": {
+      "output_tokens": 724,
+      "cache_read": 6340079,
+      "cache_creation": 393725,
+      "assistant_events": 88,
+      "gradle_runs": 14,
+      "tool_calls": {
+        "Skill": 10,
+        "Read": 10,
+        "Glob": 3,
+        "Write": 21,
+        "Edit": 12,
+        "Bash": 32
+      }
+    }
+  },
+  "subagents_dispatched": {
+    "exptopology:architect:architect": 1,
+    "exptopology:test-designer:test-designer": 1,
+    "exptopology:developer:developer": 1
+  },
+  "mainloop_only_usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 29316,
+    "cache_read_input_tokens": 194659,
+    "output_tokens": 2769,
+    "output_tokens_details": {
+      "thinking_tokens": 85
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 29316,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 626,
+        "cache_read_input_tokens": 41114,
+        "cache_creation_input_tokens": 360,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 360
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "num_turns_mainloop": 7,
+  "duration_ms": 729950,
+  "duration_api_ms": 630110,
+  "is_error": false,
+  "wall_seconds": 731.0
+}
