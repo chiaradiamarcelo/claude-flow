@@ -1,6 +1,6 @@
 # claude-flow
 
-A Claude Code plugin: a multi-agent development pipeline with Clean Architecture, TDD, and parallel review gates — the agents, commands, skills, refactor catalog and worktree hook that make it up. The repo also carries a personal Claude Code configuration (`CLAUDE.md`, `settings.json`, statusline, RTK hook) that the plugin does not ship.
+A Claude Code plugin: a multi-agent development pipeline with Clean Architecture, test-first implementation, and parallel review gates — the agents, commands, skills, refactor catalog and worktree hook that make it up. The repo also carries a personal Claude Code configuration (`CLAUDE.md`, `settings.json`, statusline, RTK hook) that the plugin does not ship.
 
 ## Installing
 
@@ -158,7 +158,7 @@ Then, for each unchecked scenario in `## BDD Acceptance Progress`, **top-to-bott
 
 1. **`architect`** plans the scenario's **structure** → writes `SCENARIO-XX.md` with a `## Structure & Contracts` section: which layers/ports/adapters/controllers exist, where they live, the CQRS side, contract-test obligations, and the API surface (URL, method, status mapping). It enumerates no tests and writes no code.
 2. **`test-designer`** (the "prophet") appends a `## Ordered Test List (FLFI · TPP · Contradiction)` section: the ordered, justified sequence of tests that will drive the implementation — each row named by its business rule (FLFI), tagged with the transformation it forces (TPP), and the assumption it contradicts. Flags any structural gap with a `> Note to architect:` line. Writes no code.
-3. **`developer`** executes the ordered test list **batch-red-per-class** — for each class: write its whole test batch, run once and verify every test is red for its planned reason (*batch-red-verified*), then implement the class to green and refactor — flipping each row's `Status ☐ → ✅` and honoring any notes. (Per-class rather than per-test because the design is decided up front by the architect + test-designer — see [finding 13](docs/findings/13-batch-vs-strict-tdd.md).)
+3. **`developer`** executes the ordered test list **batch-red-per-test-class** — for each table of the plan (one test class): write its whole test batch, run once and verify every test is red for its planned reason (*batch-red-verified*), then implement the class to green and refactor — flipping each row's `Status ☐ → ✅` and honoring any notes. (Per-class rather than per-test because the design is decided up front by the architect + test-designer — see [finding 13](docs/findings/13-batch-vs-strict-tdd.md).)
 4. The scenario's box gets checked, then the next scenario begins.
 
 ```
@@ -184,7 +184,7 @@ Bundled reviewers (triggers in agent frontmatter, mirrored in `/run-reviewers` S
 | Reviewer | Default triggers | Checks |
 |---|---|---|
 | `test-reviewer` | `**/src/test/**`, `**/*Test.*`, `**/*IT.*`, `**/*AT.*` | GWT structure, naming, fakes vs mocks, redundant assertions, test logic, coverage strategy |
-| `arch-reviewer` | `**/src/main/**` | Layer dependencies, domain purity, Clean Architecture patterns, TDD compliance |
+| `arch-reviewer` | `**/src/main/**` | Layer dependencies, domain purity, Clean Architecture patterns |
 | `refactor-advisor` | `**/src/main/**` | Primitive obsession, misplaced logic, intent-revealing methods, naming, mapper cleanliness |
 | `api-reviewer` | `**/api/**`, `**/controller/**`, `**/dto/**` | HTTP conventions, thin controllers, REST URLs, response modeling |
 | `ui-test-reviewer` | `**/*.test.tsx`, `**/*.test.jsx` | React component/hook tests: naming, query priority, mocking, behavioral focus |
@@ -303,7 +303,7 @@ Available templates:
 | [warm-deps.sh](warm-deps.sh) | Default warm script — auto-detects the ecosystem; a repo's own `.claude/warm-deps.sh` overrides it |
 | [scripts/check-reviewers.sh](scripts/check-reviewers.sh) | Asserts the bundled-reviewer table in `/run-reviewers` matches the agents' frontmatter, both directions. Run after touching a reviewer |
 | **Personal config** (not shipped by the plugin) | |
-| [CLAUDE.md](CLAUDE.md) | Global instructions — workflow rules, test naming + test design rules (TDD itself is owned by the pipeline agents, not restated here) |
+| [CLAUDE.md](CLAUDE.md) | Global instructions — workflow rules, test naming + test design rules (the test-first cycle itself is owned by the pipeline agents, not restated here) |
 | [RTK.md](RTK.md) | RTK usage reference (referenced by CLAUDE.md) |
 | [settings.json](settings.json) | Permissions, hooks, plugins (including this one), statusline config |
 | [statusline-command.sh](statusline-command.sh) | Context window usage bar for the statusline |
@@ -319,7 +319,7 @@ Available templates:
 | **Agents — pipeline** | |
 | [agents/architect](agents/architect.md) | Plans the scenario's **Structure & Contracts** (layers/ports/adapters); writes no tests or code (invokes `clean-architecture`, `cqrs`) |
 | [agents/test-designer](agents/test-designer.md) | Appends the **Ordered Test List** (FLFI · TPP · Contradiction) — the justified test order that drives the slice; writes no code (invokes `testing`) |
-| [agents/developer](agents/developer.md) | Implements the plan (batch-red-per-class TDD, batch-red-verified; invokes `clean-architecture`, `testing`) |
+| [agents/developer](agents/developer.md) | Implements the plan (batch-red-per-class, batch-red-verified; invokes `clean-architecture`, `testing`) |
 | **Agents — reviewers** | |
 | [agents/test-reviewer](agents/test-reviewer.md) | Reviews test quality (GWT, naming, fakes, assertions, coverage strategy) |
 | [agents/arch-reviewer](agents/arch-reviewer.md) | Reviews Clean Architecture structural compliance |

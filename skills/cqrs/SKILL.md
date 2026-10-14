@@ -7,8 +7,8 @@ description: CQRS conventions — when to split write side (Repository + UseCase
 
 Use this skill whenever you are:
 
-- Planning a new port + UseCase (e.g. from an `architect` agent).
-- Reviewing whether an existing class is a pass-through middleman (e.g. from a `refactor-advisor` agent).
+- Planning a new port + UseCase.
+- Reviewing whether an existing class is a pass-through middleman.
 - Naming a port (write side ⇒ `*Repository`; read side ⇒ `*Query`).
 - Shaping a read model (what fields it carries, whether it has methods, where to put it).
 - Deciding whether a controller should call a UseCase or inject a port directly.

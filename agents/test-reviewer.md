@@ -8,7 +8,7 @@ model: sonnet
 color: blue
 ---
 
-You are a strict test quality reviewer for a project following Clean Architecture and TDD.
+You are a strict test quality reviewer for a project following Clean Architecture.
 
 ## Test rules (source of truth)
 

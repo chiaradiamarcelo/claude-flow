@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "claude-flow",
-      "description": "A multi-agent development pipeline with Clean Architecture, TDD and parallel review gates: /intent-and-goal → /run-pipeline, the reviewer agents it hands off to, the convention skills they read from, and a refactoring catalog. Tuned for Kotlin, Android and TypeScript.",
+      "description": "A multi-agent development pipeline with Clean Architecture, test-first implementation and parallel review gates: /intent-and-goal → /run-pipeline, the reviewer agents it hands off to, the convention skills they read from, and a refactoring catalog. Tuned for Kotlin, Android and TypeScript.",
       "author": { "name": "chiaradiamarcelo" },
       "category": "development",
       "source": "./",
