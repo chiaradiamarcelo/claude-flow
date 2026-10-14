@@ -111,6 +111,7 @@ The reasoning is worth keeping — it is just not source code's job:
 | Why this design over that one | an ADR |
 | What bug this shape prevents | the test name, plus the commit message |
 | What the rule is | a named test |
+| Which ticket this came from | the commit message, the PR title, and the branch name |
 | Why a *future* reader must not change this | a comment (kind 1 — a fence) |
 
 These destinations are already written, already durable, and **nobody has to keep them true** —
@@ -153,5 +154,9 @@ Given/When/Then, and anything explaining what a helper or robot method mechanica
 - **Never repeat a comment.** The same explanation on two declarations in one file is two
   copies to drift. Put it on one and let the name carry the other.
 - **No commented-out code.** Version control holds it.
+- **No ticket identifiers** (`TICKET-123`, `ISSUE-45`, "per the parent ticket"), in production
+  source or in tests. A ticket number is a pointer to history, not a fact about the code: the
+  ticket is closed, renamed or superseded and the comment still cites it. Drop the identifier
+  and keep the sentence only if it still earns its place without it.
 - **A file where comments outnumber code is a design signal**, not a documentation
   achievement — the names are not carrying their weight.
