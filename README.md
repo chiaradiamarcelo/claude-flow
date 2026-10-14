@@ -316,6 +316,7 @@ Available templates:
 | [commands/run-pipeline.md](commands/run-pipeline.md) | `/run-pipeline <feature-slug>` — execution orchestrator: per-scenario architect→test-designer→developer, reviewers, fix-loop (requires an approved spec) |
 | [commands/new-reviewer.md](commands/new-reviewer.md) | `/new-reviewer` — guided creation of reviewer agents |
 | [commands/run-reviewers.md](commands/run-reviewers.md) | `/run-reviewers <path>` — ad-hoc review of any folder (legacy code, full project) |
+| [commands/review-pr.md](commands/review-pr.md) | `/review-pr <PR> [--fix] [--unattended] [--effort <level>]` — reviews a PR in three parallel, unbiased lanes (correctness via the `code-review` skill on Opus, conventions via `/run-reviewers` over the changed files, added comments via the `comments` skill); posts one summary comment, or fixes and pushes with `--fix` |
 | [commands/mutation-audit.md](commands/mutation-audit.md) | `/mutation-audit <path>` — on-demand, filtered mutation audit (real survivors only; `--crap` for complexity×coverage). Backstop for suites you didn't generate; **not** part of `/run-pipeline` (see finding 14) |
 | **Agents — pipeline** | |
 | [agents/architect](agents/architect.md) | Plans the scenario's **Structure & Contracts** (layers/ports/adapters); writes no tests or code (invokes `clean-architecture`, `cqrs`) |
