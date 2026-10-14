@@ -30,7 +30,7 @@ Invoke these skills **once** at the start, not per step:
 - `claude-flow:testing` — test structure, naming, fake usage.
 - `claude-flow:comments` — which comments earn their place and which are liabilities.
 
-Your red-green-refactor discipline is the batched cycle in **Implementation mode** below — the `test-designer` has already done the test *selection* (ZOMBIES/TPP/ordering) in your plan. Execute it class by class, and never write production code for a class until you have seen its whole test batch fail (batch-red-verified).
+Your red-green-refactor discipline is the batched cycle in **Implementation mode** below — the `test-designer` has already done the test *selection* (ZOMBIES/TPP/ordering) in your plan. Execute it one batch at a time, and never write production code for a batch until you have seen every one of its tests fail (batch-red-verified).
 
 Additionally, invoke conditionally based on what the scenario plan touches:
 - `claude-flow:api-conventions` — if the plan includes a controller, request/response DTO, route, or exception filter step.
@@ -55,10 +55,10 @@ same message: that skips the only step that proves the test can fail.
    - `## Structure & Contracts` — the skeleton: which artifacts exist, where they live, what they conform to. Reference material, not a checklist.
    - `## Ordered Test List (FLFI · TPP · Contradiction)` — your **execution order**. The `Status` column is the single progress tracker.
 3. Honor any `> Note to architect:` line as authoritative — it flags a structural gap the rows are designed against (a missing read method, an absent field, an unmapped status). Adjust the structure accordingly as you implement; do not treat it as a blocker.
-4. Walk the table **grouped by class**, taking the classes in the order their rows first appear (all of a class's rows form one batch). For each class, run one batched cycle:
-   - **Write all of that class's tests at once (RED)** — each named by its row's FLFI label and seeded to create its Contradiction, in the row order.
+4. Walk the plan **one test class at a time**, in the order its tables appear (`### Unit`, then `### Contract`, then `### Controller`). **All of a table's rows are one batch** — if a table spans more than one production class, batch per class within it, in row order. For each batch, run one cycle:
+   - **Write all of that batch's tests at once (RED)** — each named by its row's FLFI label and seeded to create its Contradiction, in the row order.
    - **Verify batch-red (non-negotiable).** Run the suite **once**; every new test must fail for the reason its row states. A test that is *green* on this first run is vacuous — fix it so it genuinely exercises the behaviour **before writing any production code**. (Compile-failure while dependencies are being introduced counts as red.)
-   - **Write the class's production code (GREEN)** — the smallest code that forces each row's TPP transformation and makes all of the class's tests pass. Run the suite once and confirm green.
+   - **Write the production code (GREEN)** — the smallest code that forces each row's TPP transformation and makes the whole batch pass. Run the suite once and confirm green.
    - Refactor if useful; everything so far stays green (REFACTOR).
    - Flip each row's Status as its test passes, using the **status vocabulary** below.
    - If a row turns out already-green or genuinely redundant when you reach it, mark it `✅ EARLY-GREEN` rather than forcing a false red — or drop it only if truly vacuous. Never silently skip it.
@@ -81,6 +81,7 @@ written anyway — this fixes the *first* few characters of the cell, nothing el
 | `❌ BLOCKED` | could not be made to pass — say why, and stop, per the failure rule below |
 
 Example: `✅ RED→GREEN — red with expected:<50> but was:<0> before the deposit was applied`
+
 5. When every row is `✅`, run the full test suite for the affected module and confirm green.
 6. Mark the scenario as `- [x]` in the `## BDD Acceptance Progress` section of `docs/specifications/<feature-slug>/specification.md`. **One line.** What was built, and any defect found — nothing else. The checklist is a checklist.
 7. If the scenario is worth a narrative record — a defect witnessed by a red state, a deviation from the plan, a mutant applied — write it to `docs/specifications/<feature-slug>/<scenario-id>.record.md`, **never** into the plan file or the specification.
@@ -103,7 +104,7 @@ Example: `✅ RED→GREEN — red with expected:<50> but was:<0> before the depo
 
 ## Notes
 
-- The ordered test list **is** your design order — batch it **by class**: write a class's whole row-group, verify all red for their stated reasons, then implement the class to green. The row sequence within and across classes is the design (simplest transformation first); follow it top-to-bottom and don't create a class ahead of the row-group that forces it into existence.
+- The ordered test list **is** your design order — batch it **by test class** (and by production class within one): write a batch's whole row-group, verify all red for their stated reasons, then implement to green. The row sequence within and across batches is the design (simplest transformation first); follow it top-to-bottom and don't create a class ahead of the row-group that forces it into existence.
 - RED may mean "compile-fails" while dependencies are being introduced, not just "runnable but failing." Both count as red.
 - If a step cannot go green after reasonable effort, stop and report the failure. Do not bypass tests or mark incomplete work as done.
 - Project-wide code rules (no interfaces for use cases, no framework in domain, constructor injection, etc.) live in the `claude-flow:clean-architecture` skill — do not duplicate them here.
