@@ -1,13 +1,12 @@
 # Ignore everything by default
 *
 
-# Config files
 !.gitignore
-!CLAUDE.md
-!RTK.md
-!settings.json
-!statusline-command.sh
 !README.md
+
+# Templates: personal config the plugin does not ship
+!templates/
+!templates/**
 
 # Plugin manifest + self-hosted marketplace
 !.claude-plugin/
@@ -20,10 +19,8 @@
 # Hooks
 !hooks/
 !hooks/hooks.json
-!hooks/rtk-rewrite.sh
 !hooks/on-enter-worktree.sh
 !hooks/worktree-warming.md
-!hooks/log-skill-invocation.sh
 
 # Worktree dep-warming worker (global default)
 !warm-deps.sh

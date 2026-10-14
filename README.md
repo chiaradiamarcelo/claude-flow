@@ -1,6 +1,6 @@
 # claude-flow
 
-A Claude Code plugin: a multi-agent development pipeline with Clean Architecture, test-first implementation, and parallel review gates — the agents, commands, skills, refactor catalog and worktree hook that make it up. The repo also carries a personal Claude Code configuration (`CLAUDE.md`, `settings.json`, statusline, RTK hook) that the plugin does not ship.
+A Claude Code plugin: a multi-agent development pipeline with Clean Architecture, test-first implementation, and parallel review gates — the agents, commands, skills, refactor catalog and worktree hook that make it up. The repo also carries a personal Claude Code configuration under [templates/](templates/) (`CLAUDE.md`, `settings.json`, statusline, RTK hook) that the plugin does not ship.
 
 ## Installing
 
@@ -36,7 +36,7 @@ commit SHA and every merge to `main` counts as an update. Nobody bumps anything.
 Turn on auto-update once and merges arrive by themselves: `/plugin` → **Marketplaces** →
 `claude-flow` → **Enable auto-update**. It is off by default for third-party marketplaces
 like this one. To turn it on for everyone in a repo that uses the plugin, commit this to
-that repo's `.claude/settings.json` (the personal [settings.json](settings.json) here already has it):
+that repo's `.claude/settings.json` ([templates/settings.json](templates/settings.json) already has it):
 
 ```json
 {
@@ -80,8 +80,8 @@ The plugin cannot carry these — each user or repo keeps its own:
 
 | File | Why it is not in the plugin |
 |---|---|
-| `CLAUDE.md` | A plugin's root `CLAUDE.md` is not loaded as context. The one here is a personal global one; copy the parts you want |
-| `settings.json` | `worktree.baseRef: fresh` (Step 0 relies on it) is a user setting, and so is the marketplace block that turns on auto-update (see above). The plugin registers its own hook — do **not** also register `on-enter-worktree.sh` in settings, or it fires twice (lock-guarded, so harmless, but pointless) |
+| `CLAUDE.md` | A plugin's `CLAUDE.md` is not loaded as context. Start from [templates/CLAUDE.md](templates/CLAUDE.md) — a personal global one; copy the parts you want |
+| `settings.json` | `worktree.baseRef: fresh` (Step 0 relies on it) is a user setting, and so is the marketplace block that turns on auto-update (see above). The plugin registers its own hook — do **not** also register `on-enter-worktree.sh` in settings, or it fires twice (lock-guarded, so harmless, but pointless). Start from [templates/settings.json](templates/settings.json) |
 | `.claude/pipeline.json` | Per-project reviewer triggers and skill injection — see below |
 | `.claude/warm-deps.sh` | Per-repo dependency warming, when the default's ecosystem detection is not enough |
 
@@ -105,7 +105,7 @@ That is also how every live eval runs — `--plugin-dir` at the repo root — so
 
 ### RTK (Rust Token Killer)
 
-RTK is a token-optimized CLI proxy used by the hook in the personal `settings.json` (not by the plugin). Install it before using that config:
+RTK is a token-optimized CLI proxy used by the hook in [templates/settings.json](templates/settings.json) (not by the plugin). Install it before using that config:
 
 ```bash
 cargo install rtk
@@ -302,12 +302,13 @@ Available templates:
 | [hooks/on-enter-worktree.sh](hooks/on-enter-worktree.sh) | `PostToolUse` on `EnterWorktree` — launches the warm script detached; see [hooks/worktree-warming.md](hooks/worktree-warming.md) |
 | [warm-deps.sh](warm-deps.sh) | Default warm script — auto-detects the ecosystem; a repo's own `.claude/warm-deps.sh` overrides it |
 | [scripts/check-reviewers.sh](scripts/check-reviewers.sh) | Asserts the bundled-reviewer table in `/run-reviewers` matches the agents' frontmatter, both directions. Run after touching a reviewer |
-| **Personal config** (not shipped by the plugin) | |
-| [CLAUDE.md](CLAUDE.md) | Global instructions — workflow rules, test naming + test design rules (the test-first cycle itself is owned by the pipeline agents, not restated here) |
-| [RTK.md](RTK.md) | RTK usage reference (referenced by CLAUDE.md) |
-| [settings.json](settings.json) | Permissions, hooks, plugins (including this one), statusline config |
-| [statusline-command.sh](statusline-command.sh) | Context window usage bar for the statusline |
-| [hooks/rtk-rewrite.sh](hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
+| **Templates** (personal config, not shipped by the plugin — copy into `~/.claude/`) | |
+| [templates/CLAUDE.md](templates/CLAUDE.md) | Global instructions — workflow rules, test naming + test design rules (the test-first cycle itself is owned by the pipeline agents, not restated here) |
+| [templates/RTK.md](templates/RTK.md) | RTK usage reference (referenced by CLAUDE.md) |
+| [templates/settings.json](templates/settings.json) | Permissions, hooks, plugins (including this one), statusline config |
+| [templates/statusline-command.sh](templates/statusline-command.sh) | Context window usage bar for the statusline |
+| [templates/hooks/rtk-rewrite.sh](templates/hooks/rtk-rewrite.sh) | Pre-tool hook that rewrites commands through RTK |
+| [templates/hooks/log-skill-invocation.sh](templates/hooks/log-skill-invocation.sh) | Pre-tool hook that logs each skill invocation |
 | **Knowledge** | |
 | [knowledge/refactor-catalog/](knowledge/refactor-catalog/index.md) | Language-agnostic catalog of code smells and refactorings (index + one file per pattern, read on demand by `refactor-advisor` through `${CLAUDE_PLUGIN_ROOT}`) |
 | **Commands** | |
