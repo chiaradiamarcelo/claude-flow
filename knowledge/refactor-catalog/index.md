@@ -31,6 +31,7 @@ project being reviewed.
 | [`pass-through-layer-middleman.md`](pass-through-layer-middleman.md) | A class adds no behavior — it receives a call, forwards to its single collaborator, and returns the result. |
 | [`read-side-port-named-repository.md`](read-side-port-named-repository.md) | A `*Repository` whose only methods are read-shaped (`findAll`, `count`, `findBy*`, `list*`) — no `save`, no `delete`. |
 | [`read-side-query-that-mirrors-the-aggregate-pass-through-view.md`](read-side-query-that-mirrors-the-aggregate-pass-through-view.md) | A `*Query`/`*View` duplicates the aggregate, reading the same row by the same key the Repository writes. |
+| [`service-suffix-instead-of-a-domain-name.md`](service-suffix-instead-of-a-domain-name.md) | A class named `*Service` — any of them. A service is not an object: the name says the class models nothing, so nothing looks out of place in it and every loosely related function lands there next. |
 | [`misplaced-projection-in-a-foreign-write-side-table-orphaned-ownership.md`](misplaced-projection-in-a-foreign-write-side-table-orphaned-ownership.md) | A read projection is materialized as a column on a foreign write-side table, refreshed by a service owning neither the source nor the sink. |
 
 ## Adding an entry
