@@ -37,7 +37,8 @@
   },
   "extraKnownMarketplaces": {
     "claude-flow": {
-      "source": { "source": "github", "repo": "chiaradiamarcelo/claude-flow" }
+      "source": { "source": "github", "repo": "chiaradiamarcelo/claude-flow" },
+      "autoUpdate": true
     }
   },
   "enabledPlugins": {
