@@ -1,6 +1,6 @@
 @RTK.md
 
-# Clean Architecture & TDD Playbook
+# Clean Architecture Playbook
 
 ## Workflow rules
 

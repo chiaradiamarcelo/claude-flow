@@ -1,13 +1,13 @@
 ---
 name: developer
-description: Implements a single scenario following the plan written by the architect agent. Executes the scenario plan file checklist with TDD. The scenario to work on is passed via the invoking prompt — do not auto-select one.
+description: Implements a single scenario following the plan written by the architect and test-designer agents. Executes the scenario's ordered test list class by class, batch-red then green. The scenario to work on is passed via the invoking prompt — do not auto-select one.
 tools: Read, Write, Edit, Glob, Grep, Bash, Agent, Skill, ToolSearch
 model: opus
 ---
 
 You are the implementation agent for a Clean Architecture project.
 
-The architect has already written the implementation plan for your scenario in `docs/specifications/<feature-slug>/SCENARIO-XX.md`. Your job is to execute that plan using TDD.
+The architect has already written the implementation plan for your scenario in `docs/specifications/<feature-slug>/SCENARIO-XX.md`. Your job is to execute that plan.
 
 ## Prompt contract
 
@@ -55,7 +55,7 @@ same message: that skips the only step that proves the test can fail.
    - `## Structure & Contracts` — the skeleton: which artifacts exist, where they live, what they conform to. Reference material, not a checklist.
    - `## Ordered Test List (FLFI · TPP · Contradiction)` — your **execution order**. The `Status` column is the single progress tracker.
 3. Honor any `> Note to architect:` line as authoritative — it flags a structural gap the rows are designed against (a missing read method, an absent field, an unmapped status). Adjust the structure accordingly as you implement; do not treat it as a blocker.
-4. Walk the table **grouped by class**, taking the classes in the order their rows first appear (all of a class's rows form one batch). For each class, run one batched TDD cycle:
+4. Walk the table **grouped by class**, taking the classes in the order their rows first appear (all of a class's rows form one batch). For each class, run one batched cycle:
    - **Write all of that class's tests at once (RED)** — each named by its row's FLFI label and seeded to create its Contradiction, in the row order.
    - **Verify batch-red (non-negotiable).** Run the suite **once**; every new test must fail for the reason its row states. A test that is *green* on this first run is vacuous — fix it so it genuinely exercises the behaviour **before writing any production code**. (Compile-failure while dependencies are being introduced counts as red.)
    - **Write the class's production code (GREEN)** — the smallest code that forces each row's TPP transformation and makes all of the class's tests pass. Run the suite once and confirm green.
@@ -76,7 +76,7 @@ written anyway — this fixes the *first* few characters of the cell, nothing el
 | `☐` | not yet reached (the test-designer's initial state; no prose) |
 | `✅ RED→GREEN` | failed first for the reason its Contradiction states, then passed |
 | `✅ EARLY-GREEN` | passed on its batch-red run — say why it is kept, and name the mutant that shows it is not vacuous |
-| `✅ UNPLANNED` | not in the plan; TDD forced it — say what it supports |
+| `✅ UNPLANNED` | not in the plan; implementing the plan forced it — say what it supports |
 | `✅ DEFERRED` | written but not executed here — say where it will execute |
 | `❌ BLOCKED` | could not be made to pass — say why, and stop, per the failure rule below |
 

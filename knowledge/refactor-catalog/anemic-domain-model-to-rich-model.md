@@ -7,7 +7,7 @@ elsewhere — most commonly in controllers, use cases, mappers, **or in standalo
 state of their own**. Rules become duplicated, easy to bypass, and the entity carries values it
 cannot defend.
 
-A frequent variant in TDD/Clean-Architecture codebases:
+A frequent variant in Clean-Architecture codebases:
 - The entity is exported as `type X = { readonly a: A; readonly status: S; ... }`.
 - A sibling file `XCalculator.ts` exports a free function `calculateStatus(parts): S` that
   derives one of `X`'s own fields from the others.

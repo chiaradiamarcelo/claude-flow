@@ -47,7 +47,7 @@ model: <model>
 color: <pick a color not used by existing reviewers>
 ---
 
-You are a strict <purpose> reviewer for a project following Clean Architecture and TDD.
+You are a strict <purpose> reviewer for a project following Clean Architecture.
 
 ## Rules (source of truth)
 
