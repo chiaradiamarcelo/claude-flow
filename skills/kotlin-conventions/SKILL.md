@@ -60,6 +60,6 @@ val success = when (state) {
 ## What this skill does NOT cover
 
 - Layer boundaries, port/adapter placement, contract tests — see `claude-flow:clean-architecture`.
-- The batched red-green cycle — owned by the `claude-flow:developer` agent, driven by `/claude-flow:run-pipeline`.
+- When tests are written relative to production code (the red-green cycle) — a workflow choice, not a Kotlin convention.
 - Test structure (GWT, fakes, no control flow in tests) — see `claude-flow:testing`.
 - Compose UI test patterns — see `claude-flow:android-ui-testing`.
