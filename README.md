@@ -28,12 +28,50 @@ claude plugin details claude-flow@claude-flow
 
 Look for **Agents (10)**. A plugin whose agents fail to load still installs, enables and reports success — the pipeline then has no architect, no developer and no reviewers, and the only symptom is that count.
 
-### Updating and removing
+### Updating after a merge
+
+`plugin.json` has no `version` field on purpose, so Claude Code versions the plugin by
+commit SHA and every merge to `main` counts as an update. Nobody bumps anything.
+
+Turn on auto-update once and merges arrive by themselves: `/plugin` → **Marketplaces** →
+`claude-flow` → **Enable auto-update**. It is off by default for third-party marketplaces
+like this one. To turn it on for everyone in a repo that uses the plugin, commit this to
+that repo's `.claude/settings.json` (the personal [settings.json](settings.json) here already has it):
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "claude-flow": {
+      "source": { "source": "github", "repo": "chiaradiamarcelo/claude-flow" },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": { "claude-flow@claude-flow": true }
+}
+```
+
+To update now instead of waiting:
 
 ```bash
-claude plugin marketplace update claude-flow
-claude plugin update claude-flow@claude-flow
+claude plugin marketplace update claude-flow   # pull the new commits
+claude plugin update claude-flow@claude-flow   # refresh the installed copy
+```
+
+A running session keeps the version it loaded until you run `/reload-plugins`. Auto-update
+does not change that: it downloads the new copy in the background, some minutes after
+the first message of a session, and the session then prompts for `/reload-plugins`. So
+the first session after a merge can still run the old version. Reload, or pick it up at
+the next launch.
+
+Do not add a `version` back, either to `plugin.json` or to the plugin's entry in
+`marketplace.json`. Either one pins installs to their cached copy until the string
+changes, and a merged change without a bump never reaches anyone.
+
+### Removing
+
+```bash
 claude plugin uninstall claude-flow@claude-flow
+claude plugin marketplace remove claude-flow
 ```
 
 ### What stays yours
@@ -43,7 +81,7 @@ The plugin cannot carry these — each user or repo keeps its own:
 | File | Why it is not in the plugin |
 |---|---|
 | `CLAUDE.md` | A plugin's root `CLAUDE.md` is not loaded as context. The one here is a personal global one; copy the parts you want |
-| `settings.json` | `worktree.baseRef: fresh` (Step 0 relies on it) is a user setting. The plugin registers its own hook — do **not** also register `on-enter-worktree.sh` in settings, or it fires twice (lock-guarded, so harmless, but pointless) |
+| `settings.json` | `worktree.baseRef: fresh` (Step 0 relies on it) is a user setting, and so is the marketplace block that turns on auto-update (see above). The plugin registers its own hook — do **not** also register `on-enter-worktree.sh` in settings, or it fires twice (lock-guarded, so harmless, but pointless) |
 | `.claude/pipeline.json` | Per-project reviewer triggers and skill injection — see below |
 | `.claude/warm-deps.sh` | Per-repo dependency warming, when the default's ecosystem detection is not enough |
 
